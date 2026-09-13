@@ -1,62 +1,73 @@
-import { Err } from "ts-results";
-import * as v from "valibot";
-import { createOptionSchema } from "../../schemas";
-import { transactionFormActions } from "./actions";
+import { Err } from "ts-results-es";
+import { z } from "zod";
+import { createOptionSchema } from "../../../utils";
+import { registerActions } from "./actions";
 
-const setForageWorkerMaybeTransactionFormDispatchSchema = v.object({
-    action: v.literal(transactionFormActions.setForageWorkerMaybe),
-    payload: createOptionSchema(v.instance(Worker)),
+const setForageWorkerMaybeRegisterDispatchSchema = z.object({
+    action: z.literal(registerActions.setForageWorkerMaybe),
+    payload: createOptionSchema(z.instanceof(Worker)),
 });
 
-const setCacheWorkerMaybeTransactionFormDispatchSchema = v.object({
-    action: v.literal(transactionFormActions.setCacheWorkerMaybe),
-    payload: createOptionSchema(v.instance(Worker)),
+const setCacheWorkerMaybeRegisterDispatchSchema = z.object({
+    action: z.literal(registerActions.setCacheWorkerMaybe),
+    payload: createOptionSchema(z.instanceof(Worker)),
 });
 
-const setFetchWorkerMaybeTransactionFormDispatchSchema = v.object({
-    action: v.literal(transactionFormActions.setFetchWorkerMaybe),
-    payload: createOptionSchema(v.instance(Worker)),
+const setFetchWorkerMaybeRegisterDispatchSchema = z.object({
+    action: z.literal(registerActions.setFetchWorkerMaybe),
+    payload: createOptionSchema(z.instanceof(Worker)),
 });
 
-const setIsLoadingtransactionFormDispatchSchema = v.object({
-    action: v.literal(transactionFormActions.setIsLoading),
-    payload: v.boolean(),
+const setIsLoadingRegisterDispatchSchema = z.object({
+    action: z.literal(registerActions.setIsLoading),
+    payload: z.boolean(),
 });
 
-const response_data_schema = v.object({
-    body: v.string(),
-    id: v.number(),
-    title: v.string(),
-    userId: v.number(),
-});
-const setResponseDataMaybeTransactionFormDispatchSchema = v.object({
-    action: v.literal(transactionFormActions.setResponseDataMaybe),
-    payload: createOptionSchema(v.array(response_data_schema)),
+const setPasswordRegisterDispatchSchema = z.object({
+    action: z.literal(registerActions.setPassword),
+    payload: z.string(),
 });
 
-const setSafeErrorMaybeTransactionFormDispatchSchema = v.object({
-    action: v.literal(transactionFormActions.setSafeErrorMaybe),
-    payload: createOptionSchema(v.instance(Err)),
+const response_data_schema = z.object({
+    body: z.string(),
+    id: z.number(),
+    title: z.string(),
+    userId: z.number(),
+});
+const setResponseDataMaybeRegisterDispatchSchema = z.object({
+    action: z.literal(registerActions.setResponseDataMaybe),
+    payload: createOptionSchema(z.array(response_data_schema)),
 });
 
-const TransactionFormSchema = v.object({
-    setForageWorkerMaybe: setForageWorkerMaybeTransactionFormDispatchSchema,
-    setCacheWorkerMaybe: setCacheWorkerMaybeTransactionFormDispatchSchema,
-    setFetchWorkerMaybe: setFetchWorkerMaybeTransactionFormDispatchSchema,
-    setIsLoading: setIsLoadingtransactionFormDispatchSchema,
-    setResponseDataMaybe: setResponseDataMaybeTransactionFormDispatchSchema,
-    setSafeErrorMaybe: setSafeErrorMaybeTransactionFormDispatchSchema,
+const setSafeErrorMaybeRegisterDispatchSchema = z.object({
+    action: z.literal(registerActions.setSafeErrorMaybe),
+    payload: createOptionSchema(z.instanceof(Err)),
 });
 
-type TransactionFormDispatch = v.InferOutput<typeof TransactionFormSchema>;
+const setUsernameRegisterDispatchSchema = z.object({
+    action: z.literal(registerActions.setUsername),
+    payload: z.string(),
+});
+
+type RegisterDispatch =
+    | z.infer<typeof setForageWorkerMaybeRegisterDispatchSchema>
+    | z.infer<typeof setCacheWorkerMaybeRegisterDispatchSchema>
+    | z.infer<typeof setFetchWorkerMaybeRegisterDispatchSchema>
+    | z.infer<typeof setIsLoadingRegisterDispatchSchema>
+    | z.infer<typeof setPasswordRegisterDispatchSchema>
+    | z.infer<typeof setResponseDataMaybeRegisterDispatchSchema>
+    | z.infer<typeof setSafeErrorMaybeRegisterDispatchSchema>
+    | z.infer<typeof setUsernameRegisterDispatchSchema>;
 
 export {
     response_data_schema,
-    setCacheWorkerMaybeTransactionFormDispatchSchema,
-    setFetchWorkerMaybeTransactionFormDispatchSchema,
-    setForageWorkerMaybeTransactionFormDispatchSchema,
-    setIsLoadingtransactionFormDispatchSchema,
-    setResponseDataMaybeTransactionFormDispatchSchema,
-    setSafeErrorMaybeTransactionFormDispatchSchema,
+    setCacheWorkerMaybeRegisterDispatchSchema,
+    setFetchWorkerMaybeRegisterDispatchSchema,
+    setForageWorkerMaybeRegisterDispatchSchema,
+    setIsLoadingRegisterDispatchSchema,
+    setPasswordRegisterDispatchSchema,
+    setResponseDataMaybeRegisterDispatchSchema,
+    setSafeErrorMaybeRegisterDispatchSchema,
+    setUsernameRegisterDispatchSchema,
 };
-export type { TransactionFormDispatch };
+export type { RegisterDispatch };
