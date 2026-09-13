@@ -7,7 +7,7 @@ type TransactionFormActions = {
         >}`;
 };
 
-const TransactionFormActions: TransactionFormActions = {
+const transactionFormActions: TransactionFormActions = {
     setForageWorkerMaybe: "setForageWorkerMaybe",
     setCacheWorkerMaybe: "setCacheWorkerMaybe",
     setFetchWorkerMaybe: "setFetchWorkerMaybe",
@@ -16,5 +16,5 @@ const TransactionFormActions: TransactionFormActions = {
     setSafeErrorMaybe: "setSafeErrorMaybe",
 };
 
-export { TransactionFormActions };
+export { transactionFormActions };
 export type { TransactionFormActions };

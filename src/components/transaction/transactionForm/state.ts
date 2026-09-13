@@ -1,7 +1,7 @@
 import { type Err, None, type Option } from "ts-results-es";
-import type { AppError, ResponseData } from "../../types";
+import type { AppError, ResponseData } from "../../../types";
 
-type RegisterState = {
+type TransactionFormState = {
     // handles caching operations
     cacheWorkerMaybe: Option<Worker>;
     // handles fetch operations
@@ -13,7 +13,7 @@ type RegisterState = {
     safeErrorMaybe: Option<Err<AppError>>;
 };
 
-const initialRegisterState: RegisterState = {
+const initialTransactionFormState: TransactionFormState = {
     cacheWorkerMaybe: None,
     fetchWorkerMaybe: None,
     forageWorkerMaybe: None,
@@ -22,5 +22,5 @@ const initialRegisterState: RegisterState = {
     safeErrorMaybe: None,
 };
 
-export { initialRegisterState };
-export type { RegisterState };
+export { initialTransactionFormState };
+export type { TransactionFormState };
