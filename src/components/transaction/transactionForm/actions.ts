@@ -12,10 +12,8 @@ const TransactionFormActions: TransactionFormActions = {
     setCacheWorkerMaybe: "setCacheWorkerMaybe",
     setFetchWorkerMaybe: "setFetchWorkerMaybe",
     setIsLoading: "setIsLoading",
-    setPassword: "setPassword",
     setResponseDataMaybe: "setResponseDataMaybe",
     setSafeErrorMaybe: "setSafeErrorMaybe",
-    setUsername: "setUsername",
 };
 
 export { TransactionFormActions };
