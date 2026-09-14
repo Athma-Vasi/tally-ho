@@ -1,6 +1,6 @@
 import { type JSX } from "react";
 
-type AccessibleSelectInputAttributes<
+type AccessibleSelectInputProps<
     SetValueAction extends string = string,
     Payload extends string = string,
     Dispatch = {
@@ -21,21 +21,6 @@ type AccessibleSelectInputAttributes<
         value: Payload;
     };
 
-type AccessibleSelectInputProps<
-    SetValueAction extends string = string,
-    Payload extends string = string,
-    Dispatch = {
-        action: SetValueAction;
-        payload: Payload;
-    },
-> = {
-    attributes: AccessibleSelectInputAttributes<
-        SetValueAction,
-        Payload,
-        Dispatch
-    >;
-};
-
 function AccessibleSelectInput<
     SetValueAction extends string = string,
     Payload extends string = string,
@@ -44,7 +29,7 @@ function AccessibleSelectInput<
         payload: Payload;
     },
 >(
-    { attributes }: AccessibleSelectInputProps<
+    props: AccessibleSelectInputProps<
         SetValueAction,
         Payload,
         Dispatch
@@ -60,7 +45,7 @@ function AccessibleSelectInput<
         setValueAction,
         value,
         ...nativeSelectProps
-    } = attributes;
+    } = props;
 
     const screenreaderTextId = `${name}-select-input__validation--valid`;
     const { screenreaderTextElement, describedById } =
@@ -133,4 +118,3 @@ function createAccessibleTextInputValidation(
 }
 
 export { AccessibleSelectInput };
-export type { AccessibleSelectInputAttributes, AccessibleSelectInputProps };

@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useRef } from "react";
 import { AccessibleButtonInput } from "../../accessibleInputs/AccessibleButtonInput";
+import { AccessibleSelectInput } from "../../accessibleInputs/AccessibleSelectInput";
 import { AccessibleTextInput } from "../../accessibleInputs/AccessibleTextInput";
 import { errorActions } from "../../error/actions";
 import type { ErrorDispatch } from "../../error/dispatches";
@@ -59,7 +60,7 @@ function TransactionForm(
         throw safeErrorMaybe.value;
     }
 
-    const amountCentsElement = (
+    const amountCentsTextElement = (
         <AccessibleTextInput
             errorAction={errorActions.setChildComponentState}
             dispatch={transactionFormDispatch}
@@ -96,7 +97,16 @@ function TransactionForm(
         />
     );
 
-    const merchantElement = (
+    const categorySelectElement = (
+        <AccessibleSelectInput
+            dispatch={transactionFormDispatch}
+            name="transactionCategory"
+            setValueAction={transactionFormActions.setCategory}
+            value={category}
+        />
+    );
+
+    const merchantTextElement = (
         <AccessibleTextInput
             errorAction={errorActions.setChildComponentState}
             dispatch={transactionFormDispatch}
@@ -132,7 +142,7 @@ function TransactionForm(
         />
     );
 
-    const notesElement = (
+    const notesTextElement = (
         <AccessibleTextInput
             errorAction={errorActions.setChildComponentState}
             dispatch={transactionFormDispatch}
@@ -168,7 +178,7 @@ function TransactionForm(
         />
     );
 
-    const tagsElement = (
+    const tagsTextElement = (
         <AccessibleTextInput
             errorAction={errorActions.setChildComponentState}
             dispatch={transactionFormDispatch}
@@ -243,10 +253,11 @@ function TransactionForm(
 
     return (
         <>
-            {amountCentsElement}
-            {merchantElement}
-            {notesElement}
-            {tagsElement}
+            {amountCentsTextElement}
+            {categorySelectElement}
+            {merchantTextElement}
+            {notesTextElement}
+            {tagsTextElement}
             {submitButtonElement}
         </>
     );
