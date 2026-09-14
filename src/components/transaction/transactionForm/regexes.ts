@@ -1,8 +1,10 @@
 import type { ValidationRegexes } from "../../../types";
 
 const amountCents_validation_regexes: ValidationRegexes = [
-    [/^\d+$/, "Amount must be a valid number of cents."],
-    [/^[1-9]\d*$/, "Amount must be greater than zero."],
+    [
+        /^0$|^[1-9]\d*$/,
+        "Amount in cents must be a positive number.",
+    ],
 ];
 
 const category_validation_regexes: ValidationRegexes = [
@@ -36,6 +38,11 @@ const paymentMethod_validation_regexes: ValidationRegexes = [
 
 const tags_validation_regexes: ValidationRegexes = [
     [/^.{0,50}$/, "Tags must be between 0 and 50 characters long."],
+    // tags cannot be all numbers
+    [
+        /^(?!\d+$).+$/,
+        "Tags cannot be all numbers.",
+    ],
 ];
 
 const transactionType_validation_regexes: ValidationRegexes = [

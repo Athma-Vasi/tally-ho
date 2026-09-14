@@ -91,9 +91,8 @@ function TransactionForm(
             }}
             ref={amountCentsInputRef}
             setValueAction={transactionFormActions.setAmountCents}
-            type="number"
             validationRegexes={amountCents_validation_regexes}
-            value={amountCents.toString()}
+            value={amountCents}
         />
     );
 
@@ -127,9 +126,9 @@ function TransactionForm(
                 //     workerMaybe: forageWorkerMaybe,
                 // });
             }}
-            setValueAction={transactionFormActions.setAmountCents}
+            setValueAction={transactionFormActions.setMerchant}
             validationRegexes={merchant_validation_regexes}
-            value={merchant.toString()}
+            value={merchant}
         />
     );
 
@@ -244,6 +243,8 @@ function TransactionForm(
 
     return (
         <>
+            {amountCentsElement}
+            {merchantElement}
             {notesElement}
             {tagsElement}
             {submitButtonElement}

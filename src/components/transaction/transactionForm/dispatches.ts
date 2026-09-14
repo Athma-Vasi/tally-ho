@@ -5,7 +5,7 @@ import { transactionFormActions } from "./actions";
 
 const setAmountCentsTransactionFormDispatchSchema = z.object({
     action: z.literal(transactionFormActions.setAmountCents),
-    payload: z.number(),
+    payload: z.string(),
 });
 
 const setCategoryTransactionFormDispatchSchema = z.object({

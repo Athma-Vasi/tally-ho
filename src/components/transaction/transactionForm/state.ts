@@ -7,7 +7,7 @@ import type {
 } from "../types";
 
 type TransactionFormState = {
-    amountCents: number;
+    amountCents: string;
     cacheWorkerMaybe: Option<Worker>;
     category: TransactionCategory;
     dateTime: string; // ISO 8601 string: YYYY-MM-DDTHH:mm:ssZ
@@ -24,7 +24,7 @@ type TransactionFormState = {
 };
 
 const initialTransactionFormState: TransactionFormState = {
-    amountCents: 0,
+    amountCents: "",
     cacheWorkerMaybe: None,
     category: "car_charging",
     dateTime: new Date().toISOString(),
