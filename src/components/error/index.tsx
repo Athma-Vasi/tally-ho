@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useReducer } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Some } from "ts-results-es";
+import { useMountedRef } from "../../hooks/useMountedRef";
 import { errorActions } from "./actions";
 import type { ErrorDispatch } from "./dispatches";
 import ErrorFallback from "./ErrorFallback";
