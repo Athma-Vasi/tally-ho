@@ -1,6 +1,7 @@
 import { Err, None, Ok, type Option, Some } from "ts-results-es";
 import z from "zod";
 import { AppErrorBase, ParseError, UnknownError } from "./errors";
+import type { AppResult } from "./types";
 
 function capitalizeString(str: string): string {
     const trimmedStr = str.trim();
@@ -39,7 +40,18 @@ function createErrorResult(
 }
 
 function parseDispatchAndSetState<
-    Payload extends z.ZodAny = z.ZodAny,
+    Payload extends
+        | z.ZodString
+        | z.ZodBoolean
+        | z.ZodNumber
+        | z.ZodArray
+        | z.ZodEnum
+        | z.ZodNullable<z.ZodCustom<Worker, Worker>>
+        | z.ZodCustom<Worker, Worker>
+        | z.ZodCustom<FormData, FormData>
+        | z.ZodNullable<z.ZodCustom<Err<unknown>, Err<unknown>>>
+        | z.ZodRecord<z.ZodString, z.ZodUnknown>
+        | z.ZodObject = any,
     Dispatch extends { action: string; payload: unknown } = {
         action: string;
         payload: unknown;
@@ -65,14 +77,14 @@ function parseDispatchAndSetState<
         },
     );
 
-    if (parsedDispatchResult.err) {
+    if (parsedDispatchResult.isErr()) {
         return state;
     }
-    const parsedDispatchMaybe = parsedDispatchResult.safeUnwrap();
-    if (parsedDispatchMaybe.none) {
+    const parsedDispatchMaybe = parsedDispatchResult.unwrap();
+    if (parsedDispatchMaybe.isNone()) {
         return state;
     }
-    const parsedDispatch = parsedDispatchMaybe.safeUnwrap();
+    const parsedDispatch = parsedDispatchMaybe.unwrap();
 
     return {
         ...state,
@@ -109,4 +121,11 @@ function parseSyncSafe<Output = unknown>(
     }
 }
 
-export { capitalizeString, createOptionSchema };
+export {
+    capitalizeString,
+    createErrorResult,
+    createOptionSchema,
+    createSuccessResult,
+    parseDispatchAndSetState,
+    parseSyncSafe,
+};
