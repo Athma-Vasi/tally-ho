@@ -1,5 +1,7 @@
+import { TransactionFormSuspenseBoundary } from "./components/transaction/transactionForm";
+
 function App() {
-  return <h1>Hi Athma!!</h1>;
+  return <TransactionFormSuspenseBoundary />;
 }
 
 export default App;

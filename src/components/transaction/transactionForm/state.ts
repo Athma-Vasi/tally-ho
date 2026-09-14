@@ -15,11 +15,11 @@ type TransactionFormState = {
     forageWorkerMaybe: Option<Worker>;
     isLoading: boolean;
     merchant: string;
-    notes: string[];
+    notes: string;
     paymentMethod: PaymentMethodType;
     responseDataMaybe: Option<Array<ResponseData>>;
     safeErrorMaybe: Option<Err<AppError>>;
-    tags: string[]; // Tags for categorization
+    tags: string; // Tags for categorization
     type: TransactionType; // Expense, Income, or Transfer
 };
 
@@ -32,11 +32,11 @@ const initialTransactionFormState: TransactionFormState = {
     forageWorkerMaybe: None,
     isLoading: false,
     merchant: "",
-    notes: [],
+    notes: "",
     paymentMethod: "credit_card",
     responseDataMaybe: None,
     safeErrorMaybe: None,
-    tags: [],
+    tags: "",
     type: "expense",
 };
 

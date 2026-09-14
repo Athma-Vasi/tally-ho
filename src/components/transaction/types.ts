@@ -25,9 +25,9 @@ type Transaction = {
     dateTime: string; // ISO 8601 string: YYYY-MM-DDTHH:mm:ssZ
     id: string;
     merchant: string;
-    notes: string[];
+    notes: string;
     paymentMethod: PaymentMethodType;
-    tags: string[]; // Tags for categorization
+    tags: string; // Tags for categorization
     type: TransactionType; // Expense, Income, or Transfer
 };
 

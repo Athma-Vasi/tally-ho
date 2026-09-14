@@ -72,7 +72,7 @@ const setSafeErrorMaybeTransactionFormDispatchSchema = z.object({
 
 const setTagsTransactionFormDispatchSchema = z.object({
     action: z.literal(transactionFormActions.setTags),
-    payload: createOptionSchema(z.array(z.string())),
+    payload: z.string(),
 });
 
 const setTypeTransactionFormDispatchSchema = z.object({

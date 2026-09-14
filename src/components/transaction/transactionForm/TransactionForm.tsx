@@ -164,7 +164,7 @@ function TransactionForm(
             }}
             setValueAction={transactionFormActions.setNotes}
             validationRegexes={notes_validation_regexes}
-            value={notes.join("\n")}
+            value={notes}
         />
     );
 
@@ -173,7 +173,7 @@ function TransactionForm(
             errorAction={errorActions.setChildComponentState}
             dispatch={transactionFormDispatch}
             errorDispatch={errorDispatch}
-            label="Notes: "
+            label="Tags: "
             name="tags"
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 const { currentTarget: { value } } = event;
@@ -198,9 +198,9 @@ function TransactionForm(
                 //     workerMaybe: forageWorkerMaybe,
                 // });
             }}
-            setValueAction={transactionFormActions.setNotes}
+            setValueAction={transactionFormActions.setTags}
             validationRegexes={tags_validation_regexes}
-            value={tags.join("\n")}
+            value={tags}
         />
     );
 
