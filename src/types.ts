@@ -1,4 +1,5 @@
-import type { Option } from "ts-results-es";
+import type { Option, Result } from "ts-results-es";
+import type { AppErrorBase } from "./errors";
 
 type AppError = {
     name: string;
@@ -9,6 +10,11 @@ type AppError = {
     timestamp: string;
 };
 
+type AppResult<Data = unknown> = Result<
+    SafeSuccess<Data>,
+    AppErrorBase
+>;
+
 type ResponseData = {
     body: string;
     id: number;
@@ -16,6 +22,14 @@ type ResponseData = {
     userId: number;
 };
 
+type SafeSuccess<Data = unknown> = Option<Data>;
+
 type ValidationRegexes = Array<[RegExp, string]>;
 
-export type { AppError, ResponseData, ValidationRegexes };
+export type {
+    AppError,
+    AppResult,
+    ResponseData,
+    SafeSuccess,
+    ValidationRegexes,
+};

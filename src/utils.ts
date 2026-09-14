@@ -1,5 +1,6 @@
 import { Err, None, Ok, type Option, Some } from "ts-results-es";
 import z from "zod";
+import { AppErrorBase, ParseError, UnknownError } from "./errors";
 
 function capitalizeString(str: string): string {
     const trimmedStr = str.trim();
