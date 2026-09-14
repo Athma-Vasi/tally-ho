@@ -10,6 +10,7 @@ import {
     setForageWorkerMaybeTransactionFormDispatchSchema,
     setIsLoadingTransactionFormDispatchSchema,
     setMerchantTransactionFormDispatchSchema,
+    setNotesTransactionFormDispatchSchema,
     setResponseDataMaybeTransactionFormDispatchSchema,
     setSafeErrorMaybeTransactionFormDispatchSchema,
 } from "./dispatches";
@@ -62,6 +63,10 @@ const transactionFormReducersMap: Map<
     [
         transactionFormActions.setMerchant,
         transactionFormReducer_setMerchant,
+    ],
+    [
+        transactionFormActions.setNotes,
+        transactionFormReducer_setNotes,
     ],
     [
         transactionFormActions.setSafeErrorMaybe,
@@ -162,6 +167,18 @@ function transactionFormReducer_setMerchant(
         key: "merchant",
         state,
         schema: setMerchantTransactionFormDispatchSchema,
+    });
+}
+
+function transactionFormReducer_setNotes(
+    state: TransactionFormState,
+    dispatch: TransactionFormDispatch,
+): TransactionFormState {
+    return parseDispatchAndSetState({
+        dispatch,
+        key: "notes",
+        state,
+        schema: setNotesTransactionFormDispatchSchema,
     });
 }
 
