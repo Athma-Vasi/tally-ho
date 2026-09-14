@@ -4,6 +4,7 @@ import type { TransactionFormDispatch } from "./dispatches";
 import {
     setAmountCentsTransactionFormDispatchSchema,
     setCacheWorkerMaybeTransactionFormDispatchSchema,
+    setCategoryTransactionFormDispatchSchema,
     setFetchWorkerMaybeTransactionFormDispatchSchema,
     setForageWorkerMaybeTransactionFormDispatchSchema,
     setIsLoadingTransactionFormDispatchSchema,
@@ -30,6 +31,10 @@ const transactionFormReducersMap: Map<
     [
         transactionFormActions.setAmountCents,
         transactionFormReducer_setAmountCents,
+    ],
+    [
+        transactionFormActions.setCategory,
+        transactionFormReducer_setCategory,
     ],
     [
         transactionFormActions.setForageWorkerMaybe,
@@ -63,6 +68,18 @@ function transactionFormReducer_setAmountCents(
         key: "amountCents",
         state,
         schema: setAmountCentsTransactionFormDispatchSchema, // Replace with the appropriate schema if available
+    });
+}
+
+function transactionFormReducer_setCategory(
+    state: TransactionFormState,
+    dispatch: TransactionFormDispatch,
+): TransactionFormState {
+    return parseDispatchAndSetState({
+        dispatch,
+        key: "category",
+        state,
+        schema: setCategoryTransactionFormDispatchSchema,
     });
 }
 
