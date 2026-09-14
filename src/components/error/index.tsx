@@ -1,4 +1,5 @@
 import { Suspense, useEffect, useReducer } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { Some } from "ts-results-es";
 import { errorActions } from "./actions";
 import type { ErrorDispatch } from "./dispatches";
@@ -75,7 +76,7 @@ function ErrorSuspenseHOC<
 
         return (
             <ErrorBoundary
-                FallbackComponent={ErrorFallback}
+                FallbackComponent={ErrorFallback as any}
                 onReset={(details: any) => {
                     console.group("onReset triggered");
                     console.log("details", details);
