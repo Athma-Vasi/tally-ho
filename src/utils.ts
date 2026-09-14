@@ -121,6 +121,20 @@ function parseSyncSafe<Output = unknown>(
     }
 }
 
+function splitCamelCase(word: string): string {
+    const result = parseSyncSafe({
+        object: word,
+        schema: z.string(),
+    });
+    if (result.isErr() || result.value.isNone()) {
+        return "";
+    }
+    // Replace lowercase-uppercase pairs with a space in between
+    const splitStr = result.value.unwrap().replace(/([a-z])([A-Z])/g, "$1 $2");
+    // Capitalize the first letter of the resulting string
+    return splitStr.charAt(0).toUpperCase() + splitStr.slice(1);
+}
+
 export {
     capitalizeString,
     createErrorResult,
@@ -128,4 +142,5 @@ export {
     createSuccessResult,
     parseDispatchAndSetState,
     parseSyncSafe,
+    splitCamelCase,
 };
