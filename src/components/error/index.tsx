@@ -1,7 +1,5 @@
 import { Suspense, useEffect, useReducer } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 import { Some } from "ts-results-es";
-import { useMountedRef } from "../../hooks/useMountedRef";
 import { errorActions } from "./actions";
 import type { ErrorDispatch } from "./dispatches";
 import ErrorFallback from "./ErrorFallback";
@@ -41,7 +39,7 @@ function ErrorSuspenseHOC<
             const loggerWorker = new LoggerWorker();
             errorDispatch({
                 action: errorActions.setLoggerWorkerMaybe,
-                payload: Some(loggerWorker),
+                payload: Some(loggerWorker) as any,
             });
             loggerWorker.onmessage = async (
                 event: MessageEventLoggerWorkerToMain,
@@ -78,20 +76,20 @@ function ErrorSuspenseHOC<
         return (
             <ErrorBoundary
                 FallbackComponent={ErrorFallback}
-                onReset={(details) => {
+                onReset={(details: any) => {
                     console.group("onReset triggered");
                     console.log("details", details);
                     console.groupEnd();
                 }}
-                onError={(error, info) => {
+                onError={(error: any, info: any) => {
                     console.group("onError triggered");
                     console.log("error", error);
                     console.log("info", info);
                     console.groupEnd();
 
-                    if (loggerWorkerMaybe.some) {
+                    if (loggerWorkerMaybe.isSome()) {
                         // Forward error context to the logging worker for async processing.
-                        loggerWorkerMaybe.val.postMessage({
+                        loggerWorkerMaybe.value.postMessage({
                             url: "/test-url",
                             requestInit: {},
                         });
