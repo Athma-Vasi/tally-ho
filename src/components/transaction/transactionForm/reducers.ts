@@ -11,6 +11,7 @@ import {
     setIsLoadingTransactionFormDispatchSchema,
     setMerchantTransactionFormDispatchSchema,
     setNotesTransactionFormDispatchSchema,
+    setPaymentMethodTransactionFormDispatchSchema,
     setResponseDataMaybeTransactionFormDispatchSchema,
     setSafeErrorMaybeTransactionFormDispatchSchema,
 } from "./dispatches";
@@ -67,6 +68,10 @@ const transactionFormReducersMap: Map<
     [
         transactionFormActions.setNotes,
         transactionFormReducer_setNotes,
+    ],
+    [
+        transactionFormActions.setPaymentMethod,
+        transactionFormReducer_setPaymentMethod,
     ],
     [
         transactionFormActions.setSafeErrorMaybe,
@@ -179,6 +184,18 @@ function transactionFormReducer_setNotes(
         key: "notes",
         state,
         schema: setNotesTransactionFormDispatchSchema,
+    });
+}
+
+function transactionFormReducer_setPaymentMethod(
+    state: TransactionFormState,
+    dispatch: TransactionFormDispatch,
+): TransactionFormState {
+    return parseDispatchAndSetState({
+        dispatch,
+        key: "paymentMethod",
+        state,
+        schema: setPaymentMethodTransactionFormDispatchSchema,
     });
 }
 
