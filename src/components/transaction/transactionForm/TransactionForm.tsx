@@ -1,18 +1,36 @@
 import { useEffect, useReducer, useRef } from "react";
 import { AccessibleTextInput } from "../../accessibleInputs/AccessibleTextInput";
+import { errorActions } from "../../error/actions";
+import type { ErrorDispatch } from "../../error/dispatches";
+import { transactionFormActions } from "./actions";
 import { transactionFormReducer } from "./reducers";
-import { initialTransactionFormState } from "./state";
+import {
+    amountCents_validation_regexes,
+    merchant_validation_regexes,
+    notes_validation_regexes,
+    tags_validation_regexes,
+} from "./regexes";
+import {
+    initialTransactionFormState,
+    type TransactionFormState,
+} from "./state";
 
-type TransactionFormProps = {};
+type TransactionFormProps = {
+    // this component's back-up state from ErrorBoundary
+    childComponentState: TransactionFormState;
+    errorDispatch: React.ActionDispatch<[dispatch: ErrorDispatch]>;
+};
 
-function TransactionForm() {
+function TransactionForm(
+    { childComponentState: backupStateFromErrorHOC, errorDispatch }:
+        TransactionFormProps,
+) {
     const [
         transactionFormState,
         transactionFormDispatch,
     ] = useReducer(
         transactionFormReducer,
-        // backupStateFromErrorHOC ?? initialRegisterState,
-        initialTransactionFormState,
+        backupStateFromErrorHOC ?? initialTransactionFormState,
     );
     const {
         amountCents,
@@ -40,7 +58,163 @@ function TransactionForm() {
         throw safeErrorMaybe.value;
     }
 
-    return null;
+    const amountCentsElement = (
+        <AccessibleTextInput
+            errorAction={errorActions.setChildComponentState}
+            dispatch={transactionFormDispatch}
+            errorDispatch={errorDispatch}
+            label="Amount (in cents): "
+            name="amountCents"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                const { currentTarget: { value } } = event;
+
+                // sendMessageToWorker<MessageEventMainToCacheWorker>({
+                //     actions: transactionFormActions,
+                //     dispatch: transactionFormDispatch,
+                //     message: {
+                //         kind: "set",
+                //         payload: ["amountCents", value],
+                //     },
+                //     workerMaybe: cacheWorkerMaybe,
+                // });
+
+                // sendMessageToWorker<MessageEventMainToForageWorker>({
+                //     actions: transactionFormActions,
+                //     dispatch: transactionFormDispatch,
+                //     message: {
+                //         kind: "set",
+                //         payload: ["amountCents", value],
+                //     },
+                //     workerMaybe: forageWorkerMaybe,
+                // });
+            }}
+            ref={amountCentsInputRef}
+            setValueAction={transactionFormActions.setAmountCents}
+            type="number"
+            validationRegexes={amountCents_validation_regexes}
+            value={amountCents.toString()}
+        />
+    );
+
+    const merchantElement = (
+        <AccessibleTextInput
+            errorAction={errorActions.setChildComponentState}
+            dispatch={transactionFormDispatch}
+            errorDispatch={errorDispatch}
+            label="Merchant: "
+            name="merchant"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                const { currentTarget: { value } } = event;
+
+                // sendMessageToWorker<MessageEventMainToCacheWorker>({
+                //     actions: transactionFormActions,
+                //     dispatch: transactionFormDispatch,
+                //     message: {
+                //         kind: "set",
+                //         payload: ["merchant", value],
+                //     },
+                //     workerMaybe: cacheWorkerMaybe,
+                // });
+
+                // sendMessageToWorker<MessageEventMainToForageWorker>({
+                //     actions: transactionFormActions,
+                //     dispatch: transactionFormDispatch,
+                //     message: {
+                //         kind: "set",
+                //         payload: ["merchant", value],
+                //     },
+                //     workerMaybe: forageWorkerMaybe,
+                // });
+            }}
+            setValueAction={transactionFormActions.setAmountCents}
+            validationRegexes={merchant_validation_regexes}
+            value={merchant.toString()}
+        />
+    );
+
+    const notesElement = (
+        <AccessibleTextInput
+            errorAction={errorActions.setChildComponentState}
+            dispatch={transactionFormDispatch}
+            errorDispatch={errorDispatch}
+            label="Notes: "
+            name="notes"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                const { currentTarget: { value } } = event;
+
+                // sendMessageToWorker<MessageEventMainToCacheWorker>({
+                //     actions: transactionFormActions,
+                //     dispatch: transactionFormDispatch,
+                //     message: {
+                //         kind: "set",
+                //         payload: ["notes", value],
+                //     },
+                //     workerMaybe: cacheWorkerMaybe,
+                // });
+
+                // sendMessageToWorker<MessageEventMainToForageWorker>({
+                //     actions: transactionFormActions,
+                //     dispatch: transactionFormDispatch,
+                //     message: {
+                //         kind: "set",
+                //         payload: ["notes", value],
+                //     },
+                //     workerMaybe: forageWorkerMaybe,
+                // });
+            }}
+            setValueAction={transactionFormActions.setNotes}
+            validationRegexes={notes_validation_regexes}
+            value={notes.join("\n")}
+        />
+    );
+
+    const tagsElement = (
+        <AccessibleTextInput
+            errorAction={errorActions.setChildComponentState}
+            dispatch={transactionFormDispatch}
+            errorDispatch={errorDispatch}
+            label="Notes: "
+            name="tags"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                const { currentTarget: { value } } = event;
+
+                // sendMessageToWorker<MessageEventMainToCacheWorker>({
+                //     actions: transactionFormActions,
+                //     dispatch: transactionFormDispatch,
+                //     message: {
+                //         kind: "set",
+                //         payload: ["tags", value],
+                //     },
+                //     workerMaybe: cacheWorkerMaybe,
+                // });
+
+                // sendMessageToWorker<MessageEventMainToForageWorker>({
+                //     actions: transactionFormActions,
+                //     dispatch: transactionFormDispatch,
+                //     message: {
+                //         kind: "set",
+                //         payload: ["tags", value],
+                //     },
+                //     workerMaybe: forageWorkerMaybe,
+                // });
+            }}
+            setValueAction={transactionFormActions.setNotes}
+            validationRegexes={tags_validation_regexes}
+            value={tags.join("\n")}
+        />
+    );
+
+    console.group("TransactionForm Render");
+    console.log("transactionFormState", transactionFormState);
+    console.log("childComponentState", backupStateFromErrorHOC);
+    console.groupEnd();
+
+    return (
+        <>
+            {notesElement}
+            {tagsElement}
+        </>
+    );
 }
 
 export default TransactionForm;
