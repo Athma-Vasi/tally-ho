@@ -13,6 +13,11 @@ const setCategoryTransactionFormDispatchSchema = z.object({
     payload: z.string(),
 });
 
+const setDateTimeTransactionFormDispatchSchema = z.object({
+    action: z.literal(transactionFormActions.setDateTime),
+    payload: z.string(),
+});
+
 const setForageWorkerMaybeTransactionFormDispatchSchema = z.object({
     action: z.literal(transactionFormActions.setForageWorkerMaybe),
     payload: createOptionSchema(z.instanceof(Worker)),
@@ -52,6 +57,7 @@ const setSafeErrorMaybeTransactionFormDispatchSchema = z.object({
 type TransactionFormDispatch =
     | z.infer<typeof setAmountCentsTransactionFormDispatchSchema>
     | z.infer<typeof setCategoryTransactionFormDispatchSchema>
+    | z.infer<typeof setDateTimeTransactionFormDispatchSchema>
     | z.infer<typeof setForageWorkerMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setCacheWorkerMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setFetchWorkerMaybeTransactionFormDispatchSchema>
@@ -64,6 +70,7 @@ export {
     setAmountCentsTransactionFormDispatchSchema,
     setCacheWorkerMaybeTransactionFormDispatchSchema,
     setCategoryTransactionFormDispatchSchema,
+    setDateTimeTransactionFormDispatchSchema,
     setFetchWorkerMaybeTransactionFormDispatchSchema,
     setForageWorkerMaybeTransactionFormDispatchSchema,
     setIsLoadingTransactionFormDispatchSchema,

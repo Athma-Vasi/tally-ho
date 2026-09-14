@@ -5,6 +5,7 @@ import {
     setAmountCentsTransactionFormDispatchSchema,
     setCacheWorkerMaybeTransactionFormDispatchSchema,
     setCategoryTransactionFormDispatchSchema,
+    setDateTimeTransactionFormDispatchSchema,
     setFetchWorkerMaybeTransactionFormDispatchSchema,
     setForageWorkerMaybeTransactionFormDispatchSchema,
     setIsLoadingTransactionFormDispatchSchema,
@@ -35,6 +36,10 @@ const transactionFormReducersMap: Map<
     [
         transactionFormActions.setCategory,
         transactionFormReducer_setCategory,
+    ],
+    [
+        transactionFormActions.setDateTime,
+        transactionFormReducer_setDateTime,
     ],
     [
         transactionFormActions.setForageWorkerMaybe,
@@ -80,6 +85,18 @@ function transactionFormReducer_setCategory(
         key: "category",
         state,
         schema: setCategoryTransactionFormDispatchSchema,
+    });
+}
+
+function transactionFormReducer_setDateTime(
+    state: TransactionFormState,
+    dispatch: TransactionFormDispatch,
+): TransactionFormState {
+    return parseDispatchAndSetState({
+        dispatch,
+        key: "dateTime",
+        state,
+        schema: setDateTimeTransactionFormDispatchSchema,
     });
 }
 
