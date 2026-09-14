@@ -75,6 +75,11 @@ const setTagsTransactionFormDispatchSchema = z.object({
     payload: createOptionSchema(z.array(z.string())),
 });
 
+const setTypeTransactionFormDispatchSchema = z.object({
+    action: z.literal(transactionFormActions.setType),
+    payload: z.string(),
+});
+
 type TransactionFormDispatch =
     | z.infer<typeof setAmountCentsTransactionFormDispatchSchema>
     | z.infer<typeof setCategoryTransactionFormDispatchSchema>
@@ -88,7 +93,8 @@ type TransactionFormDispatch =
     | z.infer<typeof setPaymentMethodTransactionFormDispatchSchema>
     | z.infer<typeof setResponseDataMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setSafeErrorMaybeTransactionFormDispatchSchema>
-    | z.infer<typeof setTagsTransactionFormDispatchSchema>;
+    | z.infer<typeof setTagsTransactionFormDispatchSchema>
+    | z.infer<typeof setTypeTransactionFormDispatchSchema>;
 
 export {
     response_data_schema,
@@ -105,5 +111,6 @@ export {
     setResponseDataMaybeTransactionFormDispatchSchema,
     setSafeErrorMaybeTransactionFormDispatchSchema,
     setTagsTransactionFormDispatchSchema,
+    setTypeTransactionFormDispatchSchema,
 };
 export type { TransactionFormDispatch };

@@ -15,6 +15,7 @@ import {
     setResponseDataMaybeTransactionFormDispatchSchema,
     setSafeErrorMaybeTransactionFormDispatchSchema,
     setTagsTransactionFormDispatchSchema,
+    setTypeTransactionFormDispatchSchema,
 } from "./dispatches";
 import type { TransactionFormState } from "./state";
 
@@ -81,6 +82,10 @@ const transactionFormReducersMap: Map<
     [
         transactionFormActions.setTags,
         transactionFormReducer_setTags,
+    ],
+    [
+        transactionFormActions.setType,
+        transactionFormReducer_setType,
     ],
 ]);
 
@@ -237,6 +242,18 @@ function transactionFormReducer_setTags(
         key: "tags",
         state,
         schema: setTagsTransactionFormDispatchSchema,
+    });
+}
+
+function transactionFormReducer_setType(
+    state: TransactionFormState,
+    dispatch: TransactionFormDispatch,
+): TransactionFormState {
+    return parseDispatchAndSetState({
+        dispatch,
+        key: "type",
+        state,
+        schema: setTypeTransactionFormDispatchSchema,
     });
 }
 
