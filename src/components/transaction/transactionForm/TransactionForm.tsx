@@ -178,6 +178,15 @@ function TransactionForm(
         />
     );
 
+    const paymentMethodSelectElement = (
+        <AccessibleSelectInput
+            dispatch={transactionFormDispatch}
+            name="paymentMethod"
+            setValueAction={transactionFormActions.setCategory}
+            value={paymentMethod}
+        />
+    );
+
     const tagsTextElement = (
         <AccessibleTextInput
             errorAction={errorActions.setChildComponentState}
@@ -257,6 +266,7 @@ function TransactionForm(
             {categorySelectElement}
             {merchantTextElement}
             {notesTextElement}
+            {paymentMethodSelectElement}
             {tagsTextElement}
             {submitButtonElement}
         </>
