@@ -38,6 +38,11 @@ const setIsLoadingTransactionFormDispatchSchema = z.object({
     payload: z.boolean(),
 });
 
+const setMerchantTransactionFormDispatchSchema = z.object({
+    action: z.literal(transactionFormActions.setMerchant),
+    payload: z.string(),
+});
+
 const response_data_schema = z.object({
     body: z.string(),
     id: z.number(),
@@ -62,6 +67,7 @@ type TransactionFormDispatch =
     | z.infer<typeof setCacheWorkerMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setFetchWorkerMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setIsLoadingTransactionFormDispatchSchema>
+    | z.infer<typeof setMerchantTransactionFormDispatchSchema>
     | z.infer<typeof setResponseDataMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setSafeErrorMaybeTransactionFormDispatchSchema>;
 
@@ -74,6 +80,7 @@ export {
     setFetchWorkerMaybeTransactionFormDispatchSchema,
     setForageWorkerMaybeTransactionFormDispatchSchema,
     setIsLoadingTransactionFormDispatchSchema,
+    setMerchantTransactionFormDispatchSchema,
     setResponseDataMaybeTransactionFormDispatchSchema,
     setSafeErrorMaybeTransactionFormDispatchSchema,
 };

@@ -9,6 +9,7 @@ import {
     setFetchWorkerMaybeTransactionFormDispatchSchema,
     setForageWorkerMaybeTransactionFormDispatchSchema,
     setIsLoadingTransactionFormDispatchSchema,
+    setMerchantTransactionFormDispatchSchema,
     setResponseDataMaybeTransactionFormDispatchSchema,
     setSafeErrorMaybeTransactionFormDispatchSchema,
 } from "./dispatches";
@@ -57,6 +58,10 @@ const transactionFormReducersMap: Map<
     [
         transactionFormActions.setResponseDataMaybe,
         transactionFormReducer_setResponseDataMaybe,
+    ],
+    [
+        transactionFormActions.setMerchant,
+        transactionFormReducer_setMerchant,
     ],
     [
         transactionFormActions.setSafeErrorMaybe,
@@ -145,6 +150,18 @@ function transactionFormReducer_setIsLoading(
         key: "isLoading",
         state,
         schema: setIsLoadingTransactionFormDispatchSchema,
+    });
+}
+
+function transactionFormReducer_setMerchant(
+    state: TransactionFormState,
+    dispatch: TransactionFormDispatch,
+): TransactionFormState {
+    return parseDispatchAndSetState({
+        dispatch,
+        key: "merchant",
+        state,
+        schema: setMerchantTransactionFormDispatchSchema,
     });
 }
 
