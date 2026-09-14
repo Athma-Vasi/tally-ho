@@ -23,6 +23,10 @@ const dateTime_validation_regexes: ValidationRegexes = [
 
 const merchant_validation_regexes: ValidationRegexes = [
     [/^.{1,100}$/, "Merchant name must be between 1 and 100 characters long."],
+    [
+        /^(?!\d+$).+$/,
+        "Merchant name cannot be all numbers.",
+    ],
 ];
 
 const notes_validation_regexes: ValidationRegexes = [

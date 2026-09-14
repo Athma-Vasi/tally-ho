@@ -12,6 +12,7 @@ import {
     TbFolderOpen,
     TbHelp,
     TbLoader2,
+    TbLoader3,
     TbLogout,
     TbMessageCirclePlus,
     TbMessageReport,
@@ -66,7 +67,7 @@ type AccessibleButtonKind =
 const left_icon_table: Record<AccessibleButtonKind, ReactNode> = {
     add: <TbPlus size={18} />,
     collapse: <VscCollapseAll size={18} />,
-    default: null,
+    default: void 0,
     delete: <TbTrash size={18} />,
     dislike: <BiDislike size={18} />,
     down: <TbCircleArrowDown size={18} />,
@@ -187,6 +188,8 @@ function AccessibleButtonInput<
                 <span>
                     {isLoading
                         ? <TbLoader2 className="button-loader" size={18} />
+                        : isSubmitting
+                        ? <TbLoader3 className="button-loader" size={18} />
                         : left_icon_table[kind]} {label}
                 </span>
             )}
