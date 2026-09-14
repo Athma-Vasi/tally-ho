@@ -59,6 +59,7 @@ const response_data_schema = z.object({
     title: z.string(),
     userId: z.number(),
 });
+
 const setResponseDataMaybeTransactionFormDispatchSchema = z.object({
     action: z.literal(transactionFormActions.setResponseDataMaybe),
     payload: createOptionSchema(z.array(response_data_schema)),
@@ -67,6 +68,11 @@ const setResponseDataMaybeTransactionFormDispatchSchema = z.object({
 const setSafeErrorMaybeTransactionFormDispatchSchema = z.object({
     action: z.literal(transactionFormActions.setSafeErrorMaybe),
     payload: createOptionSchema(z.instanceof(Err)),
+});
+
+const setTagsTransactionFormDispatchSchema = z.object({
+    action: z.literal(transactionFormActions.setTags),
+    payload: createOptionSchema(z.array(z.string())),
 });
 
 type TransactionFormDispatch =
@@ -81,7 +87,8 @@ type TransactionFormDispatch =
     | z.infer<typeof setNotesTransactionFormDispatchSchema>
     | z.infer<typeof setPaymentMethodTransactionFormDispatchSchema>
     | z.infer<typeof setResponseDataMaybeTransactionFormDispatchSchema>
-    | z.infer<typeof setSafeErrorMaybeTransactionFormDispatchSchema>;
+    | z.infer<typeof setSafeErrorMaybeTransactionFormDispatchSchema>
+    | z.infer<typeof setTagsTransactionFormDispatchSchema>;
 
 export {
     response_data_schema,
@@ -97,5 +104,6 @@ export {
     setPaymentMethodTransactionFormDispatchSchema,
     setResponseDataMaybeTransactionFormDispatchSchema,
     setSafeErrorMaybeTransactionFormDispatchSchema,
+    setTagsTransactionFormDispatchSchema,
 };
 export type { TransactionFormDispatch };

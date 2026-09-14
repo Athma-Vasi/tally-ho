@@ -14,6 +14,7 @@ import {
     setPaymentMethodTransactionFormDispatchSchema,
     setResponseDataMaybeTransactionFormDispatchSchema,
     setSafeErrorMaybeTransactionFormDispatchSchema,
+    setTagsTransactionFormDispatchSchema,
 } from "./dispatches";
 import type { TransactionFormState } from "./state";
 
@@ -76,6 +77,10 @@ const transactionFormReducersMap: Map<
     [
         transactionFormActions.setSafeErrorMaybe,
         transactionFormReducer_setSafeErrorMaybe,
+    ],
+    [
+        transactionFormActions.setTags,
+        transactionFormReducer_setTags,
     ],
 ]);
 
@@ -220,6 +225,18 @@ function transactionFormReducer_setSafeErrorMaybe(
         key: "safeErrorMaybe",
         state,
         schema: setSafeErrorMaybeTransactionFormDispatchSchema,
+    });
+}
+
+function transactionFormReducer_setTags(
+    state: TransactionFormState,
+    dispatch: TransactionFormDispatch,
+): TransactionFormState {
+    return parseDispatchAndSetState({
+        dispatch,
+        key: "tags",
+        state,
+        schema: setTagsTransactionFormDispatchSchema,
     });
 }
 
