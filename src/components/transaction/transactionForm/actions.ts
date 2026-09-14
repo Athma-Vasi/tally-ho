@@ -8,12 +8,20 @@ type TransactionFormActions = {
 };
 
 const transactionFormActions: TransactionFormActions = {
-    setForageWorkerMaybe: "setForageWorkerMaybe",
+    setAmountCents: "setAmountCents",
     setCacheWorkerMaybe: "setCacheWorkerMaybe",
+    setCategory: "setCategory",
+    setDateTime: "setDateTime",
     setFetchWorkerMaybe: "setFetchWorkerMaybe",
+    setForageWorkerMaybe: "setForageWorkerMaybe",
     setIsLoading: "setIsLoading",
+    setMerchant: "setMerchant",
+    setNotes: "setNotes",
+    setPaymentMethod: "setPaymentMethod",
     setResponseDataMaybe: "setResponseDataMaybe",
     setSafeErrorMaybe: "setSafeErrorMaybe",
+    setTags: "setTags",
+    setType: "setType",
 };
 
 export { transactionFormActions };

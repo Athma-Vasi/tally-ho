@@ -3,6 +3,11 @@ import { z } from "zod";
 import { createOptionSchema } from "../../../utils";
 import { transactionFormActions } from "./actions";
 
+const setAmountCentsTransactionFormDispatchSchema = z.object({
+    action: z.literal(transactionFormActions.setAmountCents),
+    payload: z.number(),
+});
+
 const setForageWorkerMaybeTransactionFormDispatchSchema = z.object({
     action: z.literal(transactionFormActions.setForageWorkerMaybe),
     payload: createOptionSchema(z.instanceof(Worker)),
@@ -40,6 +45,7 @@ const setSafeErrorMaybeTransactionFormDispatchSchema = z.object({
 });
 
 type TransactionFormDispatch =
+    | z.infer<typeof setAmountCentsTransactionFormDispatchSchema>
     | z.infer<typeof setForageWorkerMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setCacheWorkerMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setFetchWorkerMaybeTransactionFormDispatchSchema>
@@ -49,6 +55,7 @@ type TransactionFormDispatch =
 
 export {
     response_data_schema,
+    setAmountCentsTransactionFormDispatchSchema,
     setCacheWorkerMaybeTransactionFormDispatchSchema,
     setFetchWorkerMaybeTransactionFormDispatchSchema,
     setForageWorkerMaybeTransactionFormDispatchSchema,
