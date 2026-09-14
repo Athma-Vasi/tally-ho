@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useRef } from "react";
+import { AccessibleButtonInput } from "../../accessibleInputs/AccessibleButtonInput";
 import { AccessibleTextInput } from "../../accessibleInputs/AccessibleTextInput";
 import { errorActions } from "../../error/actions";
 import type { ErrorDispatch } from "../../error/dispatches";
@@ -204,6 +205,38 @@ function TransactionForm(
         />
     );
 
+    const submitButtonElement = (
+        <AccessibleButtonInput
+            disabled={isLoading}
+            dispatch={transactionFormDispatch}
+            isLoading={isLoading}
+            kind="submit"
+            name="submit"
+            onClick={(
+                event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+            ) => {
+                event.preventDefault();
+
+                // sendMessageToWorker<MessageEventMainToFetchWorker>({
+                //     actions: transactionFormActions,
+                //     dispatch: transactionFormDispatch,
+                //     message: {
+                //         requestInit: {
+                //             method: "GET",
+                //             headers: {
+                //                 "Content-Type": "application/json",
+                //             },
+                //         },
+                //         url: "https://jsonplaceholder.typicode.com/posts",
+                //     },
+                //     workerMaybe: fetchWorkerMaybe,
+                // });
+            }}
+            setIsLoadingAction={transactionFormActions.setIsLoading}
+            type="submit"
+        />
+    );
+
     console.group("TransactionForm Render");
     console.log("transactionFormState", transactionFormState);
     console.log("childComponentState", backupStateFromErrorHOC);
@@ -213,6 +246,7 @@ function TransactionForm(
         <>
             {notesElement}
             {tagsElement}
+            {submitButtonElement}
         </>
     );
 }
