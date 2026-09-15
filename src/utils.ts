@@ -24,8 +24,8 @@ function createOptionSchema<Value extends any>(
     value: Value,
 ) {
     return z.object({
-        none: z.boolean(),
-        some: z.boolean(),
+        isNone: z.function(),
+        isSome: z.function(),
         value,
         value,
     });

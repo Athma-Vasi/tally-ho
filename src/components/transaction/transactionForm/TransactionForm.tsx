@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useRef } from "react";
+import { Some } from "ts-results-es";
 import { v4 as uuidv4 } from "uuid";
 import { globalActions } from "../../../context/globalProvider/actions";
 import type { MessageEventMainToFetchWorker } from "../../../context/globalProvider/fetchWorker";
@@ -56,6 +57,11 @@ function TransactionForm(
         tags,
         type,
     } = transactionFormState;
+
+    const {
+        globalDispatch,
+        globalState,
+    } = useGlobalState();
 
     const {
         globalDispatch,
@@ -195,6 +201,33 @@ function TransactionForm(
                     },
                     workerMaybe: fetchWorkerMaybe,
                 });
+                const descendantId = uuidv4();
+
+                globalDispatch({
+                    action: globalActions.setDispatchesTable,
+                    payload: {
+                        descendantId,
+                        descendantAction:
+                            transactionFormActions.setResponseDataMaybe,
+                        descendantDispatch: transactionFormDispatch,
+                    },
+                });
+
+                sendMessageToWorker<MessageEventMainToFetchWorker>({
+                    actions: transactionFormActions,
+                    dispatch: transactionFormDispatch,
+                    message: {
+                        descendantId,
+                        requestInit: {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        },
+                        url: "https://jsonplaceholder.typicode.com/posts",
+                    },
+                    workerMaybe: fetchWorkerMaybe,
+                });
             }}
             setIsLoadingAction={transactionFormActions.setIsLoading}
             type="submit"
@@ -204,6 +237,8 @@ function TransactionForm(
     console.group("TransactionForm Render");
     console.log("transactionFormState", transactionFormState);
     console.log("childComponentState", backupStateFromErrorHOC);
+    console.log("globalState", globalState);
+    console.log("Some", Some("test"));
     console.groupEnd();
 
     return (

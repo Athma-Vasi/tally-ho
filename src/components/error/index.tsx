@@ -20,6 +20,7 @@ function ErrorSuspenseHOC<
 >(
     Component: React.ComponentType<{
         childComponentState: Props;
+        children?: React.ReactNode;
         errorDispatch: React.Dispatch<ErrorDispatch>;
     }>,
 ) {
@@ -67,6 +68,7 @@ function ErrorSuspenseHOC<
                 ...initialChildComponentState,
                 ...childComponentState,
             },
+
             errorDispatch,
         };
 

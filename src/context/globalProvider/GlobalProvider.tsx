@@ -1,13 +1,18 @@
 import { createContext, useEffect, useMemo, useReducer } from "react";
 
 import { Some } from "ts-results-es";
+import type { ErrorDispatch } from "../../components/error/dispatches";
 import { useMountedRef } from "../../hooks/useMountedRef";
-import CacheWorker from "../../workers/cacheWorker?worker";
-import FetchWorker from "../../workers/fetchWorker?worker";
 import { globalActions } from "./actions";
 import type { MessageEventCacheWorkerToMain } from "./cacheWorker";
+import CacheWorker from "./cacheWorker?worker";
 import type { GlobalDispatch } from "./dispatches";
 import type { MessageEventFetchWorkerToMain } from "./fetchWorker";
+import FetchWorker from "./fetchWorker?worker";
+import {
+    handleMessageFromCacheWorker,
+    handleMessageFromFetchWorker,
+} from "./handlers";
 import { globalReducer } from "./reducers";
 import { type GlobalState, initialGlobalState } from "./state";
 
@@ -20,21 +25,18 @@ const GlobalContext = createContext<{
 });
 
 type GlobalProviderProps = {
-    children: React.ReactNode;
+    childComponentState: GlobalState;
+    children?: React.ReactNode;
+    errorDispatch: React.Dispatch<ErrorDispatch>;
 };
 
-function GlobalProvider({ children }: GlobalProviderProps) {
+function GlobalProvider(
+    { childComponentState: backupStateFromErrorHOC, children, errorDispatch }:
+        GlobalProviderProps,
+) {
     const [globalState, globalDispatch] = useReducer(
         globalReducer,
-        initialGlobalState,
-    );
-
-    const globalContextValue = useMemo(
-        () => ({
-            globalState,
-            globalDispatch,
-        }),
-        [globalState, globalDispatch],
+        backupStateFromErrorHOC ?? initialGlobalState,
     );
 
     const {
@@ -64,6 +66,12 @@ function GlobalProvider({ children }: GlobalProviderProps) {
         cacheWorker.onmessage = async (
             event: MessageEventCacheWorkerToMain,
         ) => {
+            await handleMessageFromCacheWorker({
+                errorDispatch,
+                event,
+                isComponentMountedRef,
+                globalDispatch,
+            });
         };
 
         const fetchWorker = new FetchWorker();
@@ -74,6 +82,12 @@ function GlobalProvider({ children }: GlobalProviderProps) {
         fetchWorker.onmessage = async (
             event: MessageEventFetchWorkerToMain,
         ) => {
+            await handleMessageFromFetchWorker({
+                errorDispatch,
+                event,
+                isComponentMountedRef,
+                globalDispatch,
+            });
         };
 
         // cleanup function to terminate workers on unmount
@@ -83,6 +97,14 @@ function GlobalProvider({ children }: GlobalProviderProps) {
             isComponentMountedRef.current = false;
         };
     }, []);
+
+    const globalContextValue = useMemo(
+        () => ({
+            globalState,
+            globalDispatch,
+        }),
+        [globalState, globalDispatch],
+    );
 
     return (
         <GlobalContext.Provider value={globalContextValue}>

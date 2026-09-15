@@ -24,7 +24,7 @@ const setFetchWorkerMaybeGlobalDispatchSchema = z.object({
 
 const setSafeErrorMaybeGlobalDispatchSchema = z.object({
     action: z.literal(globalActions.setSafeErrorMaybe),
-    payload: createOptionSchema(z.instanceof(Err)),
+    payload: createOptionSchema(z.any()),
 });
 
 type GlobalDispatch =
