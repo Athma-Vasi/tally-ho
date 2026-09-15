@@ -1,7 +1,9 @@
+import localforage from "localforage";
 import { Err, None, Ok, type Option, Some } from "ts-results-es";
 import z from "zod";
 import {
     AppErrorBase,
+    CacheError,
     ParseError,
     PromiseAbortedError,
     UnknownError,
@@ -44,6 +46,29 @@ function createErrorResult(
     );
 }
 
+async function getCachedItemAbortableSafe<Data = unknown>(
+    key: string,
+    signal: AbortSignal,
+): Promise<AppResult<Data>> {
+    if (signal.aborted) {
+        return createErrorResult(
+            new PromiseAbortedError(
+                "getCachedItemAbortableSafe aborted before start",
+            ),
+        );
+    }
+
+    try {
+        const cacheOperation = localforage.getItem<Data>(key);
+        const data = await makeAbortable(cacheOperation, signal);
+        return createSuccessResult(data);
+    } catch (error: unknown) {
+        return createErrorResult(
+            new CacheError(error, `Failed to get cached item for key: ${key}`),
+        );
+    }
+}
+
 // Helper function to make any promise abortable
 function makeAbortable<Data = unknown>(
     promise: Promise<Data>,
@@ -54,13 +79,17 @@ function makeAbortable<Data = unknown>(
         new Promise<never>((_, reject) => {
             if (signal.aborted) {
                 reject(
-                    new PromiseAbortedError(),
+                    new PromiseAbortedError(
+                        "Promise was aborted before it could complete",
+                    ),
                 );
             }
 
             signal.addEventListener("abort", () => {
                 reject(
-                    new PromiseAbortedError(),
+                    new PromiseAbortedError(
+                        "Promise was aborted before it could complete",
+                    ),
                 );
             });
         }),
