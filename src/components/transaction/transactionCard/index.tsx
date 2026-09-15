@@ -29,7 +29,7 @@ function TransactionCard(
                     <div>
                         <h4>Notes:</h4>
                         <ul>
-                            {notes.map((note, index) => (
+                            {notes.split("\n").map((note, index) => (
                                 <li key={`${index}-${id}`}>{note}</li>
                             ))}
                         </ul>
@@ -42,7 +42,7 @@ function TransactionCard(
                     <div>
                         <h4>Tags:</h4>
                         <ul>
-                            {tags.map((tag, index) => (
+                            {tags.split("\n").map((tag, index) => (
                                 <li key={`${index}-${tag}-${id}`}>{tag}</li>
                             ))}
                         </ul>
