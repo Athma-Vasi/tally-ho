@@ -19,7 +19,6 @@ type AccessibleSelectInputProps<
         disableValidationScreenreaderText?: boolean;
         dispatch: React.ActionDispatch<[dispatch: Dispatch]>;
         hideLabel?: boolean;
-        label: string;
         name: string;
         setValueAction: SetValueAction;
         value: Payload;
@@ -45,7 +44,6 @@ function AccessibleSelectInput<
         name,
         dataTestId = `accessible-select-input-${name}`,
         hideLabel = false,
-        label = splitCamelCase(name),
         onChange = () => {},
         onFocus = () => {},
         ref,
@@ -67,7 +65,7 @@ function AccessibleSelectInput<
             className={hideLabel ? "visually-hidden" : ""}
             htmlFor={name}
         >
-            {label}
+            {splitCamelCase(name)}
         </label>
     );
 

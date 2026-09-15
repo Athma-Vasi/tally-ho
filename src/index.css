@@ -320,7 +320,8 @@ textarea.input--valid-state {
     flex-direction: column;
     gap: var(--gap);
     align-items: flex-start;
-    width: calc(var(--input-width) + 2em);
+    /* width: calc(var(--input-width) + 2em); */
+    max-width: calc(var(--input-width) + 2em);
     padding: var(--padding);
 }
 
