@@ -1,4 +1,9 @@
 import { useEffect, useReducer, useRef } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { globalActions } from "../../../context/globalProvider/actions";
+import type { MessageEventMainToFetchWorker } from "../../../context/globalProvider/fetchWorker";
+import { useGlobalState } from "../../../hooks/useGlobalState";
+import { sendMessageToWorker } from "../../../utils";
 import { AccessibleButtonInput } from "../../accessibleInputs/AccessibleButtonInput";
 import { AccessibleSelectInput } from "../../accessibleInputs/AccessibleSelectInput";
 import { AccessibleTextInput } from "../../accessibleInputs/AccessibleTextInput";
@@ -52,6 +57,11 @@ function TransactionForm(
         type,
     } = transactionFormState;
 
+    const {
+        globalDispatch,
+        globalState,
+    } = useGlobalState();
+
     const amountCentsInputRef = useRef<HTMLInputElement | null>(null);
     useEffect(() => {
         amountCentsInputRef.current?.focus?.();
@@ -70,26 +80,6 @@ function TransactionForm(
             name="amountCents"
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 const { currentTarget: { value } } = event;
-
-                // sendMessageToWorker<MessageEventMainToCacheWorker>({
-                //     actions: transactionFormActions,
-                //     dispatch: transactionFormDispatch,
-                //     message: {
-                //         kind: "set",
-                //         payload: ["amountCents", value],
-                //     },
-                //     workerMaybe: cacheWorkerMaybe,
-                // });
-
-                // sendMessageToWorker<MessageEventMainToForageWorker>({
-                //     actions: transactionFormActions,
-                //     dispatch: transactionFormDispatch,
-                //     message: {
-                //         kind: "set",
-                //         payload: ["amountCents", value],
-                //     },
-                //     workerMaybe: forageWorkerMaybe,
-                // });
             }}
             ref={amountCentsInputRef}
             setValueAction={transactionFormActions.setAmountCents}
@@ -117,26 +107,6 @@ function TransactionForm(
             name="merchant"
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 const { currentTarget: { value } } = event;
-
-                // sendMessageToWorker<MessageEventMainToCacheWorker>({
-                //     actions: transactionFormActions,
-                //     dispatch: transactionFormDispatch,
-                //     message: {
-                //         kind: "set",
-                //         payload: ["merchant", value],
-                //     },
-                //     workerMaybe: cacheWorkerMaybe,
-                // });
-
-                // sendMessageToWorker<MessageEventMainToForageWorker>({
-                //     actions: transactionFormActions,
-                //     dispatch: transactionFormDispatch,
-                //     message: {
-                //         kind: "set",
-                //         payload: ["merchant", value],
-                //     },
-                //     workerMaybe: forageWorkerMaybe,
-                // });
             }}
             setValueAction={transactionFormActions.setMerchant}
             validationRegexes={merchant_validation_regexes}
@@ -153,26 +123,6 @@ function TransactionForm(
             name="notes"
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 const { currentTarget: { value } } = event;
-
-                // sendMessageToWorker<MessageEventMainToCacheWorker>({
-                //     actions: transactionFormActions,
-                //     dispatch: transactionFormDispatch,
-                //     message: {
-                //         kind: "set",
-                //         payload: ["notes", value],
-                //     },
-                //     workerMaybe: cacheWorkerMaybe,
-                // });
-
-                // sendMessageToWorker<MessageEventMainToForageWorker>({
-                //     actions: transactionFormActions,
-                //     dispatch: transactionFormDispatch,
-                //     message: {
-                //         kind: "set",
-                //         payload: ["notes", value],
-                //     },
-                //     workerMaybe: forageWorkerMaybe,
-                // });
             }}
             setValueAction={transactionFormActions.setNotes}
             validationRegexes={notes_validation_regexes}
@@ -199,26 +149,6 @@ function TransactionForm(
             name="tags"
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 const { currentTarget: { value } } = event;
-
-                // sendMessageToWorker<MessageEventMainToCacheWorker>({
-                //     actions: transactionFormActions,
-                //     dispatch: transactionFormDispatch,
-                //     message: {
-                //         kind: "set",
-                //         payload: ["tags", value],
-                //     },
-                //     workerMaybe: cacheWorkerMaybe,
-                // });
-
-                // sendMessageToWorker<MessageEventMainToForageWorker>({
-                //     actions: transactionFormActions,
-                //     dispatch: transactionFormDispatch,
-                //     message: {
-                //         kind: "set",
-                //         payload: ["tags", value],
-                //     },
-                //     workerMaybe: forageWorkerMaybe,
-                // });
             }}
             setValueAction={transactionFormActions.setTags}
             validationRegexes={tags_validation_regexes}
@@ -238,20 +168,33 @@ function TransactionForm(
             ) => {
                 event.preventDefault();
 
-                // sendMessageToWorker<MessageEventMainToFetchWorker>({
-                //     actions: transactionFormActions,
-                //     dispatch: transactionFormDispatch,
-                //     message: {
-                //         requestInit: {
-                //             method: "GET",
-                //             headers: {
-                //                 "Content-Type": "application/json",
-                //             },
-                //         },
-                //         url: "https://jsonplaceholder.typicode.com/posts",
-                //     },
-                //     workerMaybe: fetchWorkerMaybe,
-                // });
+                const descendantId = uuidv4();
+
+                globalDispatch({
+                    action: globalActions.setDispatchesTable,
+                    payload: {
+                        descendantId,
+                        descendantAction:
+                            transactionFormActions.setResponseDataMaybe,
+                        descendantDispatch: transactionFormDispatch,
+                    },
+                });
+
+                sendMessageToWorker<MessageEventMainToFetchWorker>({
+                    actions: transactionFormActions,
+                    dispatch: transactionFormDispatch,
+                    message: {
+                        descendantId,
+                        requestInit: {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        },
+                        url: "https://jsonplaceholder.typicode.com/posts",
+                    },
+                    workerMaybe: fetchWorkerMaybe,
+                });
             }}
             setIsLoadingAction={transactionFormActions.setIsLoading}
             type="submit"

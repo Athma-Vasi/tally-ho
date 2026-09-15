@@ -17,7 +17,7 @@ type MessageEventFetchWorkerToMain<
 > = MessageEvent<AppResult<Data>>;
 
 type MessageEventMainToFetchWorker = MessageEvent<{
-    // url to fetch
+    descendantId: string;
     url: string;
     requestInit: RequestInit;
 }>;
@@ -53,11 +53,11 @@ type MessageEventMainToFetchWorker = MessageEvent<{
         }, fetch_timeout_ms);
 
         try {
-            const { url, requestInit } = event.data;
+            const { descendantId, url, requestInit } = event.data;
             const responseResult = await retryFetchSafe({
-                input: url,
-                init: requestInit,
+                requestInit,
                 signal,
+                url,
             });
 
             if (responseResult.isErr()) {
@@ -71,7 +71,12 @@ type MessageEventMainToFetchWorker = MessageEvent<{
                 return None;
             }
 
-            self.postMessage(createSuccessResult(responseMaybe.unwrap()));
+            const parcel = {
+                descendantId,
+                data: responseMaybe.unwrap(),
+            };
+
+            self.postMessage(createSuccessResult(parcel));
             return None;
         } catch (error: unknown) {
             self.postMessage(

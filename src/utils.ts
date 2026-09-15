@@ -21,10 +21,12 @@ function capitalizeString(str: string): string {
 
 function createOptionSchema<Value extends any>(
     value: Value,
+    value: Value,
 ) {
     return z.object({
         none: z.boolean(),
         some: z.boolean(),
+        value,
         value,
     });
 }
@@ -216,11 +218,11 @@ type RetryFetchOptions = {
 async function retryFetchSafe<
     Data = unknown,
 >(
-    { init, input, retryOptions, signal }: {
-        init: RequestInit;
-        input: RequestInfo | URL;
+    { requestInit, retryOptions, signal, url }: {
+        requestInit: RequestInit;
         retryOptions?: RetryFetchOptions;
         signal: AbortSignal | undefined;
+        url: RequestInfo | URL;
     },
 ): Promise<AppResult<Data>> {
     const {
@@ -233,8 +235,8 @@ async function retryFetchSafe<
         attempt: number,
     ): Promise<AppResult<Data>> {
         try {
-            const response: Response = await fetch(input, {
-                ...init,
+            const response: Response = await fetch(url, {
+                ...requestInit,
                 signal,
             });
             if (response == null) {
@@ -394,12 +396,17 @@ export {
     createOptionSchema,
     createSuccessResult,
     getCachedItemAbortableSafe,
+    getCachedItemAbortableSafe,
     parseDispatchAndSetState,
     parseSyncSafe,
     removeCachedItemAbortableSafe,
+    removeCachedItemAbortableSafe,
+    retryFetchSafe,
     retryFetchSafe,
     sendMessageToWorker,
+    sendMessageToWorker,
+    setCachedItemAbortableSafe,
     setCachedItemAbortableSafe,
     splitCamelCase,
 };
-export type { RetryFetchOptions };
+export type { RetryFetchOptions, RetryFetchOptions };

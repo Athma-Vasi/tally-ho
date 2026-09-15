@@ -11,8 +11,9 @@ const setCacheWorkerMaybeGlobalDispatchSchema = z.object({
 const setDispatchesTableGlobalDispatchSchema = z.object({
     action: z.literal(globalActions.setDispatchesTable),
     payload: z.object({
-        key: z.string(),
-        value: z.any(),
+        descendantId: z.string(),
+        descendantAction: z.string(),
+        descendantDispatch: z.any(),
     }),
 });
 
