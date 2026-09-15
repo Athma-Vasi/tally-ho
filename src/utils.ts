@@ -1,6 +1,11 @@
 import { Err, None, Ok, type Option, Some } from "ts-results-es";
 import z from "zod";
-import { AppErrorBase, ParseError, UnknownError } from "./errors";
+import {
+    AppErrorBase,
+    ParseError,
+    PromiseAbortedError,
+    UnknownError,
+} from "./errors";
 import type { AppResult } from "./types";
 
 function capitalizeString(str: string): string {
@@ -37,6 +42,29 @@ function createErrorResult(
             "createErrorResult received non-AppErrorBase instance",
         ),
     );
+}
+
+// Helper function to make any promise abortable
+function makeAbortable<Data = unknown>(
+    promise: Promise<Data>,
+    signal: AbortSignal,
+): Promise<Data> {
+    return Promise.race([
+        promise,
+        new Promise<never>((_, reject) => {
+            if (signal.aborted) {
+                reject(
+                    new PromiseAbortedError(),
+                );
+            }
+
+            signal.addEventListener("abort", () => {
+                reject(
+                    new PromiseAbortedError(),
+                );
+            });
+        }),
+    ]);
 }
 
 function parseDispatchAndSetState<
