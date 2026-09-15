@@ -3,12 +3,12 @@ import { z } from "zod";
 import { createOptionSchema } from "../../utils";
 import { globalActions } from "./actions";
 
-const setCacheWorkerMaybeTransactionFormDispatchSchema = z.object({
+const setCacheWorkerMaybeGlobalDispatchSchema = z.object({
     action: z.literal(globalActions.setCacheWorkerMaybe),
     payload: createOptionSchema(z.instanceof(Worker)),
 });
 
-const setDispatchesTableTransactionFormDispatchSchema = z.object({
+const setDispatchesTableGlobalDispatchSchema = z.object({
     action: z.literal(globalActions.setDispatchesTable),
     payload: z.object({
         key: z.string(),
@@ -16,33 +16,33 @@ const setDispatchesTableTransactionFormDispatchSchema = z.object({
     }),
 });
 
-const setForageWorkerMaybeTransactionFormDispatchSchema = z.object({
+const setForageWorkerMaybeGlobalDispatchSchema = z.object({
     action: z.literal(globalActions.setForageWorkerMaybe),
     payload: createOptionSchema(z.instanceof(Worker)),
 });
 
-const setFetchWorkerMaybeTransactionFormDispatchSchema = z.object({
+const setFetchWorkerMaybeGlobalDispatchSchema = z.object({
     action: z.literal(globalActions.setFetchWorkerMaybe),
     payload: createOptionSchema(z.instanceof(Worker)),
 });
 
-const setSafeErrorMaybeTransactionFormDispatchSchema = z.object({
+const setSafeErrorMaybeGlobalDispatchSchema = z.object({
     action: z.literal(globalActions.setSafeErrorMaybe),
     payload: createOptionSchema(z.instanceof(Err)),
 });
 
-type TransactionFormDispatch =
-    | z.infer<typeof setCacheWorkerMaybeTransactionFormDispatchSchema>
-    | z.infer<typeof setForageWorkerMaybeTransactionFormDispatchSchema>
-    | z.infer<typeof setDispatchesTableTransactionFormDispatchSchema>
-    | z.infer<typeof setFetchWorkerMaybeTransactionFormDispatchSchema>
-    | z.infer<typeof setSafeErrorMaybeTransactionFormDispatchSchema>;
+type GlobalDispatch =
+    | z.infer<typeof setCacheWorkerMaybeGlobalDispatchSchema>
+    | z.infer<typeof setForageWorkerMaybeGlobalDispatchSchema>
+    | z.infer<typeof setDispatchesTableGlobalDispatchSchema>
+    | z.infer<typeof setFetchWorkerMaybeGlobalDispatchSchema>
+    | z.infer<typeof setSafeErrorMaybeGlobalDispatchSchema>;
 
 export {
-    setCacheWorkerMaybeTransactionFormDispatchSchema,
-    setDispatchesTableTransactionFormDispatchSchema,
-    setFetchWorkerMaybeTransactionFormDispatchSchema,
-    setForageWorkerMaybeTransactionFormDispatchSchema,
-    setSafeErrorMaybeTransactionFormDispatchSchema,
+    setCacheWorkerMaybeGlobalDispatchSchema,
+    setDispatchesTableGlobalDispatchSchema,
+    setFetchWorkerMaybeGlobalDispatchSchema,
+    setForageWorkerMaybeGlobalDispatchSchema,
+    setSafeErrorMaybeGlobalDispatchSchema,
 };
-export type { TransactionFormDispatch };
+export type { GlobalDispatch };
