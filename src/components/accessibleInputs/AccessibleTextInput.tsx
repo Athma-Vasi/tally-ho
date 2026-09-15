@@ -1,6 +1,6 @@
 import React, { type JSX } from "react";
 import type { ValidationRegexes } from "../../types";
-import { capitalizeString } from "../../utils";
+import { capitalizeString, splitCamelCase } from "../../utils";
 
 type AccessibleTextInputProps<
     SetValueAction extends string = string,
@@ -56,7 +56,7 @@ function AccessibleTextInput<
         errorAction,
         errorDispatch,
         hideLabel = false,
-        label = capitalizeString(name),
+        label = splitCamelCase(name),
         onBlur = () => {},
         onChange = () => {},
         onFocus = () => {},

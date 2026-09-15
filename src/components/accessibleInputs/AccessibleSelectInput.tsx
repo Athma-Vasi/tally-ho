@@ -1,4 +1,5 @@
 import { type JSX } from "react";
+import { splitCamelCase } from "../../utils";
 
 type AccessibleSelectInputProps<
     SetValueAction extends string = string,
@@ -13,9 +14,12 @@ type AccessibleSelectInputProps<
         HTMLSelectElement
     >
     & {
+        dataOptions: string[];
         dataTestId?: string;
         disableValidationScreenreaderText?: boolean;
         dispatch: React.ActionDispatch<[dispatch: Dispatch]>;
+        hideLabel?: boolean;
+        label: string;
         name: string;
         setValueAction: SetValueAction;
         value: Payload;
@@ -36,9 +40,12 @@ function AccessibleSelectInput<
     >,
 ) {
     const {
-        name,
+        dataOptions,
         dispatch,
+        name,
         dataTestId = `accessible-select-input-${name}`,
+        hideLabel = false,
+        label = splitCamelCase(name),
         onChange = () => {},
         onFocus = () => {},
         ref,
@@ -54,6 +61,15 @@ function AccessibleSelectInput<
             screenreaderTextId,
             value,
         });
+
+    const labelElement = (
+        <label
+            className={hideLabel ? "visually-hidden" : ""}
+            htmlFor={name}
+        >
+            {label}
+        </label>
+    );
 
     const selectInput = (
         <select
@@ -76,11 +92,18 @@ function AccessibleSelectInput<
             ref={ref}
             value={value}
             {...nativeSelectProps}
-        />
+        >
+            {dataOptions.map((option, index) => (
+                <option key={`${option}-${index}`} value={option}>
+                    {splitCamelCase(option.split("_").join(" "))}
+                </option>
+            ))}
+        </select>
     );
 
     return (
-        <div className="accessible-input">
+        <div className="accessible-select-input">
+            {labelElement}
             {selectInput}
             {screenreaderTextElement}
         </div>

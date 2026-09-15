@@ -5,6 +5,7 @@ import { AccessibleTextInput } from "../../accessibleInputs/AccessibleTextInput"
 import { errorActions } from "../../error/actions";
 import type { ErrorDispatch } from "../../error/dispatches";
 import { transactionFormActions } from "./actions";
+import { payment_methods, transaction_categories } from "./constants";
 import { transactionFormReducer } from "./reducers";
 import {
     amountCents_validation_regexes,
@@ -99,6 +100,7 @@ function TransactionForm(
 
     const categorySelectElement = (
         <AccessibleSelectInput
+            dataOptions={transaction_categories}
             dispatch={transactionFormDispatch}
             name="transactionCategory"
             setValueAction={transactionFormActions.setCategory}
@@ -180,6 +182,7 @@ function TransactionForm(
 
     const paymentMethodSelectElement = (
         <AccessibleSelectInput
+            dataOptions={payment_methods}
             dispatch={transactionFormDispatch}
             name="paymentMethod"
             setValueAction={transactionFormActions.setCategory}

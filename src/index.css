@@ -315,6 +315,15 @@ textarea.input--valid-state {
     }
 }
 
+.accessible-select-input {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    align-items: flex-start;
+    width: calc(var(--input-width) + 2em);
+    padding: var(--padding);
+}
+
 .error-fallback {
     background-color: var(--color-error-light);
     color: var(--color-text-primary);
