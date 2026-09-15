@@ -16,11 +16,6 @@ const setDispatchesTableGlobalDispatchSchema = z.object({
     }),
 });
 
-const setForageWorkerMaybeGlobalDispatchSchema = z.object({
-    action: z.literal(globalActions.setForageWorkerMaybe),
-    payload: createOptionSchema(z.instanceof(Worker)),
-});
-
 const setFetchWorkerMaybeGlobalDispatchSchema = z.object({
     action: z.literal(globalActions.setFetchWorkerMaybe),
     payload: createOptionSchema(z.instanceof(Worker)),
@@ -33,7 +28,6 @@ const setSafeErrorMaybeGlobalDispatchSchema = z.object({
 
 type GlobalDispatch =
     | z.infer<typeof setCacheWorkerMaybeGlobalDispatchSchema>
-    | z.infer<typeof setForageWorkerMaybeGlobalDispatchSchema>
     | z.infer<typeof setDispatchesTableGlobalDispatchSchema>
     | z.infer<typeof setFetchWorkerMaybeGlobalDispatchSchema>
     | z.infer<typeof setSafeErrorMaybeGlobalDispatchSchema>;
@@ -42,7 +36,6 @@ export {
     setCacheWorkerMaybeGlobalDispatchSchema,
     setDispatchesTableGlobalDispatchSchema,
     setFetchWorkerMaybeGlobalDispatchSchema,
-    setForageWorkerMaybeGlobalDispatchSchema,
     setSafeErrorMaybeGlobalDispatchSchema,
 };
 export type { GlobalDispatch };

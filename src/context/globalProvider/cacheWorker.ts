@@ -12,13 +12,13 @@ import {
     getCachedItemAbortableSafe,
     removeCachedItemAbortableSafe,
     setCachedItemAbortableSafe,
-} from "../utils";
+} from "../../utils";
 
-type MessageEventForageWorkerToMain<
+type MessageEventCacheWorkerToMain<
     Data = unknown,
 > = MessageEvent<AppResult<Data>>;
 
-type MessageEventMainToForageWorker<Key = string, Value = unknown> =
+type MessageEventMainToCacheWorker<Key = string, Value = unknown> =
     MessageEvent<
         {
             kind: "get";
@@ -33,24 +33,24 @@ type MessageEventMainToForageWorker<Key = string, Value = unknown> =
     >;
 
 { // block scope for persistent worker state
-    type ForageWorkerState = {
-        queue: MessageEventMainToForageWorker[];
+    type CacheWorkerState = {
+        queue: MessageEventMainToCacheWorker[];
         isProcessing: boolean;
     };
 
-    const state: ForageWorkerState = {
+    const state: CacheWorkerState = {
         queue: [],
         isProcessing: false,
     };
 
     async function processMessageEvent(
-        event: MessageEventMainToForageWorker,
+        event: MessageEventMainToCacheWorker,
     ): Promise<None> {
         if (!event.data) {
             self.postMessage(
                 createErrorResult(
                     new WorkerMessageError(
-                        "No data received in forage worker message",
+                        "No data received in cache worker message",
                     ),
                 ),
             );
@@ -102,7 +102,7 @@ type MessageEventMainToForageWorker<Key = string, Value = unknown> =
                             new WorkerMessageError(
                                 `Unknown message kind: "${
                                     String(kind)
-                                }" received in forage worker`,
+                                }" received in cache worker`,
                             ),
                         ),
                     );
@@ -124,7 +124,7 @@ type MessageEventMainToForageWorker<Key = string, Value = unknown> =
     }
 
     async function handleWorkerMessageEvent(
-        event: MessageEventMainToForageWorker,
+        event: MessageEventMainToCacheWorker,
     ): Promise<None> {
         state.queue.push(event);
 
@@ -161,12 +161,12 @@ type MessageEventMainToForageWorker<Key = string, Value = unknown> =
     async function handleWorkerErrorEvent(
         event: string | Event,
     ): Promise<None> {
-        console.error("Unhandled error in forage worker:", event);
+        console.error("Unhandled error in cache worker:", event);
         self.postMessage(
             createErrorResult(
                 new WorkerError(
                     event,
-                    "Unhandled error in forage worker",
+                    "Unhandled error in cache worker",
                 ),
             ),
         );
@@ -177,7 +177,7 @@ type MessageEventMainToForageWorker<Key = string, Value = unknown> =
         event: PromiseRejectionEvent,
     ): Promise<None> {
         console.error(
-            "Unhandled promise rejection in forage worker:",
+            "Unhandled promise rejection in cache worker:",
             event.reason,
         );
 
@@ -185,7 +185,7 @@ type MessageEventMainToForageWorker<Key = string, Value = unknown> =
             createErrorResult(
                 new PromiseRejectionError(
                     event.reason,
-                    "Unhandled promise rejection in forage worker",
+                    "Unhandled promise rejection in cache worker",
                 ),
             ),
         );
@@ -202,4 +202,4 @@ type MessageEventMainToForageWorker<Key = string, Value = unknown> =
     );
 }
 
-export type { MessageEventForageWorkerToMain, MessageEventMainToForageWorker };
+export type { MessageEventCacheWorkerToMain, MessageEventMainToCacheWorker };

@@ -1,7 +1,13 @@
 import { createContext, useEffect, useMemo, useReducer } from "react";
 
+import { Some } from "ts-results-es";
 import { useMountedRef } from "../../hooks/useMountedRef";
+import CacheWorker from "../../workers/cacheWorker?worker";
+import FetchWorker from "../../workers/fetchWorker?worker";
+import { globalActions } from "./actions";
+import type { MessageEventCacheWorkerToMain } from "./cacheWorker";
 import type { GlobalDispatch } from "./dispatches";
+import type { MessageEventFetchWorkerToMain } from "./fetchWorker";
 import { globalReducer } from "./reducers";
 import { type GlobalState, initialGlobalState } from "./state";
 
@@ -35,7 +41,6 @@ function GlobalProvider({ children }: GlobalProviderProps) {
         cacheWorkerMaybe,
         dispatchesTable,
         fetchWorkerMaybe,
-        forageWorkerMaybe,
         safeErrorMaybe,
     } = globalState;
 
@@ -43,7 +48,7 @@ function GlobalProvider({ children }: GlobalProviderProps) {
 
     useEffect(() => {
         if (
-            forageWorkerMaybe.isSome() || cacheWorkerMaybe.isSome() ||
+            cacheWorkerMaybe.isSome() ||
             fetchWorkerMaybe.isSome()
         ) {
             return;
@@ -51,63 +56,28 @@ function GlobalProvider({ children }: GlobalProviderProps) {
 
         // initialize, add to state, and setup listeners for workers
 
-        const forageWorker = new ForageWorker();
-        registerDispatch({
-            action: registerActions.setForageWorkerMaybe,
-            payload: Some(forageWorker),
-        });
-        forageWorker.onmessage = async (
-            event: MessageEventForageWorkerToMain,
-        ) => {
-            await handleMessageFromForageWorker(
-                {
-                    errorDispatch,
-                    event,
-                    isComponentMountedRef,
-                    registerDispatch,
-                },
-            );
-        };
-
         const cacheWorker = new CacheWorker();
-        registerDispatch({
-            action: registerActions.setCacheWorkerMaybe,
-            payload: Some(cacheWorker),
+        globalDispatch({
+            action: globalActions.setCacheWorkerMaybe,
+            payload: Some(cacheWorker) as any,
         });
         cacheWorker.onmessage = async (
             event: MessageEventCacheWorkerToMain,
         ) => {
-            await handleMessageFromCacheWorker(
-                {
-                    errorDispatch,
-                    event,
-                    isComponentMountedRef,
-                    registerDispatch,
-                },
-            );
         };
 
         const fetchWorker = new FetchWorker();
-        registerDispatch({
-            action: registerActions.setFetchWorkerMaybe,
-            payload: Some(fetchWorker),
+        globalDispatch({
+            action: globalActions.setFetchWorkerMaybe,
+            payload: Some(fetchWorker) as any,
         });
         fetchWorker.onmessage = async (
             event: MessageEventFetchWorkerToMain,
         ) => {
-            await handleMessageFromFetchWorker(
-                {
-                    errorDispatch,
-                    event,
-                    isComponentMountedRef,
-                    registerDispatch,
-                },
-            );
         };
 
         // cleanup function to terminate workers on unmount
         return () => {
-            forageWorker.terminate();
             cacheWorker.terminate();
             fetchWorker.terminate();
             isComponentMountedRef.current = false;

@@ -4,9 +4,13 @@ import z from "zod";
 import {
     AppErrorBase,
     CacheError,
+    JSONError,
+    NetworkError,
+    NotFoundError,
     ParseError,
     PromiseAbortedError,
     UnknownError,
+    WorkerMessageError,
 } from "./errors";
 import type { AppResult } from "./types";
 
@@ -16,12 +20,12 @@ function capitalizeString(str: string): string {
 }
 
 function createOptionSchema<Value extends any>(
-    val: Value,
+    value: Value,
 ) {
     return z.object({
         none: z.boolean(),
         some: z.boolean(),
-        val,
+        value,
     });
 }
 
@@ -178,6 +182,174 @@ function parseSyncSafe<Output = unknown>(
     }
 }
 
+async function removeCachedItemAbortableSafe(
+    key: string,
+    signal: AbortSignal,
+): Promise<AppResult> {
+    if (signal.aborted) {
+        return createErrorResult(
+            new PromiseAbortedError(
+                "removeCachedItemAbortableSafe aborted before start",
+            ),
+        );
+    }
+
+    try {
+        const cacheOperation = localforage.removeItem(key);
+        await makeAbortable(cacheOperation, signal);
+        return new Ok(None);
+    } catch (error: unknown) {
+        return createErrorResult(
+            new CacheError(
+                error,
+                `Failed to remove cached item for key: ${key}`,
+            ),
+        );
+    }
+}
+
+type RetryFetchOptions = {
+    backOffFactor?: number;
+    retries?: number;
+    delayMs?: number;
+};
+async function retryFetchSafe<
+    Data = unknown,
+>(
+    { init, input, retryOptions, signal }: {
+        init: RequestInit;
+        input: RequestInfo | URL;
+        retryOptions?: RetryFetchOptions;
+        signal: AbortSignal | undefined;
+    },
+): Promise<AppResult<Data>> {
+    const {
+        backOffFactor = 2,
+        retries = 3,
+        delayMs = 1000,
+    } = retryOptions ?? {};
+
+    async function tryAgain(
+        attempt: number,
+    ): Promise<AppResult<Data>> {
+        try {
+            const response: Response = await fetch(input, {
+                ...init,
+                signal,
+            });
+            if (response == null) {
+                // perhaps a network-level failure occurred before any HTTP response could be received
+                // trigger a retry
+                throw new NetworkError("Response is null or undefined");
+            }
+
+            try {
+                const data = await response.json();
+                if (data == null) {
+                    // trigger a retry
+                    throw new JSONError("Response data is null or undefined");
+                }
+
+                return Promise.resolve(
+                    createSuccessResult<Data>(
+                        data as Data,
+                    ),
+                );
+            } catch (error_: unknown) {
+                if (attempt === retries) {
+                    return Promise.resolve(
+                        createErrorResult(
+                            new JSONError(
+                                error_,
+                                "Failed to parse JSON response after maximum retries",
+                            ),
+                        ),
+                    );
+                }
+
+                throw new JSONError(error_);
+            }
+        } catch (error: unknown) {
+            if (attempt === retries) {
+                return Promise.resolve(
+                    createErrorResult(
+                        new NetworkError(error, 503, "Max retries reached"),
+                    ),
+                );
+            }
+
+            // Exponential backoff with jitter
+            const backOff = Math.pow(backOffFactor, attempt) * delayMs;
+            const jitter = backOff * 0.2 * (Math.random() - 0.5);
+            const delay = backOff + jitter;
+
+            console.log(
+                `Attempt ${attempt + 1} failed. Retrying in ${delay}ms...`,
+            );
+
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    tryAgain(attempt + 1).then(resolve);
+                }, delay);
+            });
+        }
+    }
+
+    return tryAgain(0);
+}
+
+function sendMessageToWorker<
+    MsgEvent extends MessageEvent = MessageEvent,
+    Actions extends Record<string, string> & {
+        setSafeErrorMaybe: "setSafeErrorMaybe";
+    } =
+        & Record<string, string>
+        & { setSafeErrorMaybe: "setSafeErrorMaybe" },
+>(
+    { actions, dispatch, message, workerMaybe }: {
+        actions: Actions;
+        dispatch: React.ActionDispatch<[dispatch: any]>;
+        message: MsgEvent["data"];
+        workerMaybe: Option<Worker>;
+    },
+): None {
+    try {
+        if (workerMaybe.isNone()) {
+            dispatch({
+                action: actions.setSafeErrorMaybe,
+                payload: Some(
+                    createErrorResult(
+                        new NotFoundError(
+                            `Worker is not initialized for message: ${
+                                String(message)
+                            }`,
+                        ),
+                    ),
+                ),
+            });
+
+            return None;
+        }
+
+        const worker = workerMaybe.value;
+        worker.postMessage(message);
+        return None;
+    } catch (error) {
+        dispatch({
+            action: actions.setSafeErrorMaybe,
+            payload: Some(
+                createErrorResult(
+                    new WorkerMessageError(
+                        error,
+                        `Failed to post message: ${String(message)} to worker`,
+                    ),
+                ),
+            ),
+        });
+        return None;
+    }
+}
+
 async function setCachedItemAbortableSafe<Data = unknown>(
     key: string,
     value: Data,
@@ -221,7 +393,13 @@ export {
     createErrorResult,
     createOptionSchema,
     createSuccessResult,
+    getCachedItemAbortableSafe,
     parseDispatchAndSetState,
     parseSyncSafe,
+    removeCachedItemAbortableSafe,
+    retryFetchSafe,
+    sendMessageToWorker,
+    setCachedItemAbortableSafe,
     splitCamelCase,
 };
+export type { RetryFetchOptions };

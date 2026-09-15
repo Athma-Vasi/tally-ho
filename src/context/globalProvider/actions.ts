@@ -10,7 +10,6 @@ type GlobalActions = {
 const globalActions: GlobalActions = {
     setCacheWorkerMaybe: "setCacheWorkerMaybe",
     setFetchWorkerMaybe: "setFetchWorkerMaybe",
-    setForageWorkerMaybe: "setForageWorkerMaybe",
     setDispatchesTable: "setDispatchesTable",
     setSafeErrorMaybe: "setSafeErrorMaybe",
 };

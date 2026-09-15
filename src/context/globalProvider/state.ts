@@ -4,7 +4,6 @@ import type { AppError } from "../../types";
 type GlobalState = {
     cacheWorkerMaybe: Option<Worker>;
     fetchWorkerMaybe: Option<Worker>;
-    forageWorkerMaybe: Option<Worker>;
     // unique id for each descendant component request
     dispatchesTable: Map<string, React.ActionDispatch<[dispatch: unknown]>>;
     safeErrorMaybe: Option<Err<AppError>>;
@@ -13,7 +12,6 @@ type GlobalState = {
 const initialGlobalState = {
     cacheWorkerMaybe: None,
     fetchWorkerMaybe: None,
-    forageWorkerMaybe: None,
     dispatchesTable: new Map(),
     safeErrorMaybe: None,
 };

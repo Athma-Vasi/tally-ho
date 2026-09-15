@@ -5,7 +5,6 @@ import {
     setCacheWorkerMaybeGlobalDispatchSchema,
     setDispatchesTableGlobalDispatchSchema,
     setFetchWorkerMaybeGlobalDispatchSchema,
-    setForageWorkerMaybeGlobalDispatchSchema,
     setSafeErrorMaybeGlobalDispatchSchema,
 } from "./dispatches";
 import type { GlobalState } from "./state";
@@ -27,9 +26,6 @@ const globalReducersMap: Map<
 > = new Map([[
     globalActions.setCacheWorkerMaybe,
     globalReducer_setCacheWorkerMaybe,
-], [
-    globalActions.setForageWorkerMaybe,
-    globalReducer_setForageWorkerMaybe,
 ], [
     globalActions.setDispatchesTable,
     globalReducer_setDispatchesTable,
@@ -65,18 +61,6 @@ function globalReducer_setDispatchesTable(
     });
 }
 
-function globalReducer_setForageWorkerMaybe(
-    state: GlobalState,
-    dispatch: GlobalDispatch,
-): GlobalState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "forageWorkerMaybe",
-        state,
-        schema: setForageWorkerMaybeGlobalDispatchSchema,
-    });
-}
-
 function globalReducer_setFetchWorkerMaybe(
     state: GlobalState,
     dispatch: GlobalDispatch,
@@ -106,7 +90,6 @@ export {
     globalReducer_setCacheWorkerMaybe,
     globalReducer_setDispatchesTable,
     globalReducer_setFetchWorkerMaybe,
-    globalReducer_setForageWorkerMaybe,
     globalReducer_setSafeErrorMaybe,
     globalReducersMap,
 };
