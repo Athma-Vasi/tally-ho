@@ -12,6 +12,7 @@ const globalActions: GlobalActions = {
     setFetchWorkerMaybe: "setFetchWorkerMaybe",
     setForageWorkerMaybe: "setForageWorkerMaybe",
     setDispatchesTable: "setDispatchesTable",
+    setSafeErrorMaybe: "setSafeErrorMaybe",
 };
 
 export { globalActions };

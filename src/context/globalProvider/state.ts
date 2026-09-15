@@ -1,11 +1,13 @@
-import { None } from "ts-results-es";
+import { Err, None, type Option } from "ts-results-es";
+import type { AppError } from "../../types";
 
 type GlobalState = {
-    cacheWorkerMaybe: None;
-    fetchWorkerMaybe: None;
-    forageWorkerMaybe: None;
+    cacheWorkerMaybe: Option<Worker>;
+    fetchWorkerMaybe: Option<Worker>;
+    forageWorkerMaybe: Option<Worker>;
     // unique id for each descendant component request
     dispatchesTable: Map<string, React.ActionDispatch<[dispatch: unknown]>>;
+    safeErrorMaybe: Option<Err<AppError>>;
 };
 
 const initialGlobalState = {
@@ -13,6 +15,7 @@ const initialGlobalState = {
     fetchWorkerMaybe: None,
     forageWorkerMaybe: None,
     dispatchesTable: new Map(),
+    safeErrorMaybe: None,
 };
 
 export { initialGlobalState };
