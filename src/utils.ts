@@ -178,6 +178,30 @@ function parseSyncSafe<Output = unknown>(
     }
 }
 
+async function setCachedItemAbortableSafe<Data = unknown>(
+    key: string,
+    value: Data,
+    signal: AbortSignal,
+): Promise<AppResult> {
+    if (signal.aborted) {
+        return createErrorResult(
+            new PromiseAbortedError(
+                "setCachedItemAbortableSafe aborted before start",
+            ),
+        );
+    }
+
+    try {
+        const cacheOperation = localforage.setItem<Data>(key, value);
+        await makeAbortable(cacheOperation, signal);
+        return new Ok(None);
+    } catch (error: unknown) {
+        return createErrorResult(
+            new CacheError(error, `Failed to set cached item for key: ${key}`),
+        );
+    }
+}
+
 function splitCamelCase(word: string): string {
     const result = parseSyncSafe({
         object: word,
