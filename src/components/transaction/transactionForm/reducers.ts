@@ -93,168 +93,196 @@ function transactionFormReducer_setAmountCents(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "amountCents",
-        state,
-        schema: setAmountCentsTransactionFormDispatchSchema, // Replace with the appropriate schema if available
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "amountCents",
+            state,
+            schema: setAmountCentsTransactionFormDispatchSchema, // Replace with the appropriate schema if available
+        },
+    );
 }
 
 function transactionFormReducer_setCategory(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "category",
-        state,
-        schema: setCategoryTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "category",
+            state,
+            schema: setCategoryTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setDateTime(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "dateTime",
-        state,
-        schema: setDateTimeTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "dateTime",
+            state,
+            schema: setDateTimeTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setForageWorkerMaybe(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "forageWorkerMaybe",
-        state,
-        schema: setForageWorkerMaybeTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "forageWorkerMaybe",
+            state,
+            schema: setForageWorkerMaybeTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setCacheWorkerMaybe(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "cacheWorkerMaybe",
-        state,
-        schema: setCacheWorkerMaybeTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "cacheWorkerMaybe",
+            state,
+            schema: setCacheWorkerMaybeTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setFetchWorkerMaybe(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "fetchWorkerMaybe",
-        state,
-        schema: setFetchWorkerMaybeTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "fetchWorkerMaybe",
+            state,
+            schema: setFetchWorkerMaybeTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setIsLoading(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "isLoading",
-        state,
-        schema: setIsLoadingTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "isLoading",
+            state,
+            schema: setIsLoadingTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setMerchant(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "merchant",
-        state,
-        schema: setMerchantTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "merchant",
+            state,
+            schema: setMerchantTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setNotes(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "notes",
-        state,
-        schema: setNotesTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "notes",
+            state,
+            schema: setNotesTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setPaymentMethod(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "paymentMethod",
-        state,
-        schema: setPaymentMethodTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "paymentMethod",
+            state,
+            schema: setPaymentMethodTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setResponseDataMaybe(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "responseDataMaybe",
-        state,
-        schema: setResponseDataMaybeTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "responseDataMaybe",
+            state,
+            schema: setResponseDataMaybeTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setSafeErrorMaybe(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "safeErrorMaybe",
-        state,
-        schema: setSafeErrorMaybeTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "safeErrorMaybe",
+            state,
+            schema: setSafeErrorMaybeTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setTags(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "tags",
-        state,
-        schema: setTagsTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "tags",
+            state,
+            schema: setTagsTransactionFormDispatchSchema,
+        },
+    );
 }
 
 function transactionFormReducer_setType(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "type",
-        state,
-        schema: setTypeTransactionFormDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "type",
+            state,
+            schema: setTypeTransactionFormDispatchSchema,
+        },
+    );
 }
 
 export {

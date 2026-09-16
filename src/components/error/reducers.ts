@@ -28,13 +28,16 @@ function errorReducer_setChildComponentState(
     state: ErrorState,
     dispatch: ErrorDispatch,
 ): ErrorState {
-    const parsedResult = parseSyncSafe({
-        object: dispatch,
-        schema: setChildComponentStateErrorDispatchSchema,
-    });
+    const parsedResult = parseSyncSafe(
+        {
+            object: dispatch,
+            schema: setChildComponentStateErrorDispatchSchema,
+        },
+    );
     if (parsedResult.isErr()) {
         return state;
     }
+
     const parsedMaybe = parsedResult.unwrap();
     if (parsedMaybe.isNone()) {
         return state;
@@ -54,12 +57,14 @@ function errorReducer_setLoggerWorkerMaybe(
     state: ErrorState,
     dispatch: ErrorDispatch,
 ): ErrorState {
-    return parseDispatchAndSetState({
-        state,
-        dispatch,
-        key: "loggerWorkerMaybe",
-        schema: setLoggerWorkerMaybeErrorDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            state,
+            dispatch,
+            key: "loggerWorkerMaybe",
+            schema: setLoggerWorkerMaybeErrorDispatchSchema,
+        },
+    );
 }
 
 export {

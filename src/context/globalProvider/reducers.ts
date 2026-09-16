@@ -41,48 +41,56 @@ function globalReducer_setCacheWorkerMaybe(
     state: GlobalState,
     dispatch: GlobalDispatch,
 ): GlobalState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "cacheWorkerMaybe",
-        state,
-        schema: setCacheWorkerMaybeGlobalDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "cacheWorkerMaybe",
+            state,
+            schema: setCacheWorkerMaybeGlobalDispatchSchema,
+        },
+    );
 }
 
 function globalReducer_setDispatchesTable(
     state: GlobalState,
     dispatch: GlobalDispatch,
 ): GlobalState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "dispatchesTable",
-        state,
-        schema: setDispatchesTableGlobalDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "dispatchesTable",
+            state,
+            schema: setDispatchesTableGlobalDispatchSchema,
+        },
+    );
 }
 
 function globalReducer_setFetchWorkerMaybe(
     state: GlobalState,
     dispatch: GlobalDispatch,
 ): GlobalState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "fetchWorkerMaybe",
-        state,
-        schema: setFetchWorkerMaybeGlobalDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "fetchWorkerMaybe",
+            state,
+            schema: setFetchWorkerMaybeGlobalDispatchSchema,
+        },
+    );
 }
 
 function globalReducer_setSafeErrorMaybe(
     state: GlobalState,
     dispatch: GlobalDispatch,
 ): GlobalState {
-    return parseDispatchAndSetState({
-        dispatch,
-        key: "safeErrorMaybe",
-        state,
-        schema: setSafeErrorMaybeGlobalDispatchSchema,
-    });
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "safeErrorMaybe",
+            state,
+            schema: setSafeErrorMaybeGlobalDispatchSchema,
+        },
+    );
 }
 
 export {
