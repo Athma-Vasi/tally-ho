@@ -9,12 +9,20 @@ import type { AppResult } from "../../types";
 import {
     createErrorResult,
     createSuccessResult,
+    postMessageToMainThread,
     retryFetchSafe,
 } from "../../utils";
 
+type WorkerToMainParcel<
+    Data = unknown,
+> = {
+    descendantId: string;
+    dataResult: AppResult<Data>;
+};
+
 type MessageEventFetchWorkerToMain<
     Data = unknown,
-> = MessageEvent<AppResult<Data>>;
+> = MessageEvent<WorkerToMainParcel<Data>>;
 
 type MessageEventMainToFetchWorker = MessageEvent<{
     descendantId: string;
@@ -37,12 +45,18 @@ type MessageEventMainToFetchWorker = MessageEvent<{
         event: MessageEventMainToFetchWorker,
     ): Promise<None> {
         if (!event.data) {
-            self.postMessage(
-                createErrorResult(
-                    new WorkerMessageError(
-                        "No data received in fetch worker message",
-                    ),
-                ),
+            postMessageToMainThread(
+                {
+                    message: {
+                        descendantId: "",
+                        dataResult: createErrorResult(
+                            new WorkerMessageError(
+                                "No data received in fetch worker message",
+                            ),
+                        ),
+                    },
+                    self,
+                },
             );
             return None;
         }
@@ -54,35 +68,70 @@ type MessageEventMainToFetchWorker = MessageEvent<{
 
         try {
             const { descendantId, url, requestInit } = event.data;
-            const responseResult = await retryFetchSafe({
-                requestInit,
-                signal,
-                url,
-            });
+            const responseResult = await retryFetchSafe(
+                {
+                    requestInit,
+                    signal,
+                    url,
+                },
+            );
 
             if (responseResult.isErr()) {
-                self.postMessage(responseResult);
+                postMessageToMainThread(
+                    {
+                        message: {
+                            descendantId: event.data.descendantId,
+                            dataResult: responseResult,
+                        },
+                        self,
+                    },
+                );
                 return None;
             }
 
             const responseMaybe = responseResult.unwrap();
             if (responseMaybe.isNone()) {
-                self.postMessage(createSuccessResult(None));
+                postMessageToMainThread(
+                    {
+                        message: {
+                            descendantId: event.data.descendantId,
+                            dataResult: createErrorResult(
+                                new WorkerMessageError(
+                                    "Fetch worker returned None",
+                                ),
+                            ),
+                        },
+                        self,
+                    },
+                );
                 return None;
             }
 
-            const parcel = {
-                descendantId,
-                data: responseMaybe.unwrap(),
-            };
-
-            self.postMessage(createSuccessResult(parcel));
+            postMessageToMainThread(
+                {
+                    message: {
+                        descendantId: event.data.descendantId,
+                        dataResult: createSuccessResult(
+                            responseMaybe.unwrap(),
+                        ),
+                    },
+                    self,
+                },
+            );
             return None;
         } catch (error: unknown) {
-            self.postMessage(
-                createErrorResult(
-                    new WorkerError(error),
-                ),
+            postMessageToMainThread(
+                {
+                    message: {
+                        descendantId: "",
+                        dataResult: createErrorResult(
+                            new WorkerError(
+                                error,
+                            ),
+                        ),
+                    },
+                    self,
+                },
             );
             return None;
         } finally {
@@ -114,10 +163,16 @@ type MessageEventMainToFetchWorker = MessageEvent<{
 
             return None;
         } catch (error: unknown) {
-            self.postMessage(
-                createErrorResult(
-                    new WorkerError(error),
-                ),
+            postMessageToMainThread(
+                {
+                    message: {
+                        descendantId: "",
+                        dataResult: createErrorResult(
+                            new WorkerError(error),
+                        ),
+                    },
+                    self,
+                },
             );
             return None;
         } finally {
@@ -129,13 +184,20 @@ type MessageEventMainToFetchWorker = MessageEvent<{
         event: string | Event,
     ): Promise<None> {
         console.error("Unhandled error in fetch worker:", event);
-        self.postMessage(
-            createErrorResult(
-                new WorkerError(
-                    event,
-                    "Unhandled error in fetch worker",
-                ),
-            ),
+
+        postMessageToMainThread(
+            {
+                message: {
+                    descendantId: "",
+                    dataResult: createErrorResult(
+                        new WorkerError(
+                            event,
+                            "Unhandled error in fetch worker",
+                        ),
+                    ),
+                },
+                self,
+            },
         );
         return None;
     }
@@ -147,13 +209,20 @@ type MessageEventMainToFetchWorker = MessageEvent<{
             "Unhandled promise rejection in fetch worker:",
             event.reason,
         );
-        self.postMessage(
-            createErrorResult(
-                new PromiseRejectionError(
-                    event.reason,
-                    "Unhandled promise rejection in fetch worker",
-                ),
-            ),
+
+        postMessageToMainThread(
+            {
+                message: {
+                    descendantId: "",
+                    dataResult: createErrorResult(
+                        new PromiseRejectionError(
+                            event.reason,
+                            "Unhandled promise rejection in fetch worker",
+                        ),
+                    ),
+                },
+                self,
+            },
         );
         return None;
     }

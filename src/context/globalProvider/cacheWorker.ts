@@ -10,23 +10,30 @@ import {
     createErrorResult,
     createSuccessResult,
     getCachedItemAbortableSafe,
+    postMessageToMainThread,
     removeCachedItemAbortableSafe,
     setCachedItemAbortableSafe,
 } from "../../utils";
 
 type MessageEventCacheWorkerToMain<
     Data = unknown,
-> = MessageEvent<AppResult<Data>>;
+> = MessageEvent<{
+    descendantId: string;
+    dataResult: AppResult<Data>;
+}>;
 
 type MessageEventMainToCacheWorker<Key = string, Value = unknown> =
     MessageEvent<
         {
+            descendantId: string;
             kind: "get";
             payload: [Key];
         } | {
+            descendantId: string;
             kind: "set";
             payload: [Key, Value];
         } | {
+            descendantId: string;
             kind: "remove";
             payload: [Key];
         }
@@ -47,12 +54,18 @@ type MessageEventMainToCacheWorker<Key = string, Value = unknown> =
         event: MessageEventMainToCacheWorker,
     ): Promise<None> {
         if (!event.data) {
-            self.postMessage(
-                createErrorResult(
-                    new WorkerMessageError(
-                        "No data received in cache worker message",
-                    ),
-                ),
+            postMessageToMainThread(
+                {
+                    message: {
+                        descendantId: "",
+                        dataResult: createErrorResult(
+                            new WorkerMessageError(
+                                "No data received in cache worker message",
+                            ),
+                        ),
+                    },
+                    self,
+                },
             );
             return None;
         }
@@ -63,7 +76,7 @@ type MessageEventMainToCacheWorker<Key = string, Value = unknown> =
         }, async_timeout_ms);
 
         try {
-            const { kind, payload } = event.data;
+            const { descendantId, kind, payload } = event.data;
 
             switch (kind) {
                 case "get": {
@@ -71,7 +84,16 @@ type MessageEventMainToCacheWorker<Key = string, Value = unknown> =
                     const getResult = await getCachedItemAbortableSafe<
                         unknown
                     >(key, signal);
-                    self.postMessage(getResult);
+
+                    postMessageToMainThread(
+                        {
+                            message: {
+                                descendantId,
+                                dataResult: getResult,
+                            },
+                            self,
+                        },
+                    );
                     break;
                 }
 
@@ -82,7 +104,16 @@ type MessageEventMainToCacheWorker<Key = string, Value = unknown> =
                         value,
                         signal,
                     );
-                    self.postMessage(createSuccessResult(None));
+
+                    postMessageToMainThread(
+                        {
+                            message: {
+                                descendantId,
+                                dataResult: createSuccessResult(None),
+                            },
+                            self,
+                        },
+                    );
                     break;
                 }
 
@@ -92,19 +123,30 @@ type MessageEventMainToCacheWorker<Key = string, Value = unknown> =
                         key,
                         signal,
                     );
-                    self.postMessage(createSuccessResult(None));
+                    self.postMessage(
+                        {
+                            descendantId,
+                            dataResult: createSuccessResult(None),
+                        },
+                    );
                     break;
                 }
 
                 default: {
-                    self.postMessage(
-                        createErrorResult(
-                            new WorkerMessageError(
-                                `Unknown message kind: "${
-                                    String(kind)
-                                }" received in cache worker`,
-                            ),
-                        ),
+                    postMessageToMainThread(
+                        {
+                            message: {
+                                descendantId,
+                                dataResult: createErrorResult(
+                                    new WorkerMessageError(
+                                        `Unknown message kind: "${
+                                            String(kind)
+                                        }" received in cache worker`,
+                                    ),
+                                ),
+                            },
+                            self,
+                        },
                     );
                     break;
                 }
@@ -112,10 +154,16 @@ type MessageEventMainToCacheWorker<Key = string, Value = unknown> =
 
             return None;
         } catch (error: unknown) {
-            self.postMessage(
-                createErrorResult(
-                    new WorkerError(error),
-                ),
+            postMessageToMainThread(
+                {
+                    message: {
+                        descendantId: "",
+                        dataResult: createErrorResult(
+                            new WorkerError(error),
+                        ),
+                    },
+                    self,
+                },
             );
             return None;
         } finally {
@@ -147,10 +195,16 @@ type MessageEventMainToCacheWorker<Key = string, Value = unknown> =
 
             return None;
         } catch (error: unknown) {
-            self.postMessage(
-                createErrorResult(
-                    new WorkerError(error),
-                ),
+            postMessageToMainThread(
+                {
+                    message: {
+                        descendantId: "",
+                        dataResult: createErrorResult(
+                            new WorkerError(error),
+                        ),
+                    },
+                    self,
+                },
             );
             return None;
         } finally {
@@ -162,13 +216,20 @@ type MessageEventMainToCacheWorker<Key = string, Value = unknown> =
         event: string | Event,
     ): Promise<None> {
         console.error("Unhandled error in cache worker:", event);
-        self.postMessage(
-            createErrorResult(
-                new WorkerError(
-                    event,
-                    "Unhandled error in cache worker",
-                ),
-            ),
+
+        postMessageToMainThread(
+            {
+                message: {
+                    descendantId: "",
+                    dataResult: createErrorResult(
+                        new WorkerError(
+                            event,
+                            "Unhandled error in cache worker",
+                        ),
+                    ),
+                },
+                self,
+            },
         );
         return None;
     }
@@ -181,13 +242,19 @@ type MessageEventMainToCacheWorker<Key = string, Value = unknown> =
             event.reason,
         );
 
-        self.postMessage(
-            createErrorResult(
-                new PromiseRejectionError(
-                    event.reason,
-                    "Unhandled promise rejection in cache worker",
-                ),
-            ),
+        postMessageToMainThread(
+            {
+                message: {
+                    descendantId: "",
+                    dataResult: createErrorResult(
+                        new PromiseRejectionError(
+                            event.reason,
+                            "Unhandled promise rejection in cache worker",
+                        ),
+                    ),
+                },
+                self,
+            },
         );
 
         return None;

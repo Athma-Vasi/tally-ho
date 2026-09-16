@@ -20,16 +20,34 @@ async function handleMessageFromCacheWorker(
     }
 
     try {
-        const { data } = event;
+        const { data: { dataResult, descendantId } } = event;
 
-        if (data.isErr()) {
-            globalDispatch({
-                action: globalActions.setSafeErrorMaybe,
-                payload: Some(data),
-            });
+        if (dataResult.isErr()) {
+            globalDispatch(
+                {
+                    action: globalActions.setSafeErrorMaybe,
+                    payload: Some(dataResult),
+                },
+            );
             return None;
         }
-        const dataMaybe = data.value;
+        const dataMaybe = dataResult.value;
+        if (dataMaybe.isNone()) {
+            globalDispatch(
+                {
+                    action: globalActions.setSafeErrorMaybe,
+                    payload: Some(
+                        createErrorResult(
+                            new WorkerMessageHandlerError(
+                                null,
+                                "Cache Worker returned None",
+                            ),
+                        ),
+                    ),
+                },
+            );
+            return None;
+        }
 
         console.group("handleMessageFromCacheWorker");
         console.log("dataMaybe", dataMaybe);
@@ -37,17 +55,19 @@ async function handleMessageFromCacheWorker(
 
         return None;
     } catch (error) {
-        globalDispatch({
-            action: globalActions.setSafeErrorMaybe,
-            payload: Some(
-                createErrorResult(
-                    new WorkerMessageHandlerError(
-                        error,
-                        "Error handling message from Cache Worker",
+        globalDispatch(
+            {
+                action: globalActions.setSafeErrorMaybe,
+                payload: Some(
+                    createErrorResult(
+                        new WorkerMessageHandlerError(
+                            error,
+                            "Error handling message from Cache Worker",
+                        ),
                     ),
                 ),
-            ),
-        });
+            },
+        );
         return None;
     }
 }
@@ -65,16 +85,34 @@ async function handleMessageFromFetchWorker(
     }
 
     try {
-        const { data } = event;
+        const { data: { dataResult, descendantId } } = event;
 
-        if (data.isErr()) {
-            globalDispatch({
-                action: globalActions.setSafeErrorMaybe,
-                payload: Some(data),
-            });
+        if (dataResult.isErr()) {
+            globalDispatch(
+                {
+                    action: globalActions.setSafeErrorMaybe,
+                    payload: Some(dataResult),
+                },
+            );
             return None;
         }
-        const dataMaybe = data.value;
+        const dataMaybe = dataResult.value;
+        if (dataMaybe.isNone()) {
+            globalDispatch(
+                {
+                    action: globalActions.setSafeErrorMaybe,
+                    payload: Some(
+                        createErrorResult(
+                            new WorkerMessageHandlerError(
+                                null,
+                                "Fetch Worker returned None",
+                            ),
+                        ),
+                    ),
+                },
+            );
+            return None;
+        }
 
         console.group("handleMessageFromFetchWorker");
         console.log("dataMaybe", dataMaybe);
@@ -82,17 +120,19 @@ async function handleMessageFromFetchWorker(
 
         return None;
     } catch (error) {
-        globalDispatch({
-            action: globalActions.setSafeErrorMaybe,
-            payload: Some(
-                createErrorResult(
-                    new WorkerMessageHandlerError(
-                        error,
-                        "Error handling message from Fetch Worker",
+        globalDispatch(
+            {
+                action: globalActions.setSafeErrorMaybe,
+                payload: Some(
+                    createErrorResult(
+                        new WorkerMessageHandlerError(
+                            error,
+                            "Error handling message from Fetch Worker",
+                        ),
                     ),
                 ),
-            ),
-        });
+            },
+        );
         return None;
     }
 }

@@ -182,6 +182,16 @@ function parseSyncSafe<Output = unknown>(
     }
 }
 
+function postMessageToMainThread<
+    Data extends unknown,
+    Message extends { descendantId: string; dataResult: AppResult<Data> },
+>(
+    { message, self }: { message: Message; self: Window & typeof globalThis },
+): None {
+    self.postMessage(message);
+    return None;
+}
+
 async function removeCachedItemAbortableSafe(
     key: string,
     signal: AbortSignal,
@@ -396,6 +406,7 @@ export {
     getCachedItemAbortableSafe,
     parseDispatchAndSetState,
     parseSyncSafe,
+    postMessageToMainThread,
     removeCachedItemAbortableSafe,
     retryFetchSafe,
     sendMessageToWorker,
