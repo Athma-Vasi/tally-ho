@@ -1,4 +1,8 @@
-import type { PaymentMethodType, TransactionCategory } from "../types";
+import type {
+    PaymentMethodType,
+    TransactionCategory,
+    TransactionType,
+} from "../types";
 
 const transaction_categories: Array<TransactionCategory> = [
     "car_charging",
@@ -21,4 +25,11 @@ const payment_methods: Array<PaymentMethodType> = [
     "other",
 ];
 
-export { payment_methods, transaction_categories };
+const transaction_types: Array<TransactionType> = [
+    "income",
+    "expense",
+    "transfer",
+    "other",
+];
+
+export { payment_methods, transaction_categories, transaction_types };

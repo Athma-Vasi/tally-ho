@@ -11,7 +11,11 @@ import { AccessibleTextInput } from "../../accessibleInputs/AccessibleTextInput"
 import { errorActions } from "../../error/actions";
 import type { ErrorDispatch } from "../../error/dispatches";
 import { transactionFormActions } from "./actions";
-import { payment_methods, transaction_categories } from "./constants";
+import {
+    payment_methods,
+    transaction_categories,
+    transaction_types,
+} from "./constants";
 import { transactionFormReducer } from "./reducers";
 import {
     amountCents_validation_regexes,
@@ -99,6 +103,23 @@ function TransactionForm(
         />
     );
 
+    const dateTimeTextElement = (
+        <AccessibleTextInput
+            errorAction={errorActions.setChildComponentState}
+            dispatch={transactionFormDispatch}
+            errorDispatch={errorDispatch}
+            label="Date and Time: "
+            name="dateTime"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                const { currentTarget: { value } } = event;
+            }}
+            setValueAction={transactionFormActions.setDateTime}
+            type="datetime-local"
+            validationRegexes={[]}
+            value={dateTime}
+        />
+    );
+
     const merchantTextElement = (
         <AccessibleTextInput
             errorAction={errorActions.setChildComponentState}
@@ -154,6 +175,16 @@ function TransactionForm(
             setValueAction={transactionFormActions.setTags}
             validationRegexes={tags_validation_regexes}
             value={tags}
+        />
+    );
+
+    const typeSelectElement = (
+        <AccessibleSelectInput
+            dataOptions={transaction_types}
+            dispatch={transactionFormDispatch}
+            name="type"
+            setValueAction={transactionFormActions.setType}
+            value={type}
         />
     );
 
@@ -247,10 +278,12 @@ function TransactionForm(
         <div className="transaction-form">
             {amountCentsTextElement}
             {categorySelectElement}
+            {dateTimeTextElement}
             {merchantTextElement}
             {notesTextElement}
             {paymentMethodSelectElement}
             {tagsTextElement}
+            {typeSelectElement}
             {submitButtonElement}
         </div>
     );
