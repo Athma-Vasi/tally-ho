@@ -171,57 +171,65 @@ function TransactionForm(
 
                 const descendantId = uuidv4();
 
-                globalDispatch({
-                    action: globalActions.setDispatchesTable,
-                    payload: {
-                        descendantId,
-                        descendantAction:
-                            transactionFormActions.setResponseDataMaybe,
-                        descendantDispatch: transactionFormDispatch,
-                    },
-                });
-
-                sendMessageToWorker<MessageEventMainToFetchWorker>({
-                    actions: transactionFormActions,
-                    dispatch: transactionFormDispatch,
-                    message: {
-                        descendantId,
-                        requestInit: {
-                            method: "GET",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
+                globalDispatch(
+                    {
+                        action: globalActions.setDispatchesTable,
+                        payload: {
+                            descendantId,
+                            descendantAction:
+                                transactionFormActions.setResponseDataMaybe,
+                            descendantDispatch: transactionFormDispatch,
                         },
-                        url: "https://jsonplaceholder.typicode.com/posts",
                     },
-                    workerMaybe: fetchWorkerMaybe,
-                });
+                );
 
-                globalDispatch({
-                    action: globalActions.setDispatchesTable,
-                    payload: {
-                        descendantId,
-                        descendantAction:
-                            transactionFormActions.setResponseDataMaybe,
-                        descendantDispatch: transactionFormDispatch,
-                    },
-                });
-
-                sendMessageToWorker<MessageEventMainToFetchWorker>({
-                    actions: transactionFormActions,
-                    dispatch: transactionFormDispatch,
-                    message: {
-                        descendantId,
-                        requestInit: {
-                            method: "GET",
-                            headers: {
-                                "Content-Type": "application/json",
+                sendMessageToWorker<MessageEventMainToFetchWorker>(
+                    {
+                        actions: transactionFormActions,
+                        dispatch: transactionFormDispatch,
+                        message: {
+                            descendantId,
+                            requestInit: {
+                                method: "GET",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
                             },
+                            url: "https://jsonplaceholder.typicode.com/posts",
                         },
-                        url: "https://jsonplaceholder.typicode.com/posts",
+                        workerMaybe: fetchWorkerMaybe,
                     },
-                    workerMaybe: fetchWorkerMaybe,
-                });
+                );
+
+                globalDispatch(
+                    {
+                        action: globalActions.setDispatchesTable,
+                        payload: {
+                            descendantId,
+                            descendantAction:
+                                transactionFormActions.setResponseDataMaybe,
+                            descendantDispatch: transactionFormDispatch,
+                        },
+                    },
+                );
+
+                sendMessageToWorker<MessageEventMainToFetchWorker>(
+                    {
+                        actions: transactionFormActions,
+                        dispatch: transactionFormDispatch,
+                        message: {
+                            descendantId,
+                            requestInit: {
+                                method: "GET",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            },
+                            url: "https://jsonplaceholder.typicode.com/posts",
+                        },
+                        workerMaybe: fetchWorkerMaybe,
+                    },
+                );
             }}
             setIsLoadingAction={transactionFormActions.setIsLoading}
             type="submit"
