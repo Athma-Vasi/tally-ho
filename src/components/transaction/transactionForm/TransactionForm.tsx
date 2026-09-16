@@ -63,11 +63,6 @@ function TransactionForm(
         globalState,
     } = useGlobalState();
 
-    const {
-        globalDispatch,
-        globalState,
-    } = useGlobalState();
-
     const amountCentsInputRef = useRef<HTMLInputElement | null>(null);
     useEffect(() => {
         amountCentsInputRef.current?.focus?.();
@@ -201,7 +196,6 @@ function TransactionForm(
                     },
                     workerMaybe: fetchWorkerMaybe,
                 });
-                const descendantId = uuidv4();
 
                 globalDispatch({
                     action: globalActions.setDispatchesTable,

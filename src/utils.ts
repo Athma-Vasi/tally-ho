@@ -21,12 +21,10 @@ function capitalizeString(str: string): string {
 
 function createOptionSchema<Value extends any>(
     value: Value,
-    value: Value,
 ) {
     return z.object({
         isNone: z.function(),
         isSome: z.function(),
-        value,
         value,
     });
 }
@@ -396,17 +394,12 @@ export {
     createOptionSchema,
     createSuccessResult,
     getCachedItemAbortableSafe,
-    getCachedItemAbortableSafe,
     parseDispatchAndSetState,
     parseSyncSafe,
     removeCachedItemAbortableSafe,
-    removeCachedItemAbortableSafe,
-    retryFetchSafe,
     retryFetchSafe,
     sendMessageToWorker,
-    sendMessageToWorker,
-    setCachedItemAbortableSafe,
     setCachedItemAbortableSafe,
     splitCamelCase,
 };
-export type { RetryFetchOptions, RetryFetchOptions };
+export type { RetryFetchOptions };
