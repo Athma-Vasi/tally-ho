@@ -244,7 +244,7 @@ function TransactionForm(
     console.groupEnd();
 
     return (
-        <>
+        <div className="transaction-form">
             {amountCentsTextElement}
             {categorySelectElement}
             {merchantTextElement}
@@ -252,7 +252,7 @@ function TransactionForm(
             {paymentMethodSelectElement}
             {tagsTextElement}
             {submitButtonElement}
-        </>
+        </div>
     );
 }
 

@@ -1,5 +1,4 @@
 import { createContext, useEffect, useMemo, useReducer } from "react";
-
 import { Some } from "ts-results-es";
 import type { ErrorDispatch } from "../../components/error/dispatches";
 import { useMountedRef } from "../../hooks/useMountedRef";
@@ -59,19 +58,23 @@ function GlobalProvider(
         // initialize, add to state, and setup listeners for workers
 
         const cacheWorker = new CacheWorker();
-        globalDispatch({
-            action: globalActions.setCacheWorkerMaybe,
-            payload: Some(cacheWorker) as any,
-        });
+        globalDispatch(
+            {
+                action: globalActions.setCacheWorkerMaybe,
+                payload: Some(cacheWorker) as any,
+            },
+        );
         cacheWorker.onmessage = async (
             event: MessageEventCacheWorkerToMain,
         ) => {
-            await handleMessageFromCacheWorker({
-                errorDispatch,
-                event,
-                isComponentMountedRef,
-                globalDispatch,
-            });
+            await handleMessageFromCacheWorker(
+                {
+                    errorDispatch,
+                    event,
+                    isComponentMountedRef,
+                    globalDispatch,
+                },
+            );
         };
 
         const fetchWorker = new FetchWorker();
@@ -82,12 +85,14 @@ function GlobalProvider(
         fetchWorker.onmessage = async (
             event: MessageEventFetchWorkerToMain,
         ) => {
-            await handleMessageFromFetchWorker({
-                errorDispatch,
-                event,
-                isComponentMountedRef,
-                globalDispatch,
-            });
+            await handleMessageFromFetchWorker(
+                {
+                    errorDispatch,
+                    event,
+                    isComponentMountedRef,
+                    globalDispatch,
+                },
+            );
         };
 
         // cleanup function to terminate workers on unmount
@@ -99,10 +104,12 @@ function GlobalProvider(
     }, []);
 
     const globalContextValue = useMemo(
-        () => ({
-            globalState,
-            globalDispatch,
-        }),
+        () => (
+            {
+                globalState,
+                globalDispatch,
+            }
+        ),
         [globalState, globalDispatch],
     );
 
