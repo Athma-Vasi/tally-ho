@@ -9,12 +9,9 @@ type TransactionFormActions = {
 
 const transactionFormActions: TransactionFormActions = {
     setAmountCents: "setAmountCents",
-    setCacheWorkerMaybe: "setCacheWorkerMaybe",
     setCategory: "setCategory",
     setDateTime: "setDateTime",
     setDescendantId: "setDescendantId",
-    setFetchWorkerMaybe: "setFetchWorkerMaybe",
-    setForageWorkerMaybe: "setForageWorkerMaybe",
     setIsLoading: "setIsLoading",
     setMerchant: "setMerchant",
     setNotes: "setNotes",

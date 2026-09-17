@@ -46,13 +46,10 @@ function TransactionForm(
     );
     const {
         amountCents,
-        cacheWorkerMaybe,
         category,
         dataResultMaybe,
         dateTime,
         descendantId,
-        fetchWorkerMaybe,
-        forageWorkerMaybe,
         isLoading,
         merchant,
         notes,
@@ -229,7 +226,7 @@ function TransactionForm(
                             },
                             url: "https://jsonplaceholder.typicode.com/posts",
                         },
-                        workerMaybe: fetchWorkerMaybe,
+                        workerMaybe: globalState.fetchWorkerMaybe,
                     },
                 );
             }}
@@ -240,9 +237,6 @@ function TransactionForm(
 
     console.group("TransactionForm Render");
     console.log("transactionFormState", transactionFormState);
-    console.log("childComponentState", backupStateFromErrorHOC);
-    console.log("globalState", globalState);
-    console.log("Some", Some("test"));
     console.groupEnd();
 
     return (

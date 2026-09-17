@@ -39,27 +39,6 @@ const setDescendantIdTransactionFormDispatchSchema = z.object(
     },
 );
 
-const setForageWorkerMaybeTransactionFormDispatchSchema = z.object(
-    {
-        action: z.literal(transactionFormActions.setForageWorkerMaybe),
-        payload: createOptionSchema(z.instanceof(Worker)),
-    },
-);
-
-const setCacheWorkerMaybeTransactionFormDispatchSchema = z.object(
-    {
-        action: z.literal(transactionFormActions.setCacheWorkerMaybe),
-        payload: createOptionSchema(z.instanceof(Worker)),
-    },
-);
-
-const setFetchWorkerMaybeTransactionFormDispatchSchema = z.object(
-    {
-        action: z.literal(transactionFormActions.setFetchWorkerMaybe),
-        payload: createOptionSchema(z.instanceof(Worker)),
-    },
-);
-
 const setIsLoadingTransactionFormDispatchSchema = z.object(
     {
         action: z.literal(transactionFormActions.setIsLoading),
@@ -114,9 +93,6 @@ type TransactionFormDispatch =
     | z.infer<typeof setCategoryTransactionFormDispatchSchema>
     | z.infer<typeof setDateTimeTransactionFormDispatchSchema>
     | z.infer<typeof setDescendantIdTransactionFormDispatchSchema>
-    | z.infer<typeof setForageWorkerMaybeTransactionFormDispatchSchema>
-    | z.infer<typeof setCacheWorkerMaybeTransactionFormDispatchSchema>
-    | z.infer<typeof setFetchWorkerMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setIsLoadingTransactionFormDispatchSchema>
     | z.infer<typeof setMerchantTransactionFormDispatchSchema>
     | z.infer<typeof setNotesTransactionFormDispatchSchema>
@@ -128,13 +104,10 @@ type TransactionFormDispatch =
 
 export {
     setAmountCentsTransactionFormDispatchSchema,
-    setCacheWorkerMaybeTransactionFormDispatchSchema,
     setCategoryTransactionFormDispatchSchema,
     setDataResultMaybeTransactionFormDispatchSchema,
     setDateTimeTransactionFormDispatchSchema,
     setDescendantIdTransactionFormDispatchSchema,
-    setFetchWorkerMaybeTransactionFormDispatchSchema,
-    setForageWorkerMaybeTransactionFormDispatchSchema,
     setIsLoadingTransactionFormDispatchSchema,
     setMerchantTransactionFormDispatchSchema,
     setNotesTransactionFormDispatchSchema,
