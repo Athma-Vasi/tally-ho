@@ -1,6 +1,5 @@
 import { useEffect, useReducer, useRef } from "react";
 import { Some } from "ts-results-es";
-import { v4 as uuidv4 } from "uuid";
 import { globalActions } from "../../../context/globalProvider/actions";
 import type { MessageEventMainToFetchWorker } from "../../../context/globalProvider/fetchWorker";
 import { useGlobalState } from "../../../hooks/useGlobalState";
@@ -49,14 +48,15 @@ function TransactionForm(
         amountCents,
         cacheWorkerMaybe,
         category,
+        dataResultMaybe,
         dateTime,
+        descendantId,
         fetchWorkerMaybe,
         forageWorkerMaybe,
         isLoading,
         merchant,
         notes,
         paymentMethod,
-        responseDataMaybe,
         safeErrorMaybe,
         tags,
         type,
@@ -70,6 +70,20 @@ function TransactionForm(
     const amountCentsInputRef = useRef<HTMLInputElement | null>(null);
     useEffect(() => {
         amountCentsInputRef.current?.focus?.();
+    }, []);
+
+    // after first mount, set up a forwarding address to globalProvider for worker parcels
+    useEffect(() => {
+        globalDispatch(
+            {
+                action: globalActions.setDescendantDispatchTable,
+                payload: {
+                    descendantId,
+                    descendantAction: transactionFormActions.setDataResultMaybe,
+                    descendantDispatch: transactionFormDispatch,
+                },
+            },
+        );
     }, []);
 
     if (safeErrorMaybe.isSome()) {
@@ -200,50 +214,7 @@ function TransactionForm(
             ) => {
                 event.preventDefault();
 
-                const descendantId = uuidv4();
-
-                globalDispatch(
-                    {
-                        action: globalActions.setDispatchesTable,
-                        payload: {
-                            descendantId,
-                            descendantAction:
-                                transactionFormActions.setResponseDataMaybe,
-                            descendantDispatch: transactionFormDispatch,
-                        },
-                    },
-                );
-
-                sendMessageToWorker<MessageEventMainToFetchWorker>(
-                    {
-                        actions: transactionFormActions,
-                        dispatch: transactionFormDispatch,
-                        message: {
-                            descendantId,
-                            requestInit: {
-                                method: "GET",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                            },
-                            url: "https://jsonplaceholder.typicode.com/posts",
-                        },
-                        workerMaybe: fetchWorkerMaybe,
-                    },
-                );
-
-                globalDispatch(
-                    {
-                        action: globalActions.setDispatchesTable,
-                        payload: {
-                            descendantId,
-                            descendantAction:
-                                transactionFormActions.setResponseDataMaybe,
-                            descendantDispatch: transactionFormDispatch,
-                        },
-                    },
-                );
-
+                // send message to worker with unique descendantId
                 sendMessageToWorker<MessageEventMainToFetchWorker>(
                     {
                         actions: transactionFormActions,

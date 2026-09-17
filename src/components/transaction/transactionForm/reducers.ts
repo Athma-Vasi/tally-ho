@@ -5,14 +5,15 @@ import {
     setAmountCentsTransactionFormDispatchSchema,
     setCacheWorkerMaybeTransactionFormDispatchSchema,
     setCategoryTransactionFormDispatchSchema,
+    setDataResultMaybeTransactionFormDispatchSchema,
     setDateTimeTransactionFormDispatchSchema,
+    setDescendantIdTransactionFormDispatchSchema,
     setFetchWorkerMaybeTransactionFormDispatchSchema,
     setForageWorkerMaybeTransactionFormDispatchSchema,
     setIsLoadingTransactionFormDispatchSchema,
     setMerchantTransactionFormDispatchSchema,
     setNotesTransactionFormDispatchSchema,
     setPaymentMethodTransactionFormDispatchSchema,
-    setResponseDataMaybeTransactionFormDispatchSchema,
     setSafeErrorMaybeTransactionFormDispatchSchema,
     setTagsTransactionFormDispatchSchema,
     setTypeTransactionFormDispatchSchema,
@@ -39,6 +40,10 @@ const transactionFormReducersMap: Map<
         transactionFormReducer_setAmountCents,
     ],
     [
+        transactionFormActions.setCacheWorkerMaybe,
+        transactionFormReducer_setCacheWorkerMaybe,
+    ],
+    [
         transactionFormActions.setCategory,
         transactionFormReducer_setCategory,
     ],
@@ -47,12 +52,12 @@ const transactionFormReducersMap: Map<
         transactionFormReducer_setDateTime,
     ],
     [
-        transactionFormActions.setForageWorkerMaybe,
-        transactionFormReducer_setForageWorkerMaybe,
+        transactionFormActions.setDescendantId,
+        transactionFormReducer_setDescendantId,
     ],
     [
-        transactionFormActions.setCacheWorkerMaybe,
-        transactionFormReducer_setCacheWorkerMaybe,
+        transactionFormActions.setForageWorkerMaybe,
+        transactionFormReducer_setForageWorkerMaybe,
     ],
     [
         transactionFormActions.setFetchWorkerMaybe,
@@ -60,8 +65,8 @@ const transactionFormReducersMap: Map<
     ],
     [transactionFormActions.setIsLoading, transactionFormReducer_setIsLoading],
     [
-        transactionFormActions.setResponseDataMaybe,
-        transactionFormReducer_setResponseDataMaybe,
+        transactionFormActions.setDataResultMaybe,
+        transactionFormReducer_setDataResultMaybe,
     ],
     [
         transactionFormActions.setMerchant,
@@ -103,6 +108,20 @@ function transactionFormReducer_setAmountCents(
     );
 }
 
+function transactionFormReducer_setCacheWorkerMaybe(
+    state: TransactionFormState,
+    dispatch: TransactionFormDispatch,
+): TransactionFormState {
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "cacheWorkerMaybe",
+            state,
+            schema: setCacheWorkerMaybeTransactionFormDispatchSchema,
+        },
+    );
+}
+
 function transactionFormReducer_setCategory(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
@@ -131,6 +150,20 @@ function transactionFormReducer_setDateTime(
     );
 }
 
+function transactionFormReducer_setDescendantId(
+    state: TransactionFormState,
+    dispatch: TransactionFormDispatch,
+): TransactionFormState {
+    return parseDispatchAndSetState(
+        {
+            dispatch,
+            key: "descendantId",
+            state,
+            schema: setDescendantIdTransactionFormDispatchSchema,
+        },
+    );
+}
+
 function transactionFormReducer_setForageWorkerMaybe(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
@@ -141,20 +174,6 @@ function transactionFormReducer_setForageWorkerMaybe(
             key: "forageWorkerMaybe",
             state,
             schema: setForageWorkerMaybeTransactionFormDispatchSchema,
-        },
-    );
-}
-
-function transactionFormReducer_setCacheWorkerMaybe(
-    state: TransactionFormState,
-    dispatch: TransactionFormDispatch,
-): TransactionFormState {
-    return parseDispatchAndSetState(
-        {
-            dispatch,
-            key: "cacheWorkerMaybe",
-            state,
-            schema: setCacheWorkerMaybeTransactionFormDispatchSchema,
         },
     );
 }
@@ -229,16 +248,16 @@ function transactionFormReducer_setPaymentMethod(
     );
 }
 
-function transactionFormReducer_setResponseDataMaybe(
+function transactionFormReducer_setDataResultMaybe(
     state: TransactionFormState,
     dispatch: TransactionFormDispatch,
 ): TransactionFormState {
     return parseDispatchAndSetState(
         {
             dispatch,
-            key: "responseDataMaybe",
+            key: "dataResultMaybe",
             state,
-            schema: setResponseDataMaybeTransactionFormDispatchSchema,
+            schema: setDataResultMaybeTransactionFormDispatchSchema,
         },
     );
 }
@@ -287,11 +306,20 @@ function transactionFormReducer_setType(
 
 export {
     transactionFormReducer,
+    transactionFormReducer_setAmountCents,
     transactionFormReducer_setCacheWorkerMaybe,
+    transactionFormReducer_setCategory,
+    transactionFormReducer_setDataResultMaybe,
+    transactionFormReducer_setDateTime,
+    transactionFormReducer_setDescendantId,
     transactionFormReducer_setFetchWorkerMaybe,
     transactionFormReducer_setForageWorkerMaybe,
     transactionFormReducer_setIsLoading,
-    transactionFormReducer_setResponseDataMaybe,
+    transactionFormReducer_setMerchant,
+    transactionFormReducer_setNotes,
+    transactionFormReducer_setPaymentMethod,
     transactionFormReducer_setSafeErrorMaybe,
+    transactionFormReducer_setTags,
+    transactionFormReducer_setType,
     transactionFormReducersMap,
 };

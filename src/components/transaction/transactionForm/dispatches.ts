@@ -1,5 +1,6 @@
 import { Err } from "ts-results-es";
 import { z } from "zod";
+import { data_result_schema } from "../../../schemas";
 import { createOptionSchema } from "../../../utils";
 import { transactionFormActions } from "./actions";
 
@@ -17,9 +18,23 @@ const setCategoryTransactionFormDispatchSchema = z.object(
     },
 );
 
+const setDataResultMaybeTransactionFormDispatchSchema = z.object(
+    {
+        action: z.literal(transactionFormActions.setDataResultMaybe),
+        payload: createOptionSchema(data_result_schema),
+    },
+);
+
 const setDateTimeTransactionFormDispatchSchema = z.object(
     {
         action: z.literal(transactionFormActions.setDateTime),
+        payload: z.string(),
+    },
+);
+
+const setDescendantIdTransactionFormDispatchSchema = z.object(
+    {
+        action: z.literal(transactionFormActions.setDescendantId),
         payload: z.string(),
     },
 );
@@ -73,22 +88,6 @@ const setPaymentMethodTransactionFormDispatchSchema = z.object(
     },
 );
 
-const response_data_schema = z.object(
-    {
-        body: z.string(),
-        id: z.number(),
-        title: z.string(),
-        userId: z.number(),
-    },
-);
-
-const setResponseDataMaybeTransactionFormDispatchSchema = z.object(
-    {
-        action: z.literal(transactionFormActions.setResponseDataMaybe),
-        payload: createOptionSchema(z.array(response_data_schema)),
-    },
-);
-
 const setSafeErrorMaybeTransactionFormDispatchSchema = z.object(
     {
         action: z.literal(transactionFormActions.setSafeErrorMaybe),
@@ -114,6 +113,7 @@ type TransactionFormDispatch =
     | z.infer<typeof setAmountCentsTransactionFormDispatchSchema>
     | z.infer<typeof setCategoryTransactionFormDispatchSchema>
     | z.infer<typeof setDateTimeTransactionFormDispatchSchema>
+    | z.infer<typeof setDescendantIdTransactionFormDispatchSchema>
     | z.infer<typeof setForageWorkerMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setCacheWorkerMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setFetchWorkerMaybeTransactionFormDispatchSchema>
@@ -121,24 +121,24 @@ type TransactionFormDispatch =
     | z.infer<typeof setMerchantTransactionFormDispatchSchema>
     | z.infer<typeof setNotesTransactionFormDispatchSchema>
     | z.infer<typeof setPaymentMethodTransactionFormDispatchSchema>
-    | z.infer<typeof setResponseDataMaybeTransactionFormDispatchSchema>
+    | z.infer<typeof setDataResultMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setSafeErrorMaybeTransactionFormDispatchSchema>
     | z.infer<typeof setTagsTransactionFormDispatchSchema>
     | z.infer<typeof setTypeTransactionFormDispatchSchema>;
 
 export {
-    response_data_schema,
     setAmountCentsTransactionFormDispatchSchema,
     setCacheWorkerMaybeTransactionFormDispatchSchema,
     setCategoryTransactionFormDispatchSchema,
+    setDataResultMaybeTransactionFormDispatchSchema,
     setDateTimeTransactionFormDispatchSchema,
+    setDescendantIdTransactionFormDispatchSchema,
     setFetchWorkerMaybeTransactionFormDispatchSchema,
     setForageWorkerMaybeTransactionFormDispatchSchema,
     setIsLoadingTransactionFormDispatchSchema,
     setMerchantTransactionFormDispatchSchema,
     setNotesTransactionFormDispatchSchema,
     setPaymentMethodTransactionFormDispatchSchema,
-    setResponseDataMaybeTransactionFormDispatchSchema,
     setSafeErrorMaybeTransactionFormDispatchSchema,
     setTagsTransactionFormDispatchSchema,
     setTypeTransactionFormDispatchSchema,

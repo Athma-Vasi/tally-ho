@@ -6,9 +6,17 @@ import { globalActions } from "./actions";
 import type { MessageEventCacheWorkerToMain } from "./cacheWorker";
 import type { GlobalDispatch } from "./dispatches";
 import type { MessageEventFetchWorkerToMain } from "./fetchWorker";
+import type { DescendantDispatchTable } from "./state";
 
 async function handleMessageFromCacheWorker(
-    { errorDispatch, event, isComponentMountedRef, globalDispatch }: {
+    {
+        descendantDispatchTable,
+        errorDispatch,
+        event,
+        isComponentMountedRef,
+        globalDispatch,
+    }: {
+        descendantDispatchTable: DescendantDispatchTable;
         errorDispatch: React.Dispatch<ErrorDispatch>;
         event: MessageEventCacheWorkerToMain;
         isComponentMountedRef: React.RefObject<boolean>;
@@ -20,38 +28,24 @@ async function handleMessageFromCacheWorker(
     }
 
     try {
+        if (!event?.data) {
+            return None;
+        }
+
         const { data: { dataResult, descendantId } } = event;
-
-        if (dataResult.isErr()) {
-            globalDispatch(
-                {
-                    action: globalActions.setSafeErrorMaybe,
-                    payload: Some(dataResult),
-                },
-            );
-            return None;
-        }
-        const dataMaybe = dataResult.value;
-        if (dataMaybe.isNone()) {
-            globalDispatch(
-                {
-                    action: globalActions.setSafeErrorMaybe,
-                    payload: Some(
-                        createErrorResult(
-                            new WorkerMessageHandlerError(
-                                null,
-                                "Cache Worker returned None",
-                            ),
-                        ),
-                    ),
-                },
-            );
+        const obj = descendantDispatchTable.get(descendantId);
+        if (!obj) {
             return None;
         }
 
-        console.group("handleMessageFromCacheWorker");
-        console.log("dataMaybe", dataMaybe);
-        console.groupEnd();
+        const { descendantAction, descendantDispatch } = obj;
+        // forward the dataResult to the descendant using dispatch
+        descendantDispatch(
+            {
+                action: descendantAction,
+                payload: Some(dataResult),
+            },
+        );
 
         return None;
     } catch (error) {
@@ -73,7 +67,14 @@ async function handleMessageFromCacheWorker(
 }
 
 async function handleMessageFromFetchWorker(
-    { errorDispatch, event, isComponentMountedRef, globalDispatch }: {
+    {
+        descendantDispatchTable,
+        errorDispatch,
+        event,
+        isComponentMountedRef,
+        globalDispatch,
+    }: {
+        descendantDispatchTable: DescendantDispatchTable;
         errorDispatch: React.Dispatch<ErrorDispatch>;
         event: MessageEventFetchWorkerToMain;
         isComponentMountedRef: React.RefObject<boolean>;
@@ -85,38 +86,24 @@ async function handleMessageFromFetchWorker(
     }
 
     try {
+        if (!event?.data) {
+            return None;
+        }
+
         const { data: { dataResult, descendantId } } = event;
-
-        if (dataResult.isErr()) {
-            globalDispatch(
-                {
-                    action: globalActions.setSafeErrorMaybe,
-                    payload: Some(dataResult),
-                },
-            );
-            return None;
-        }
-        const dataMaybe = dataResult.value;
-        if (dataMaybe.isNone()) {
-            globalDispatch(
-                {
-                    action: globalActions.setSafeErrorMaybe,
-                    payload: Some(
-                        createErrorResult(
-                            new WorkerMessageHandlerError(
-                                null,
-                                "Fetch Worker returned None",
-                            ),
-                        ),
-                    ),
-                },
-            );
+        const obj = descendantDispatchTable.get(descendantId);
+        if (!obj) {
             return None;
         }
 
-        console.group("handleMessageFromFetchWorker");
-        console.log("dataMaybe", dataMaybe);
-        console.groupEnd();
+        const { descendantAction, descendantDispatch } = obj;
+        // forward the dataResult to the descendant using dispatch
+        descendantDispatch(
+            {
+                action: descendantAction,
+                payload: Some(dataResult),
+            },
+        );
 
         return None;
     } catch (error) {

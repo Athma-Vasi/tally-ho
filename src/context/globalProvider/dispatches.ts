@@ -9,14 +9,14 @@ const setCacheWorkerMaybeGlobalDispatchSchema = z.object(
     },
 );
 
-const setDispatchesTableGlobalDispatchSchema = z.object(
+const setDescendantDispatchTableGlobalDispatchSchema = z.object(
     {
-        action: z.literal(globalActions.setDispatchesTable),
+        action: z.literal(globalActions.setDescendantDispatchTable),
         payload: z.object(
             {
                 descendantId: z.string(),
                 descendantAction: z.string(),
-                descendantDispatch: z.any(),
+                descendantDispatch: z.function(),
             },
         ),
     },
@@ -38,13 +38,13 @@ const setSafeErrorMaybeGlobalDispatchSchema = z.object(
 
 type GlobalDispatch =
     | z.infer<typeof setCacheWorkerMaybeGlobalDispatchSchema>
-    | z.infer<typeof setDispatchesTableGlobalDispatchSchema>
+    | z.infer<typeof setDescendantDispatchTableGlobalDispatchSchema>
     | z.infer<typeof setFetchWorkerMaybeGlobalDispatchSchema>
     | z.infer<typeof setSafeErrorMaybeGlobalDispatchSchema>;
 
 export {
     setCacheWorkerMaybeGlobalDispatchSchema,
-    setDispatchesTableGlobalDispatchSchema,
+    setDescendantDispatchTableGlobalDispatchSchema,
     setFetchWorkerMaybeGlobalDispatchSchema,
     setSafeErrorMaybeGlobalDispatchSchema,
 };

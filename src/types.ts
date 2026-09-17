@@ -1,3 +1,4 @@
+import type React from "react";
 import type { Option, Result } from "ts-results-es";
 import type { AppErrorBase } from "./errors";
 
@@ -15,21 +16,28 @@ type AppResult<Data = unknown> = Result<
     AppErrorBase
 >;
 
-type ResponseData = {
-    body: string;
-    id: number;
-    title: string;
-    userId: number;
+type ParcelFromWorkerToMain<
+    Data = unknown,
+> = {
+    descendantId: string;
+    dataResult: AppResult<Data>;
 };
 
 type SafeSuccess<Data = unknown> = Option<Data>;
 
 type ValidationRegexes = Array<[RegExp, string]>;
 
+type DescendantUpdatingForwardingAddress = {
+    descendantId: string;
+    descendantAction: string;
+    descendantDispatch: React.Dispatch<any>;
+};
+
 export type {
     AppError,
     AppResult,
-    ResponseData,
+    DescendantUpdatingForwardingAddress,
+    ParcelFromWorkerToMain,
     SafeSuccess,
     ValidationRegexes,
 };

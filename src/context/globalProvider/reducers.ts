@@ -1,9 +1,10 @@
-import { parseDispatchAndSetState } from "../../utils";
+import type { DescendantUpdatingForwardingAddress } from "../../types";
+import { parseDispatchAndSetState, parseSyncSafe } from "../../utils";
 import { type GlobalActions, globalActions } from "./actions";
 import type { GlobalDispatch } from "./dispatches";
 import {
     setCacheWorkerMaybeGlobalDispatchSchema,
-    setDispatchesTableGlobalDispatchSchema,
+    setDescendantDispatchTableGlobalDispatchSchema,
     setFetchWorkerMaybeGlobalDispatchSchema,
     setSafeErrorMaybeGlobalDispatchSchema,
 } from "./dispatches";
@@ -27,8 +28,8 @@ const globalReducersMap: Map<
     globalActions.setCacheWorkerMaybe,
     globalReducer_setCacheWorkerMaybe,
 ], [
-    globalActions.setDispatchesTable,
-    globalReducer_setDispatchesTable,
+    globalActions.setDescendantDispatchTable,
+    globalReducer_setDescendantDispatchTable,
 ], [
     globalActions.setFetchWorkerMaybe,
     globalReducer_setFetchWorkerMaybe,
@@ -51,18 +52,42 @@ function globalReducer_setCacheWorkerMaybe(
     );
 }
 
-function globalReducer_setDispatchesTable(
+function globalReducer_setDescendantDispatchTable(
     state: GlobalState,
     dispatch: GlobalDispatch,
 ): GlobalState {
-    return parseDispatchAndSetState(
+    const parsedResult = parseSyncSafe(
         {
-            dispatch,
-            key: "dispatchesTable",
-            state,
-            schema: setDispatchesTableGlobalDispatchSchema,
+            object: dispatch,
+            schema: setDescendantDispatchTableGlobalDispatchSchema,
         },
     );
+
+    if (parsedResult.isErr()) {
+        return state;
+    }
+
+    const parsedMaybe = parsedResult.value;
+    if (parsedMaybe.isNone()) {
+        return state;
+    }
+
+    const { descendantAction, descendantDispatch, descendantId } = parsedMaybe
+        .value
+        .payload as unknown as DescendantUpdatingForwardingAddress;
+
+    const updatedTable = new Map(state.descendantDispatchTable).set(
+        descendantId,
+        {
+            descendantAction,
+            descendantDispatch,
+        },
+    );
+
+    return {
+        ...state,
+        descendantDispatchTable: updatedTable,
+    };
 }
 
 function globalReducer_setFetchWorkerMaybe(
@@ -96,7 +121,7 @@ function globalReducer_setSafeErrorMaybe(
 export {
     globalReducer,
     globalReducer_setCacheWorkerMaybe,
-    globalReducer_setDispatchesTable,
+    globalReducer_setDescendantDispatchTable,
     globalReducer_setFetchWorkerMaybe,
     globalReducer_setSafeErrorMaybe,
     globalReducersMap,

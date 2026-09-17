@@ -107,6 +107,7 @@ function parseDispatchAndSetState<
         | z.ZodNumber
         | z.ZodArray
         | z.ZodEnum
+        | z.ZodMap
         | z.ZodNullable<z.ZodCustom<Worker, Worker>>
         | z.ZodCustom<Worker, Worker>
         | z.ZodCustom<FormData, FormData>

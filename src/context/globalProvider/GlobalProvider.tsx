@@ -40,7 +40,7 @@ function GlobalProvider(
 
     const {
         cacheWorkerMaybe,
-        dispatchesTable,
+        descendantDispatchTable,
         fetchWorkerMaybe,
         safeErrorMaybe,
     } = globalState;
@@ -69,6 +69,7 @@ function GlobalProvider(
         ) => {
             await handleMessageFromCacheWorker(
                 {
+                    descendantDispatchTable,
                     errorDispatch,
                     event,
                     isComponentMountedRef,
@@ -87,6 +88,7 @@ function GlobalProvider(
         ) => {
             await handleMessageFromFetchWorker(
                 {
+                    descendantDispatchTable,
                     errorDispatch,
                     event,
                     isComponentMountedRef,

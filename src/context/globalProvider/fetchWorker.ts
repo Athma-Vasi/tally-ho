@@ -5,7 +5,7 @@ import {
     WorkerError,
     WorkerMessageError,
 } from "../../errors";
-import type { AppResult } from "../../types";
+import type { ParcelFromWorkerToMain } from "../../types";
 import {
     createErrorResult,
     createSuccessResult,
@@ -13,16 +13,9 @@ import {
     retryFetchSafe,
 } from "../../utils";
 
-type WorkerToMainParcel<
-    Data = unknown,
-> = {
-    descendantId: string;
-    dataResult: AppResult<Data>;
-};
-
 type MessageEventFetchWorkerToMain<
     Data = unknown,
-> = MessageEvent<WorkerToMainParcel<Data>>;
+> = MessageEvent<ParcelFromWorkerToMain<Data>>;
 
 type MessageEventMainToFetchWorker = MessageEvent<{
     descendantId: string;
@@ -80,7 +73,7 @@ type MessageEventMainToFetchWorker = MessageEvent<{
                 postMessageToMainThread(
                     {
                         message: {
-                            descendantId: event.data.descendantId,
+                            descendantId,
                             dataResult: responseResult,
                         },
                         self,
@@ -89,12 +82,12 @@ type MessageEventMainToFetchWorker = MessageEvent<{
                 return None;
             }
 
-            const responseMaybe = responseResult.unwrap();
+            const responseMaybe = responseResult.value;
             if (responseMaybe.isNone()) {
                 postMessageToMainThread(
                     {
                         message: {
-                            descendantId: event.data.descendantId,
+                            descendantId,
                             dataResult: createErrorResult(
                                 new WorkerMessageError(
                                     "Fetch worker returned None",
@@ -110,9 +103,9 @@ type MessageEventMainToFetchWorker = MessageEvent<{
             postMessageToMainThread(
                 {
                     message: {
-                        descendantId: event.data.descendantId,
+                        descendantId,
                         dataResult: createSuccessResult(
-                            responseMaybe.unwrap(),
+                            responseMaybe.value,
                         ),
                     },
                     self,
