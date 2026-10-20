@@ -24,9 +24,9 @@ const GlobalContext = createContext<{
 });
 
 type GlobalProviderProps = {
-    childComponentState: GlobalState;
+    childComponentState?: GlobalState;
     children?: React.ReactNode;
-    errorDispatch: React.Dispatch<ErrorDispatch>;
+    errorDispatch?: React.Dispatch<ErrorDispatch>;
 };
 
 function GlobalProvider(
@@ -70,7 +70,6 @@ function GlobalProvider(
             await handleMessageFromCacheWorker(
                 {
                     descendantDispatchTable,
-                    errorDispatch,
                     event,
                     isComponentMountedRef,
                     globalDispatch,
@@ -86,10 +85,14 @@ function GlobalProvider(
         fetchWorker.onmessage = async (
             event: MessageEventFetchWorkerToMain,
         ) => {
+            console.log("Received message from fetch worker:", event);
+            console.log(
+                "Descendant dispatch table for fetch worker message:",
+                descendantDispatchTable,
+            );
             await handleMessageFromFetchWorker(
                 {
                     descendantDispatchTable,
-                    errorDispatch,
                     event,
                     isComponentMountedRef,
                     globalDispatch,
@@ -103,7 +106,12 @@ function GlobalProvider(
             fetchWorker.terminate();
             isComponentMountedRef.current = false;
         };
-    }, []);
+    }, [
+        cacheWorkerMaybe,
+        fetchWorkerMaybe,
+        isComponentMountedRef,
+        descendantDispatchTable,
+    ]);
 
     const globalContextValue = useMemo(
         () => (

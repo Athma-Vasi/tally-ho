@@ -56,6 +56,10 @@ function globalReducer_setDescendantDispatchTable(
     state: GlobalState,
     dispatch: GlobalDispatch,
 ): GlobalState {
+    console.log(
+        "Handling setDescendantDispatchTable action with dispatch:",
+        dispatch,
+    );
     const parsedResult = parseSyncSafe(
         {
             object: dispatch,
@@ -64,11 +68,18 @@ function globalReducer_setDescendantDispatchTable(
     );
 
     if (parsedResult.isErr()) {
+        console.error(
+            "Failed to parse setDescendantDispatchTable dispatch:",
+            parsedResult.unwrap(),
+        );
         return state;
     }
 
     const parsedMaybe = parsedResult.value;
     if (parsedMaybe.isNone()) {
+        console.log(
+            "Parsed result is None, ignoring setDescendantDispatchTable dispatch.",
+        );
         return state;
     }
 
@@ -76,12 +87,22 @@ function globalReducer_setDescendantDispatchTable(
         .value
         .payload as unknown as DescendantUpdatingForwardingAddress;
 
+    console.log(
+        "Parsed descendant updating forwarding address:",
+        { descendantAction, descendantDispatch, descendantId },
+    );
+
     const updatedTable = new Map(state.descendantDispatchTable).set(
         descendantId,
         {
             descendantAction,
             descendantDispatch,
         },
+    );
+
+    console.log(
+        "Updated descendant dispatch table:",
+        updatedTable,
     );
 
     return {

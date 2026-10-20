@@ -1,417 +1,393 @@
 import localforage from "localforage";
-import { Err, None, Ok, type Option, Some } from "ts-results-es";
+import { Err, None, Ok, type Option, Result, Some } from "ts-results-es";
 import z from "zod";
 import {
-    AppErrorBase,
-    CacheError,
-    JSONError,
-    NetworkError,
-    NotFoundError,
-    ParseError,
-    PromiseAbortedError,
-    UnknownError,
-    WorkerMessageError,
+  AppErrorBase,
+  CacheError,
+  JSONError,
+  NetworkError,
+  NotFoundError,
+  ParseError,
+  PromiseAbortedError,
+  UnknownError,
+  WorkerMessageError,
 } from "./errors";
-import type { AppResult } from "./types";
+import type { AppResult, TransportOption, TransportResult } from "./types";
 
 function capitalizeString(str: string): string {
-    const trimmedStr = str.trim();
-    return `${trimmedStr.charAt(0).toUpperCase()}${trimmedStr.slice(1)}`;
+  const trimmedStr = str.trim();
+  return `${trimmedStr.charAt(0).toUpperCase()}${trimmedStr.slice(1)}`;
 }
 
-function createOptionSchema<Value extends any>(
-    value: Value,
-) {
-    return z.object({
-        isNone: z.function(),
-        isSome: z.function(),
-        value,
-    });
+function createOptionSchema<Value extends any>(value: Value) {
+  return z.object({
+    isNone: z.function(),
+    isSome: z.function(),
+    value,
+  });
 }
 
-function createSuccessResult<Data = unknown>(
-    data: Data,
-): Ok<Option<NonNullable<Data>>> {
-    return new Ok(data == null ? None : Some(data));
+function createSuccessResult<Data = unknown>(data: Data): Ok<Option<NonNullable<Data>>> {
+  return new Ok(data == null ? None : Some(data));
 }
 
-function createErrorResult(
-    appErrorBase: AppErrorBase,
-): Err<AppErrorBase> {
-    if (appErrorBase instanceof AppErrorBase) {
-        return new Err(appErrorBase);
-    }
+function createErrorResult(appErrorBase: AppErrorBase): Err<AppErrorBase> {
+  if (appErrorBase instanceof AppErrorBase) {
+    return new Err(appErrorBase);
+  }
 
-    return new Err(
-        new UnknownError(
-            appErrorBase,
-            "createErrorResult received non-AppErrorBase instance",
-        ),
-    );
+  return new Err(
+    new UnknownError(appErrorBase, "createErrorResult received non-AppErrorBase instance"),
+  );
 }
 
 async function getCachedItemAbortableSafe<Data = unknown>(
-    key: string,
-    signal: AbortSignal,
+  key: string,
+  signal: AbortSignal,
 ): Promise<AppResult<Data>> {
-    if (signal.aborted) {
-        return createErrorResult(
-            new PromiseAbortedError(
-                "getCachedItemAbortableSafe aborted before start",
-            ),
-        );
-    }
+  if (signal.aborted) {
+    return createErrorResult(
+      new PromiseAbortedError("getCachedItemAbortableSafe aborted before start"),
+    );
+  }
 
-    try {
-        const cacheOperation = localforage.getItem<Data>(key);
-        const data = await makeAbortable(cacheOperation, signal);
-        return createSuccessResult(data);
-    } catch (error: unknown) {
-        return createErrorResult(
-            new CacheError(error, `Failed to get cached item for key: ${key}`),
-        );
-    }
+  try {
+    const cacheOperation = localforage.getItem<Data>(key);
+    const data = await makeAbortable(cacheOperation, signal);
+    return createSuccessResult(data);
+  } catch (error: unknown) {
+    return createErrorResult(new CacheError(error, `Failed to get cached item for key: ${key}`));
+  }
 }
 
 // Helper function to make any promise abortable
-function makeAbortable<Data = unknown>(
-    promise: Promise<Data>,
-    signal: AbortSignal,
-): Promise<Data> {
-    return Promise.race([
-        promise,
-        new Promise<never>((_, reject) => {
-            if (signal.aborted) {
-                reject(
-                    new PromiseAbortedError(
-                        "Promise was aborted before it could complete",
-                    ),
-                );
-            }
+function makeAbortable<Data = unknown>(promise: Promise<Data>, signal: AbortSignal): Promise<Data> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => {
+      if (signal.aborted) {
+        reject(new PromiseAbortedError("Promise was aborted before it could complete"));
+      }
 
-            signal.addEventListener("abort", () => {
-                reject(
-                    new PromiseAbortedError(
-                        "Promise was aborted before it could complete",
-                    ),
-                );
-            });
-        }),
-    ]);
+      signal.addEventListener("abort", () => {
+        reject(new PromiseAbortedError("Promise was aborted before it could complete"));
+      });
+    }),
+  ]);
 }
 
 function parseDispatchAndSetState<
-    Payload extends
-        | z.ZodString
-        | z.ZodBoolean
-        | z.ZodNumber
-        | z.ZodArray
-        | z.ZodEnum
-        | z.ZodMap
-        | z.ZodNullable<z.ZodCustom<Worker, Worker>>
-        | z.ZodCustom<Worker, Worker>
-        | z.ZodCustom<FormData, FormData>
-        | z.ZodNullable<z.ZodCustom<Err<unknown>, Err<unknown>>>
-        | z.ZodRecord<z.ZodString, z.ZodUnknown>
-        | z.ZodObject = any,
-    Dispatch extends { action: string; payload: unknown } = {
-        action: string;
-        payload: unknown;
-    },
-    State extends Record<PropertyKey, unknown> = Record<PropertyKey, unknown>,
->(
-    { dispatch, key, state, schema }: {
-        dispatch: Dispatch;
-        schema: z.ZodObject<
-            {
-                action: z.ZodLiteral<string>;
-                payload: Payload;
-            }
-        >;
-        state: State;
-        key: keyof State;
-    },
-): State {
-    const parsedDispatchResult = parseSyncSafe(
-        {
-            object: dispatch,
-            schema,
-        },
-    );
+  Payload extends
+    | z.ZodString
+    | z.ZodBoolean
+    | z.ZodNumber
+    | z.ZodArray
+    | z.ZodEnum
+    | z.ZodMap
+    | z.ZodNullable<z.ZodCustom<Worker, Worker>>
+    | z.ZodCustom<Worker, Worker>
+    | z.ZodCustom<FormData, FormData>
+    | z.ZodNullable<z.ZodCustom<Err<unknown>, Err<unknown>>>
+    | z.ZodRecord<z.ZodString, z.ZodUnknown>
+    | z.ZodObject = any,
+  Dispatch extends { action: string; payload: unknown } = {
+    action: string;
+    payload: unknown;
+  },
+  State extends Record<PropertyKey, unknown> = Record<PropertyKey, unknown>,
+>({
+  dispatch,
+  key,
+  state,
+  schema,
+}: {
+  dispatch: Dispatch;
+  schema: z.ZodObject<{
+    action: z.ZodLiteral<string>;
+    payload: Payload;
+  }>;
+  state: State;
+  key: keyof State;
+}): State {
+  const parsedDispatchResult = parseSyncSafe({
+    object: dispatch,
+    schema,
+  });
 
-    if (parsedDispatchResult.isErr()) {
-        return state;
-    }
-    const parsedDispatchMaybe = parsedDispatchResult.unwrap();
-    if (parsedDispatchMaybe.isNone()) {
-        return state;
-    }
-    const parsedDispatch = parsedDispatchMaybe.unwrap();
+  if (parsedDispatchResult.isErr()) {
+    return state;
+  }
+  const parsedDispatchMaybe = parsedDispatchResult.unwrap();
+  if (parsedDispatchMaybe.isNone()) {
+    return state;
+  }
+  const parsedDispatch = parsedDispatchMaybe.unwrap();
 
-    return {
-        ...state,
-        [key]: parsedDispatch.payload as State[typeof key],
-    };
+  return {
+    ...state,
+    [key]: parsedDispatch.payload as State[typeof key],
+  };
 }
 
-function parseSyncSafe<Output = unknown>(
-    { object, schema }: {
-        object: Output;
-        schema: z.ZodType;
-    },
-): AppResult<Output> {
-    try {
-        const { data, error, success } = Array.isArray(object)
-            ? z.array(schema).safeParse(object)
-            : schema.safeParse(object);
+function parseSyncSafe<Output = unknown>({
+  object,
+  schema,
+}: {
+  object: Output;
+  schema: z.ZodType;
+}): AppResult<Output> {
+  try {
+    const { data, error, success } = Array.isArray(object)
+      ? z.array(schema).safeParse(object)
+      : schema.safeParse(object);
 
-        return success
-            ? createSuccessResult(data as Output)
-            : createErrorResult(
-                new ParseError(
-                    `Failed to parse object: ${error.message}`,
-                ),
-            );
-    } catch (error_: unknown) {
-        return createErrorResult(
-            new ParseError(
-                error_,
-                `Exception thrown during parse of object:
+    return success
+      ? createSuccessResult(data as Output)
+      : createErrorResult(new ParseError(`Failed to parse object: ${error.message}`));
+  } catch (error_: unknown) {
+    return createErrorResult(
+      new ParseError(
+        error_,
+        `Exception thrown during parse of object:
                 ${JSON.stringify(object, null, 2) ?? "unknown object"}`,
-            ),
-        );
-    }
+      ),
+    );
+  }
 }
 
 function postMessageToMainThread<
-    Data extends unknown,
-    Message extends { descendantId: string; dataResult: AppResult<Data> },
->(
-    { message, self }: { message: Message; self: Window & typeof globalThis },
-): None {
-    self.postMessage(message);
-    return None;
+  Data extends unknown,
+  Message extends { descendantId: string; dataResult: AppResult<Data> },
+>({ message, self }: { message: Message; self: Window & typeof globalThis }): None {
+  self.postMessage(message);
+  return None;
 }
 
-async function removeCachedItemAbortableSafe(
-    key: string,
-    signal: AbortSignal,
-): Promise<AppResult> {
-    if (signal.aborted) {
-        return createErrorResult(
-            new PromiseAbortedError(
-                "removeCachedItemAbortableSafe aborted before start",
-            ),
-        );
-    }
+async function removeCachedItemAbortableSafe(key: string, signal: AbortSignal): Promise<AppResult> {
+  if (signal.aborted) {
+    return createErrorResult(
+      new PromiseAbortedError("removeCachedItemAbortableSafe aborted before start"),
+    );
+  }
 
-    try {
-        const cacheOperation = localforage.removeItem(key);
-        await makeAbortable(cacheOperation, signal);
-        return new Ok(None);
-    } catch (error: unknown) {
-        return createErrorResult(
-            new CacheError(
-                error,
-                `Failed to remove cached item for key: ${key}`,
-            ),
-        );
-    }
+  try {
+    const cacheOperation = localforage.removeItem(key);
+    await makeAbortable(cacheOperation, signal);
+    return new Ok(None);
+  } catch (error: unknown) {
+    return createErrorResult(new CacheError(error, `Failed to remove cached item for key: ${key}`));
+  }
 }
 
 type RetryFetchOptions = {
-    backOffFactor?: number;
-    retries?: number;
-    delayMs?: number;
+  backOffFactor?: number;
+  retries?: number;
+  delayMs?: number;
 };
-async function retryFetchSafe<
-    Data = unknown,
->(
-    { requestInit, retryOptions, signal, url }: {
-        requestInit: RequestInit;
-        retryOptions?: RetryFetchOptions;
-        signal: AbortSignal | undefined;
-        url: RequestInfo | URL;
-    },
-): Promise<AppResult<Data>> {
-    const {
-        backOffFactor = 2,
-        retries = 3,
-        delayMs = 1000,
-    } = retryOptions ?? {};
+async function retryFetchSafe<Data = unknown>({
+  requestInit,
+  retryOptions,
+  signal,
+  url,
+}: {
+  requestInit: RequestInit;
+  retryOptions?: RetryFetchOptions;
+  signal: AbortSignal | undefined;
+  url: RequestInfo | URL;
+}): Promise<AppResult<Data>> {
+  const { backOffFactor = 2, retries = 3, delayMs = 1000 } = retryOptions ?? {};
 
-    async function tryAgain(
-        attempt: number,
-    ): Promise<AppResult<Data>> {
-        try {
-            const response: Response = await fetch(url, {
-                ...requestInit,
-                signal,
-            });
-            if (response == null) {
-                // perhaps a network-level failure occurred before any HTTP response could be received
-                // trigger a retry
-                throw new NetworkError("Response is null or undefined");
-            }
+  async function tryAgain(attempt: number): Promise<AppResult<Data>> {
+    try {
+      const response: Response = await fetch(url, {
+        ...requestInit,
+        signal,
+      });
+      if (response == null) {
+        // perhaps a network-level failure occurred before any HTTP response could be received
+        // trigger a retry
+        throw new NetworkError("Response is null or undefined");
+      }
 
-            try {
-                const data = await response.json();
-                if (data == null) {
-                    // trigger a retry
-                    throw new JSONError("Response data is null or undefined");
-                }
-
-                return Promise.resolve(
-                    createSuccessResult<Data>(
-                        data as Data,
-                    ),
-                );
-            } catch (error_: unknown) {
-                if (attempt === retries) {
-                    return Promise.resolve(
-                        createErrorResult(
-                            new JSONError(
-                                error_,
-                                "Failed to parse JSON response after maximum retries",
-                            ),
-                        ),
-                    );
-                }
-
-                throw new JSONError(error_);
-            }
-        } catch (error: unknown) {
-            if (attempt === retries) {
-                return Promise.resolve(
-                    createErrorResult(
-                        new NetworkError(error, 503, "Max retries reached"),
-                    ),
-                );
-            }
-
-            // Exponential backoff with jitter
-            const backOff = Math.pow(backOffFactor, attempt) * delayMs;
-            const jitter = backOff * 0.2 * (Math.random() - 0.5);
-            const delay = backOff + jitter;
-
-            console.log(
-                `Attempt ${attempt + 1} failed. Retrying in ${delay}ms...`,
-            );
-
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    tryAgain(attempt + 1).then(resolve);
-                }, delay);
-            });
+      try {
+        const data = await response.json();
+        if (data == null) {
+          // trigger a retry
+          throw new JSONError("Response data is null or undefined");
         }
-    }
 
-    return tryAgain(0);
+        console.log("Fetch successful, received data:", data);
+
+        return Promise.resolve(createSuccessResult<Data>(data as Data));
+      } catch (error_: unknown) {
+        if (attempt === retries) {
+          return Promise.resolve(
+            createErrorResult(
+              new JSONError(error_, "Failed to parse JSON response after maximum retries"),
+            ),
+          );
+        }
+
+        throw new JSONError(error_);
+      }
+    } catch (error: unknown) {
+      if (attempt === retries) {
+        return Promise.resolve(
+          createErrorResult(new NetworkError(error, 503, "Max retries reached")),
+        );
+      }
+
+      // Exponential backoff with jitter
+      const backOff = Math.pow(backOffFactor, attempt) * delayMs;
+      const jitter = backOff * 0.2 * (Math.random() - 0.5);
+      const delay = backOff + jitter;
+
+      console.log(`Attempt ${attempt + 1} failed. Retrying in ${delay}ms...`);
+
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          tryAgain(attempt + 1).then(resolve);
+        }, delay);
+      });
+    }
+  }
+
+  return tryAgain(0);
 }
 
 function sendMessageToWorker<
-    MsgEvent extends MessageEvent = MessageEvent,
-    Actions extends Record<string, string> & {
-        setSafeErrorMaybe: "setSafeErrorMaybe";
-    } =
-        & Record<string, string>
-        & { setSafeErrorMaybe: "setSafeErrorMaybe" },
->(
-    { actions, dispatch, message, workerMaybe }: {
-        actions: Actions;
-        dispatch: React.ActionDispatch<[dispatch: any]>;
-        message: MsgEvent["data"];
-        workerMaybe: Option<Worker>;
-    },
-): None {
-    try {
-        if (workerMaybe.isNone()) {
-            dispatch({
-                action: actions.setSafeErrorMaybe,
-                payload: Some(
-                    createErrorResult(
-                        new NotFoundError(
-                            `Worker is not initialized for message: ${
-                                String(message)
-                            }`,
-                        ),
-                    ),
-                ),
-            });
+  MsgEvent extends MessageEvent = MessageEvent,
+  Actions extends Record<string, string> & {
+    setSafeErrorMaybe: "setSafeErrorMaybe";
+  } = Record<string, string> & { setSafeErrorMaybe: "setSafeErrorMaybe" },
+>({
+  actions,
+  dispatch,
+  message,
+  workerMaybe,
+}: {
+  actions: Actions;
+  dispatch: React.ActionDispatch<[dispatch: any]>;
+  message: MsgEvent["data"];
+  workerMaybe: Option<Worker>;
+}): None {
+  try {
+    if (workerMaybe.isNone()) {
+      dispatch({
+        action: actions.setSafeErrorMaybe,
+        payload: Some(
+          createErrorResult(
+            new NotFoundError(`Worker is not initialized for message: ${String(message)}`),
+          ),
+        ),
+      });
 
-            return None;
-        }
-
-        const worker = workerMaybe.value;
-        worker.postMessage(message);
-        return None;
-    } catch (error) {
-        dispatch({
-            action: actions.setSafeErrorMaybe,
-            payload: Some(
-                createErrorResult(
-                    new WorkerMessageError(
-                        error,
-                        `Failed to post message: ${String(message)} to worker`,
-                    ),
-                ),
-            ),
-        });
-        return None;
+      return None;
     }
+
+    const worker = workerMaybe.value;
+    worker.postMessage(message);
+    return None;
+  } catch (error) {
+    dispatch({
+      action: actions.setSafeErrorMaybe,
+      payload: Some(
+        createErrorResult(
+          new WorkerMessageError(error, `Failed to post message: ${String(message)} to worker`),
+        ),
+      ),
+    });
+    return None;
+  }
 }
 
 async function setCachedItemAbortableSafe<Data = unknown>(
-    key: string,
-    value: Data,
-    signal: AbortSignal,
+  key: string,
+  value: Data,
+  signal: AbortSignal,
 ): Promise<AppResult> {
-    if (signal.aborted) {
-        return createErrorResult(
-            new PromiseAbortedError(
-                "setCachedItemAbortableSafe aborted before start",
-            ),
-        );
-    }
+  if (signal.aborted) {
+    return createErrorResult(
+      new PromiseAbortedError("setCachedItemAbortableSafe aborted before start"),
+    );
+  }
 
-    try {
-        const cacheOperation = localforage.setItem<Data>(key, value);
-        await makeAbortable(cacheOperation, signal);
-        return new Ok(None);
-    } catch (error: unknown) {
-        return createErrorResult(
-            new CacheError(error, `Failed to set cached item for key: ${key}`),
-        );
-    }
+  try {
+    const cacheOperation = localforage.setItem<Data>(key, value);
+    await makeAbortable(cacheOperation, signal);
+    return new Ok(None);
+  } catch (error: unknown) {
+    return createErrorResult(new CacheError(error, `Failed to set cached item for key: ${key}`));
+  }
 }
 
 function splitCamelCase(word: string): string {
-    const result = parseSyncSafe({
-        object: word,
-        schema: z.string(),
-    });
-    if (result.isErr() || result.value.isNone()) {
-        return "";
-    }
-    // Replace lowercase-uppercase pairs with a space in between
-    const splitStr = result.value.unwrap().replace(/([a-z])([A-Z])/g, "$1 $2");
-    // Capitalize the first letter of the resulting string
-    return splitStr.charAt(0).toUpperCase() + splitStr.slice(1);
+  const result = parseSyncSafe({
+    object: word,
+    schema: z.string(),
+  });
+  if (result.isErr() || result.value.isNone()) {
+    return "";
+  }
+  // Replace lowercase-uppercase pairs with a space in between
+  const splitStr = result.value.unwrap().replace(/([a-z])([A-Z])/g, "$1 $2");
+  // Capitalize the first letter of the resulting string
+  return splitStr.charAt(0).toUpperCase() + splitStr.slice(1);
+}
+
+// --- Result Converters ---
+
+/** Convert a ts-results-es Result into a plain worker-safe object */
+function toTransportResult<T, E>(res: Result<T, E>): TransportResult<T, E> {
+  if (res.isOk()) {
+    return { ok: true, value: res.value };
+  }
+  return { ok: false, error: res.error };
+}
+
+/** Convert a plain worker-safe object back into a ts-results-es Result */
+function fromTransportResult<T, E>(transport: TransportResult<T, E>): Result<T, E> {
+  if (transport.ok) {
+    return new Ok(transport.value);
+  }
+  return new Err(transport.error);
+}
+
+// --- Option Converters ---
+
+/** Convert a ts-results-es Option into a plain worker-safe object */
+function toTransportOption<T>(opt: Option<T>): TransportOption<T> {
+  if (opt.isSome()) {
+    return { hasValue: true, value: opt.value };
+  }
+  return { hasValue: false };
+}
+
+/** Convert a plain worker-safe object back into a ts-results-es Option */
+function fromTransportOption<T>(transport: TransportOption<T>): Option<T> {
+  if (transport.hasValue) {
+    return Some(transport.value);
+  }
+  return None;
 }
 
 export {
-    capitalizeString,
-    createErrorResult,
-    createOptionSchema,
-    createSuccessResult,
-    getCachedItemAbortableSafe,
-    parseDispatchAndSetState,
-    parseSyncSafe,
-    postMessageToMainThread,
-    removeCachedItemAbortableSafe,
-    retryFetchSafe,
-    sendMessageToWorker,
-    setCachedItemAbortableSafe,
-    splitCamelCase,
+  capitalizeString,
+  createErrorResult,
+  createOptionSchema,
+  createSuccessResult,
+  fromTransportOption,
+  fromTransportResult,
+  getCachedItemAbortableSafe,
+  parseDispatchAndSetState,
+  parseSyncSafe,
+  postMessageToMainThread,
+  removeCachedItemAbortableSafe,
+  retryFetchSafe,
+  sendMessageToWorker,
+  setCachedItemAbortableSafe,
+  splitCamelCase,
+  toTransportOption,
+  toTransportResult,
 };
 export type { RetryFetchOptions };

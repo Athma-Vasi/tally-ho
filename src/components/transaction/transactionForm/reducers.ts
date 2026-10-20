@@ -199,7 +199,10 @@ function transactionFormReducer_setDataResultMaybe(
         {
             dispatch,
             key: "dataResultMaybe",
-            state,
+            state: {
+                ...state,
+                isLoading: false,
+            },
             schema: setDataResultMaybeTransactionFormDispatchSchema,
         },
     );

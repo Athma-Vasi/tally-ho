@@ -1,5 +1,4 @@
 import { useEffect, useReducer, useRef } from "react";
-import { Some } from "ts-results-es";
 import { globalActions } from "../../../context/globalProvider/actions";
 import type { MessageEventMainToFetchWorker } from "../../../context/globalProvider/fetchWorker";
 import { useGlobalState } from "../../../hooks/useGlobalState";
@@ -71,6 +70,10 @@ function TransactionForm(
 
     // after first mount, set up a forwarding address to globalProvider for worker parcels
     useEffect(() => {
+        console.log(
+            "Setting up descendant dispatch table for descendantId:",
+            descendantId,
+        );
         globalDispatch(
             {
                 action: globalActions.setDescendantDispatchTable,
@@ -210,6 +213,14 @@ function TransactionForm(
                 event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
             ) => {
                 event.preventDefault();
+                console.log(
+                    "Submitting transaction form with state:",
+                    transactionFormState,
+                );
+                console.log(
+                    "Global state when submitting transaction form:",
+                    globalState,
+                );
 
                 // send message to worker with unique descendantId
                 sendMessageToWorker<MessageEventMainToFetchWorker>(

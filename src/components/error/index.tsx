@@ -19,9 +19,9 @@ function ErrorSuspenseHOC<
     >,
 >(
     Component: React.ComponentType<{
-        childComponentState: Props;
+        childComponentState?: Props;
         children?: React.ReactNode;
-        errorDispatch: React.Dispatch<ErrorDispatch>;
+        errorDispatch?: React.Dispatch<ErrorDispatch>;
     }>,
 ) {
     return function ErrorSuspenseHOC(initialChildComponentState: Props) {
