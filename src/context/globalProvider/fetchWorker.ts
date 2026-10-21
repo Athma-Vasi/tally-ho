@@ -1,7 +1,7 @@
 import { None } from "ts-results-es";
 import { fetch_timeout_ms } from "../../constants";
 import { PromiseRejectionError, WorkerError, WorkerMessageError } from "../../errors";
-import type { ParcelFromWorkerToMain } from "../../types";
+import type { TransportResult } from "../../types";
 import {
   createErrorResult,
   createSuccessResult,
@@ -9,13 +9,22 @@ import {
   retryFetchSafe,
 } from "../../utils";
 
-type MessageEventFetchWorkerToMain<Data = unknown> = MessageEvent<ParcelFromWorkerToMain<Data>>;
-
-type MessageEventMainToFetchWorker = MessageEvent<{
+type ParcelFromFetchWorkerToMain<Parcel = unknown> = {
   descendantId: string;
-  url: string;
+  parcelResult: TransportResult<Parcel>;
+};
+
+type OrderFromMainToFetchWorker = {
+  descendantId: string;
   requestInit: RequestInit;
-}>;
+  url: URL | string;
+};
+
+type MessageEventFetchWorkerToMain<Data = unknown> = MessageEvent<
+  ParcelFromFetchWorkerToMain<Data>
+>;
+
+type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
 
 {
   // block scope for persistent worker state
@@ -51,7 +60,7 @@ type MessageEventMainToFetchWorker = MessageEvent<{
     }, fetch_timeout_ms);
 
     try {
-      const { descendantId, url, requestInit } = event.data;
+      const { descendantId, requestInit, url } = event.data;
 
       console.log("Fetching URL in fetch worker:", url);
       const responseResult = await retryFetchSafe({
@@ -178,4 +187,9 @@ type MessageEventMainToFetchWorker = MessageEvent<{
   self.addEventListener("unhandledrejection", handleWorkerPromiseRejection);
 }
 
-export type { MessageEventFetchWorkerToMain, MessageEventMainToFetchWorker };
+export type {
+  MessageEventFetchWorkerToMain,
+  MessageEventMainToFetchWorker,
+  OrderFromMainToFetchWorker,
+  ParcelFromFetchWorkerToMain,
+};

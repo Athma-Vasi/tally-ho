@@ -335,6 +335,15 @@ function splitCamelCase(word: string): string {
   return splitStr.charAt(0).toUpperCase() + splitStr.slice(1);
 }
 
+function createOkTransportResult<Data extends unknown = unknown>(
+  data: Data,
+): TransportResult<Data> {
+  return {
+    ok: true,
+    value: data,
+  };
+}
+
 // --- Result Converters ---
 
 /** Convert a ts-results-es Result into a plain worker-safe object */
@@ -374,6 +383,7 @@ function fromTransportOption<T>(transport: TransportOption<T>): Option<T> {
 export {
   capitalizeString,
   createErrorResult,
+  createOkTransportResult,
   createOptionSchema,
   createSuccessResult,
   fromTransportOption,

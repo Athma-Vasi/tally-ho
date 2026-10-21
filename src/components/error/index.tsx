@@ -13,99 +13,91 @@ import { initialErrorState } from "./state";
 
 // Wraps a component with shared error handling, worker-backed logging, and suspense support.
 function ErrorSuspenseHOC<
-    Props extends Record<PropertyKey, unknown> = Record<
-        PropertyKey,
-        unknown
-    >,
+  Props extends Record<PropertyKey, unknown> = Record<PropertyKey, unknown>,
 >(
-    Component: React.ComponentType<{
-        childComponentState?: Props;
-        children?: React.ReactNode;
-        errorDispatch?: React.Dispatch<ErrorDispatch>;
-    }>,
+  Component: React.ComponentType<{
+    childComponentState: Props;
+    children: React.ReactNode;
+    errorDispatch: React.Dispatch<ErrorDispatch>;
+  }>,
 ) {
-    return function ErrorSuspenseHOC(initialChildComponentState: Props) {
-        const [
-            errorState,
-            errorDispatch,
-        ] = useReducer(errorReducer, initialErrorState);
-        const { childComponentState, loggerWorkerMaybe } = errorState;
+  return function ErrorSuspenseHOC(initialChildComponentState: Props) {
+    const [errorState, errorDispatch] = useReducer(errorReducer, initialErrorState);
+    const { childComponentState, loggerWorkerMaybe } = errorState;
 
-        const isComponentMountedRef = useMountedRef();
+    const isComponentMountedRef = useMountedRef();
 
-        useEffect(() => {
-            // Initialize the logger worker exactly once for this mounted wrapper instance.
-            if (loggerWorkerMaybe.isSome()) {
-                return;
-            }
+    useEffect(() => {
+      // Initialize the logger worker exactly once for this mounted wrapper instance.
+      if (loggerWorkerMaybe.isSome()) {
+        return;
+      }
 
-            const loggerWorker = new LoggerWorker();
-            errorDispatch({
-                action: errorActions.setLoggerWorkerMaybe,
-                payload: Some(loggerWorker) as any,
-            });
-            loggerWorker.onmessage = async (
-                event: MessageEventLoggerWorkerToMain,
-            ) => {
-                // Route worker messages through a single handler to keep side effects centralized.
-                await handleMessageFromLoggerWorker({
-                    errorDispatch,
-                    event,
-                    isComponentMountedRef,
-                });
-            };
+      const loggerWorker = new LoggerWorker();
+      errorDispatch({
+        action: errorActions.setLoggerWorkerMaybe,
+        payload: Some(loggerWorker) as any,
+      });
+      loggerWorker.onmessage = async (event: MessageEventLoggerWorkerToMain) => {
+        // Route worker messages through a single handler to keep side effects centralized.
+        await handleMessageFromLoggerWorker({
+          errorDispatch,
+          event,
+          isComponentMountedRef,
+        });
+      };
 
-            return () => {
-                // Ensure the worker is torn down to prevent leaks and stale callbacks.
-                loggerWorker.terminate();
-                isComponentMountedRef.current = false;
-            };
-        }, [isComponentMountedRef, loggerWorkerMaybe]);
+      return () => {
+        // Ensure the worker is torn down to prevent leaks and stale callbacks.
+        loggerWorker.terminate();
+        isComponentMountedRef.current = false;
+      };
+    }, [isComponentMountedRef, loggerWorkerMaybe]);
 
-        // Allow reducer-driven state to override the initial child state as updates arrive.
-        const propsModified = {
-            childComponentState: {
-                ...initialChildComponentState,
-                ...childComponentState,
-            },
-
-            errorDispatch,
-        };
-
-        console.group("ErrorSuspenseHOC Render");
-        console.log("errorState", errorState);
-        console.log("propsModified", propsModified);
-        console.groupEnd();
-
-        return (
-            <ErrorBoundary
-                FallbackComponent={ErrorFallback as any}
-                onReset={(details: any) => {
-                    console.group("onReset triggered");
-                    console.log("details", details);
-                    console.groupEnd();
-                }}
-                onError={(error: any, info: any) => {
-                    console.group("onError triggered");
-                    console.log("error", error);
-                    console.log("info", info);
-                    console.groupEnd();
-
-                    if (loggerWorkerMaybe.isSome()) {
-                        // Forward error context to the logging worker for async processing.
-                        loggerWorkerMaybe.value.postMessage({
-                            url: "/test-url",
-                            requestInit: {},
-                        });
-                    }
-                }}
-            >
-                <Suspense fallback={<div>Loading...</div>}>
-                    <Component {...propsModified} />
-                </Suspense>
-            </ErrorBoundary>
-        );
+    // Allow reducer-driven state to override the initial child state as updates arrive.
+    const propsModified = {
+      childComponentState: {
+        ...initialChildComponentState,
+        ...childComponentState,
+      },
+      children: [],
+      errorDispatch,
     };
+
+    console.group("ErrorSuspenseHOC Render");
+    console.log("errorState", errorState);
+    console.log("propsModified", propsModified);
+    console.groupEnd();
+
+    return (
+      <ErrorBoundary
+        FallbackComponent={ErrorFallback as any}
+        onReset={(details: any) => {
+          console.group("onReset triggered");
+          console.log("details", details);
+          console.groupEnd();
+        }}
+        onError={(error: any, info: any) => {
+          console.group("onError triggered");
+          console.log("error", error);
+          console.log("info", info);
+          console.groupEnd();
+
+          if (loggerWorkerMaybe.isSome()) {
+            // Forward error context to the logging worker for async processing.
+            loggerWorkerMaybe.value.postMessage({
+              url: "/test-url",
+              requestInit: {},
+            });
+          }
+        }}
+      >
+        <Suspense fallback={<div>Loading...</div>}>
+          <Component {...propsModified} />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  };
 }
 
 export default ErrorSuspenseHOC;

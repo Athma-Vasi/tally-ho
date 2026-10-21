@@ -13,16 +13,6 @@ type AppError = {
 
 type AppResult<Data = unknown> = Result<SafeSuccess<Data>, AppErrorBase>;
 
-type ParcelFromWorkerToMain<Data = unknown> = {
-  descendantId: string;
-  transportResult: TransportResult<Data>;
-};
-
-type OrderFromMainToWorker<Data = unknown> = {
-  descendantId: string;
-  transportResult: TransportResult<Data>;
-};
-
 type SafeSuccess<Data = unknown> = Option<Data>;
 
 type ValidationRegexes = Array<[RegExp, string]>;
@@ -47,7 +37,6 @@ export type {
   AppError,
   AppResult,
   DescendantUpdatingForwardingAddress,
-  ParcelFromWorkerToMain,
   SafeSuccess,
   TransportOption,
   TransportResult,
