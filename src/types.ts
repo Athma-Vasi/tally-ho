@@ -1,6 +1,6 @@
 import type React from "react";
 import type { Option, Result } from "ts-results-es";
-import type { AppErrorBase } from "./errors";
+import type { AppErrorBase, TransportErrorStrings } from "./errors";
 
 type AppError = {
   name: string;
@@ -27,9 +27,11 @@ type DescendantUpdatingForwardingAddress = {
  * A plain, serializable envelope for crossing thread boundaries.
  * No methods, no prototype chain — safe for Structured Clone.
  */
-type TransportResult<Value, Error = string> =
-  | { ok: true; value: Value; error?: never }
-  | { ok: false; value?: never; error: Error };
+type TransportResult<Value, Error = TransportErrorStrings> =
+  // | { ok: true; value: Value; error?: never }
+  // | { ok: false; value?: never; error: Error };
+  // { isError: boolean; error: Error; isNone?: boolean; value?: Value };
+  { ok: true; value: Value } | { ok: false; value: " " };
 
 type TransportOption<Value> = { hasValue: true; value: Value } | { hasValue: false; value?: never };
 

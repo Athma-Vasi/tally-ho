@@ -1,6 +1,7 @@
 import localforage from "localforage";
 import { Err, None, Ok, type Option, Result, Some } from "ts-results-es";
 import z from "zod";
+import type { ParcelFromFetchWorkerToMain } from "./context/globalProvider/fetchWorker";
 import {
   AppErrorBase,
   CacheError,
@@ -155,11 +156,14 @@ function parseSyncSafe<Output = unknown>({
   }
 }
 
-function postMessageToMainThread<
-  Data extends unknown,
-  Message extends { descendantId: string; dataResult: AppResult<Data> },
->({ message, self }: { message: Message; self: Window & typeof globalThis }): None {
-  self.postMessage(message);
+function postMessageFromFetchWorkerToMainThread<Parcel extends ParcelFromFetchWorkerToMain>({
+  parcel,
+  self,
+}: {
+  parcel: Parcel;
+  self: Window & typeof globalThis;
+}): None {
+  self.postMessage(parcel);
   return None;
 }
 
@@ -344,6 +348,15 @@ function createOkTransportResult<Data extends unknown = unknown>(
   };
 }
 
+function createErrorTransportResult<E extends AppErrorBase = AppErrorBase>(
+  error: E,
+): TransportResult<never, E> {
+  return {
+    ok: false,
+    error,
+  };
+}
+
 // --- Result Converters ---
 
 /** Convert a ts-results-es Result into a plain worker-safe object */
@@ -391,7 +404,7 @@ export {
   getCachedItemAbortableSafe,
   parseDispatchAndSetState,
   parseSyncSafe,
-  postMessageToMainThread,
+  postMessageFromFetchWorkerToMainThread,
   removeCachedItemAbortableSafe,
   retryFetchSafe,
   sendMessageToWorker,
