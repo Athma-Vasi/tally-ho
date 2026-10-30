@@ -1,17 +1,8 @@
 import type React from "react";
 import type { Option, Result } from "ts-results-es";
-import type { AppErrorBase, TransportErrorStrings } from "./errors";
+import type { AppError } from "./errors";
 
-type AppError = {
-  name: string;
-  errorKind: string;
-  stack: string;
-  message: string;
-  status: Option<number>;
-  timestamp: string;
-};
-
-type AppResult<Data = unknown> = Result<SafeSuccess<Data>, AppErrorBase>;
+type AppResult<Data = unknown> = Result<SafeSuccess<Data>, AppError>;
 
 type SafeSuccess<Data = unknown> = Option<Data>;
 
@@ -27,16 +18,17 @@ type DescendantUpdatingForwardingAddress = {
  * A plain, serializable envelope for crossing thread boundaries.
  * No methods, no prototype chain — safe for Structured Clone.
  */
-type TransportResult<Value, Error = TransportErrorStrings> =
-  // | { ok: true; value: Value; error?: never }
-  // | { ok: false; value?: never; error: Error };
-  // { isError: boolean; error: Error; isNone?: boolean; value?: Value };
-  { ok: true; value: Value } | { ok: false; value: " " };
+type TransportResult<Value extends unknown = unknown, Error extends AppError = AppError> =
+  | { isOk: true; value: Value; error?: never }
+  | { isOk: false; value?: never; error: Error };
+// { isError: boolean; error: Error; isNone?: boolean; value?: Value };
+// { ok: true; value: Value } | { ok: false; value: " " };
 
-type TransportOption<Value> = { hasValue: true; value: Value } | { hasValue: false; value?: never };
+type TransportOption<Value extends unknown = unknown> =
+  | { hasValue: true; value: Value }
+  | { hasValue: false; value?: never };
 
 export type {
-  AppError,
   AppResult,
   DescendantUpdatingForwardingAddress,
   SafeSuccess,
