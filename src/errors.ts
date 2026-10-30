@@ -1,3 +1,5 @@
+import { Err, type Result } from "ts-results-es";
+
 function getErrorName(error: unknown): string {
   if (error === null) {
     return "Erorr was null.";
@@ -5,6 +7,10 @@ function getErrorName(error: unknown): string {
 
   if (error === undefined) {
     return "Error was undefined.";
+  }
+
+  if (error === typeof "string") {
+    return String(error);
   }
 
   if (error instanceof Error) {
@@ -21,6 +27,10 @@ function getErrorStack(error: unknown): string {
 
   if (error === undefined) {
     return "Error was undefined.";
+  }
+
+  if (error === typeof "string") {
+    return String(error);
   }
 
   if (error instanceof Error) {
@@ -50,10 +60,25 @@ function createAppError(error: unknown, message: string, kind: AppErrorKind): Ap
   return appError;
 }
 
+type AppErrorResult = Result<never, AppError>;
+
+function createAppErrorResult(error: unknown, message: string, kind: AppErrorKind): AppErrorResult {
+  const appError = createAppError(error, message, kind);
+  return new Err(appError);
+}
+
 function createAuthError(error?: unknown, message = "Authentication error occurred"): AppError {
   const authError: AppError = createAppError(error, message, "AuthError");
 
   return authError;
+}
+
+function createAuthErrorResult(
+  error?: unknown,
+  message = "Authentication error occurred",
+): AppErrorResult {
+  const authError = createAuthError(error, message);
+  return new Err(authError);
 }
 
 function createValidationError(error?: unknown, message = "Validation error occurred"): AppError {
@@ -62,16 +87,40 @@ function createValidationError(error?: unknown, message = "Validation error occu
   return validationError;
 }
 
+function createValidationErrorResult(
+  error?: unknown,
+  message = "Validation error occurred",
+): AppErrorResult {
+  const validationError = createValidationError(error, message);
+  return new Err(validationError);
+}
+
 function createDatabaseError(error?: unknown, message = "Database error occurred"): AppError {
   const databaseError: AppError = createAppError(error, message, "DatabaseError");
 
   return databaseError;
 }
 
+function createDatabaseErrorResult(
+  error?: unknown,
+  message = "Database error occurred",
+): AppErrorResult {
+  const databaseError = createDatabaseError(error, message);
+  return new Err(databaseError);
+}
+
 function createNotFoundError(error?: unknown, message = "Resource not found"): AppError {
   const notFoundError: AppError = createAppError(error, message, "NotFoundError");
 
   return notFoundError;
+}
+
+function createNotFoundErrorResult(
+  error?: unknown,
+  message = "Resource not found",
+): AppErrorResult {
+  const notFoundError = createNotFoundError(error, message);
+  return new Err(notFoundError);
 }
 
 function createNetworkError(
@@ -189,6 +238,14 @@ function createTokenCreationError(
   return tokenCreationError;
 }
 
+function createTokenCreationErrorResult(
+  error?: unknown,
+  message = "Token creation error occurred",
+): AppErrorResult {
+  const tokenCreationError = createTokenCreationError(error, message);
+  return new Err(tokenCreationError);
+}
+
 function createTokenDecodeError(
   error?: unknown,
   message = "Token decoding error occurred",
@@ -196,6 +253,14 @@ function createTokenDecodeError(
   const tokenDecodeError: AppError = createAppError(error, message, "TokenDecodeError");
 
   return tokenDecodeError;
+}
+
+function createTokenDecodeErrorResult(
+  error?: unknown,
+  message = "Token decoding error occurred",
+): AppErrorResult {
+  const tokenDecodeError = createTokenDecodeError(error, message);
+  return new Err(tokenDecodeError);
 }
 
 function createTokenVerificationError(
@@ -207,6 +272,14 @@ function createTokenVerificationError(
   return tokenVerificationError;
 }
 
+function createTokenVerificationErrorResult(
+  error?: unknown,
+  message = "Token verification error occurred",
+): AppErrorResult {
+  const tokenVerificationError = createTokenVerificationError(error, message);
+  return new Err(tokenVerificationError);
+}
+
 function createTokenSignatureError(
   error?: unknown,
   message = "Token signature error occurred",
@@ -216,10 +289,26 @@ function createTokenSignatureError(
   return tokenSignatureError;
 }
 
+function createTokenSignatureErrorResult(
+  error?: unknown,
+  message = "Token signature error occurred",
+): AppErrorResult {
+  const tokenSignatureError = createTokenSignatureError(error, message);
+  return new Err(tokenSignatureError);
+}
+
 function createTimeoutError(error?: unknown, message = "Operation timed out"): AppError {
   const timeoutError: AppError = createAppError(error, message, "TimeoutError");
 
   return timeoutError;
+}
+
+function createTimeoutErrorResult(
+  error?: unknown,
+  message = "Operation timed out",
+): AppErrorResult {
+  const timeoutError = createTimeoutError(error, message);
+  return new Err(timeoutError);
 }
 
 function createPromiseRejectionError(
@@ -231,10 +320,26 @@ function createPromiseRejectionError(
   return promiseRejectionError;
 }
 
+function createPromiseRejectionErrorResult(
+  error?: unknown,
+  message = "Unhandled promise rejection",
+): AppErrorResult {
+  const promiseRejectionError = createPromiseRejectionError(error, message);
+  return new Err(promiseRejectionError);
+}
+
 function createPromiseAbortedError(error?: unknown, message = "Promise was aborted"): AppError {
   const promiseAbortedError: AppError = createAppError(error, message, "PromiseAbortedError");
 
   return promiseAbortedError;
+}
+
+function createPromiseAbortedErrorResult(
+  error?: unknown,
+  message = "Promise was aborted",
+): AppErrorResult {
+  const promiseAbortedError = createPromiseAbortedError(error, message);
+  return new Err(promiseAbortedError);
 }
 
 function createRetryLimitExceededError(
@@ -250,6 +355,14 @@ function createRetryLimitExceededError(
   return retryLimitExceededError;
 }
 
+function createRetryLimitExceededErrorResult(
+  error?: unknown,
+  message = "Retry limit exceeded",
+): AppErrorResult {
+  const retryLimitExceededError = createRetryLimitExceededError(error, message);
+  return new Err(retryLimitExceededError);
+}
+
 function createHashComparisonError(
   error?: unknown,
   message = "Hash comparison error occurred",
@@ -257,6 +370,14 @@ function createHashComparisonError(
   const hashComparisonError: AppError = createAppError(error, message, "HashComparisonError");
 
   return hashComparisonError;
+}
+
+function createHashComparisonErrorResult(
+  error?: unknown,
+  message = "Hash comparison error occurred",
+): AppErrorResult {
+  const hashComparisonError = createHashComparisonError(error, message);
+  return new Err(hashComparisonError);
 }
 
 function createHashGenerationError(
@@ -268,10 +389,26 @@ function createHashGenerationError(
   return hashGenerationError;
 }
 
+function createHashGenerationErrorResult(
+  error?: unknown,
+  message = "Hash generation error occurred",
+): AppErrorResult {
+  const hashGenerationError = createHashGenerationError(error, message);
+  return new Err(hashGenerationError);
+}
+
 function createAbortError(error?: unknown, message = "Operation was aborted"): AppError {
   const abortError: AppError = createAppError(error, message, "AbortError");
 
   return abortError;
+}
+
+function createAbortErrorResult(
+  error?: unknown,
+  message = "Operation was aborted",
+): AppErrorResult {
+  const abortError = createAbortError(error, message);
+  return new Err(abortError);
 }
 
 function createCacheError(error?: unknown, message = "Cache error occurred"): AppError {
@@ -280,10 +417,20 @@ function createCacheError(error?: unknown, message = "Cache error occurred"): Ap
   return cacheError;
 }
 
+function createCacheErrorResult(error?: unknown, message = "Cache error occurred"): AppErrorResult {
+  const cacheError = createCacheError(error, message);
+  return new Err(cacheError);
+}
+
 function createJSONError(error?: unknown, message = "JSON error occurred"): AppError {
   const jsonError: AppError = createAppError(error, message, "JSONError");
 
   return jsonError;
+}
+
+function createJSONErrorResult(error?: unknown, message = "JSON error occurred"): AppErrorResult {
+  const jsonError = createJSONError(error, message);
+  return new Err(jsonError);
 }
 
 function createParseError(error?: unknown, message = "Parse error occurred"): AppError {
@@ -292,10 +439,23 @@ function createParseError(error?: unknown, message = "Parse error occurred"): Ap
   return parseError;
 }
 
+function createParseErrorResult(error?: unknown, message = "Parse error occurred"): AppErrorResult {
+  const parseError = createParseError(error, message);
+  return new Err(parseError);
+}
+
 function createInvariantError(error?: unknown, message = "Invariant error occurred"): AppError {
   const invariantError: AppError = createAppError(error, message, "InvariantError");
 
   return invariantError;
+}
+
+function createInvariantErrorResult(
+  error?: unknown,
+  message = "Invariant error occurred",
+): AppErrorResult {
+  const invariantError = createInvariantError(error, message);
+  return new Err(invariantError);
 }
 
 function createHTTPError(error?: unknown, message = "HTTP error occurred"): AppError {
@@ -304,16 +464,37 @@ function createHTTPError(error?: unknown, message = "HTTP error occurred"): AppE
   return httpError;
 }
 
+function createHTTPErrorResult(error?: unknown, message = "HTTP error occurred"): AppErrorResult {
+  const httpError = createHTTPError(error, message);
+  return new Err(httpError);
+}
+
 function createUnknownError(error?: unknown, message = "An unknown error occurred"): AppError {
   const unknownError: AppError = createAppError(error, message, "UnknownError");
 
   return unknownError;
 }
 
+function createUnknownErrorResult(
+  error?: unknown,
+  message = "An unknown error occurred",
+): AppErrorResult {
+  const unknownError = createUnknownError(error, message);
+  return new Err(unknownError);
+}
+
 function createWorkerError(error?: unknown, message = "Worker error occurred"): AppError {
   const workerError: AppError = createAppError(error, message, "WorkerError");
 
   return workerError;
+}
+
+function createWorkerErrorResult(
+  error?: unknown,
+  message = "Worker error occurred",
+): AppErrorResult {
+  const workerError = createWorkerError(error, message);
+  return new Err(workerError);
 }
 
 function createWorkerMessageError(
@@ -323,6 +504,14 @@ function createWorkerMessageError(
   const workerMessageError: AppError = createAppError(error, message, "WorkerMessageError");
 
   return workerMessageError;
+}
+
+function createWorkerMessageErrorResult(
+  error?: unknown,
+  message = "Worker message error occurred",
+): AppErrorResult {
+  const workerMessageError = createWorkerMessageError(error, message);
+  return new Err(workerMessageError);
 }
 
 function createWorkerMessageHandlerError(
@@ -336,6 +525,14 @@ function createWorkerMessageHandlerError(
   );
 
   return workerMessageHandlerError;
+}
+
+function createWorkerMessageHandlerErrorResult(
+  error?: unknown,
+  message = "Worker message handler error occurred",
+): AppErrorResult {
+  const workerMessageHandlerError = createWorkerMessageHandlerError(error, message);
+  return new Err(workerMessageHandlerError);
 }
 
 type AppErrorKind =
@@ -365,21 +562,27 @@ type AppErrorKind =
   | "WorkerMessageHandlerError"
   | "NetworkError";
 
-export type { AppErrorKind };
+export type { AppError, AppErrorKind };
 
 export {
   createAbortError,
+  createAbortErrorResult,
   createAuthError,
   createCacheError,
+  createCacheErrorResult,
   createDatabaseError,
   createHashComparisonError,
   createHashGenerationError,
   createHTTPError,
+  createHTTPErrorResult,
   createInvariantError,
+  createInvariantErrorResult,
   createJSONError,
+  createJSONErrorResult,
   createNetworkError,
   createNotFoundError,
   createParseError,
+  createParseErrorResult,
   createPromiseAbortedError,
   createPromiseRejectionError,
   createRetryLimitExceededError,
@@ -389,8 +592,12 @@ export {
   createTokenSignatureError,
   createTokenVerificationError,
   createUnknownError,
+  createUnknownErrorResult,
   createValidationError,
   createWorkerError,
+  createWorkerErrorResult,
   createWorkerMessageError,
+  createWorkerMessageErrorResult,
   createWorkerMessageHandlerError,
+  createWorkerMessageHandlerErrorResult,
 };

@@ -1,18 +1,8 @@
 import localforage from "localforage";
-import { Err, None, Ok, type Option, Result, Some } from "ts-results-es";
+import { Err, None, Ok, Result, Some, type Option } from "ts-results-es";
 import z from "zod";
 import type { ParcelFromFetchWorkerToMain } from "./context/globalProvider/fetchWorker";
-import {
-  AppErrorBase,
-  CacheError,
-  JSONError,
-  NetworkError,
-  NotFoundError,
-  ParseError,
-  PromiseAbortedError,
-  UnknownError,
-  WorkerMessageError,
-} from "./errors";
+import { createPromiseAbortedError, type AppError } from "./errors";
 import type { AppResult, TransportOption, TransportResult } from "./types";
 
 function capitalizeString(str: string): string {
@@ -32,14 +22,8 @@ function createSuccessResult<Data = unknown>(data: Data): Ok<Option<NonNullable<
   return new Ok(data == null ? None : Some(data));
 }
 
-function createErrorResult(appErrorBase: AppErrorBase): Err<AppErrorBase> {
-  if (appErrorBase instanceof AppErrorBase) {
-    return new Err(appErrorBase);
-  }
-
-  return new Err(
-    new UnknownError(appErrorBase, "createErrorResult received non-AppErrorBase instance"),
-  );
+function createErrorResult(appError: AppError): Err<AppError> {
+  return new Err(appError);
 }
 
 async function getCachedItemAbortableSafe<Data = unknown>(
@@ -48,7 +32,7 @@ async function getCachedItemAbortableSafe<Data = unknown>(
 ): Promise<AppResult<Data>> {
   if (signal.aborted) {
     return createErrorResult(
-      new PromiseAbortedError("getCachedItemAbortableSafe aborted before start"),
+      createPromiseAbortedError("getCachedItemAbortableSafe aborted before start"),
     );
   }
 
@@ -348,7 +332,7 @@ function createOkTransportResult<Data extends unknown = unknown>(
   };
 }
 
-function createErrorTransportResult<E extends AppErrorBase = AppErrorBase>(
+function createErrorTransportResult<E extends AppError = AppError>(
   error: E,
 ): TransportResult<never, E> {
   return {
