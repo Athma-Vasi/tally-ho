@@ -13,7 +13,6 @@ import {
   createPromiseAbortedError,
   createPromiseAbortedErrorResult,
   createWorkerMessageErrorResult,
-  type AppError,
 } from "./errors";
 import type { AppResult, TransportResult } from "./types";
 
@@ -147,7 +146,7 @@ function parseSyncSafe<Output = unknown>({
   }
 }
 
-function postMessageFromFetchWorkerToMainThread<Parcel extends ParcelFromFetchWorkerToMain>({
+function postMessageFromWorkerToMainThread<Parcel extends ParcelFromFetchWorkerToMain>({
   parcel,
   self,
 }: {
@@ -393,7 +392,7 @@ export {
   getCachedItemAbortableSafe,
   parseDispatchAndSetState,
   parseSyncSafe,
-  postMessageFromFetchWorkerToMainThread,
+  postMessageFromWorkerToMainThread,
   removeCachedItemAbortableSafe,
   retryFetchSafe,
   sendMessageToWorker,

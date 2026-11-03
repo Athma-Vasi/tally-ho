@@ -27,18 +27,32 @@ async function handleMessageFromCacheWorker({
     }
 
     const {
-      data: { dataResult, descendantId },
+      data: { parcelResult, descendantId },
     } = event;
     const obj = descendantDispatchTable.get(descendantId);
     if (!obj) {
       return None;
     }
 
+    const { isOk, value } = parcelResult;
+    if (!isOk) {
+      globalDispatch({
+        action: globalActions.setSafeErrorMaybe,
+        payload: Some(
+          createWorkerMessageHandlerErrorResult(
+            `Error in parcelResult for descendantId: ${descendantId}`,
+          ),
+        ),
+      });
+      return None;
+    }
+
     const { descendantAction, descendantDispatch } = obj;
-    // forward the dataResult to the descendant using dispatch
+    // forward the parcelResult to the descendant using dispatch
     descendantDispatch({
       action: descendantAction,
-      payload: Some(dataResult),
+      payload:
+        typeof value === "string" && value.length === 0 ? None : Some(value),
     });
 
     return None;
@@ -46,7 +60,10 @@ async function handleMessageFromCacheWorker({
     globalDispatch({
       action: globalActions.setSafeErrorMaybe,
       payload: Some(
-        createWorkerMessageHandlerErrorResult(error, "Error handling message from Cache Worker"),
+        createWorkerMessageHandlerErrorResult(
+          error,
+          "Error handling message from Cache Worker",
+        ),
       ),
     });
     return None;
@@ -106,7 +123,10 @@ async function handleMessageFromFetchWorker({
     globalDispatch({
       action: globalActions.setSafeErrorMaybe,
       payload: Some(
-        createWorkerMessageHandlerErrorResult(error, "Error handling message from Fetch Worker"),
+        createWorkerMessageHandlerErrorResult(
+          error,
+          "Error handling message from Fetch Worker",
+        ),
       ),
     });
     return None;

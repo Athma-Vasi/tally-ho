@@ -72,7 +72,7 @@ function createAppErrorResult(error: unknown, message: string, kind: AppErrorKin
   return new Err(appError);
 }
 
-function createTransportErrorResult(
+function createErrorTransportResult(
   error: unknown = new Error("Unknown Error"),
   message = "No message provided.",
   kind: AppErrorKind = "AppError",
@@ -790,6 +790,7 @@ export {
   createDatabaseError,
   createDatabaseErrorResult,
   createDatabaseErrorTransportResult,
+  createErrorTransportResult,
   createHashComparisonError,
   createHashComparisonErrorResult,
   createHashComparisonErrorTransportResult,
@@ -837,7 +838,6 @@ export {
   createTokenVerificationError,
   createTokenVerificationErrorResult,
   createTokenVerificationErrorTransportResult,
-  createTransportErrorResult,
   createUnknownError,
   createUnknownErrorResult,
   createValidationError,
