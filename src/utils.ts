@@ -1,9 +1,21 @@
 import localforage from "localforage";
-import { Err, None, Ok, Result, Some, type Option } from "ts-results-es";
+import { Err, None, Ok, Some, type Option } from "ts-results-es";
 import z from "zod";
 import type { ParcelFromFetchWorkerToMain } from "./context/globalProvider/fetchWorker";
-import { createPromiseAbortedError, type AppError } from "./errors";
-import type { AppResult, TransportOption, TransportResult } from "./types";
+import {
+  createAppError,
+  createCacheErrorResult,
+  createJSONError,
+  createJSONErrorResult,
+  createNetworkError,
+  createNetworkErrorResult,
+  createParseErrorResult,
+  createPromiseAbortedError,
+  createPromiseAbortedErrorResult,
+  createWorkerMessageErrorResult,
+  type AppError,
+} from "./errors";
+import type { AppResult, TransportResult } from "./types";
 
 function capitalizeString(str: string): string {
   const trimmedStr = str.trim();
@@ -22,18 +34,12 @@ function createSuccessResult<Data = unknown>(data: Data): Ok<Option<NonNullable<
   return new Ok(data == null ? None : Some(data));
 }
 
-function createErrorResult(appError: AppError): Err<AppError> {
-  return new Err(appError);
-}
-
 async function getCachedItemAbortableSafe<Data = unknown>(
   key: string,
   signal: AbortSignal,
 ): Promise<AppResult<Data>> {
   if (signal.aborted) {
-    return createErrorResult(
-      createPromiseAbortedError("getCachedItemAbortableSafe aborted before start"),
-    );
+    return createPromiseAbortedErrorResult("getCachedItemAbortableSafe aborted before start.");
   }
 
   try {
@@ -41,7 +47,7 @@ async function getCachedItemAbortableSafe<Data = unknown>(
     const data = await makeAbortable(cacheOperation, signal);
     return createSuccessResult(data);
   } catch (error: unknown) {
-    return createErrorResult(new CacheError(error, `Failed to get cached item for key: ${key}`));
+    return createCacheErrorResult(error, `Failed to get cached item for key: ${key}.`);
   }
 }
 
@@ -51,11 +57,11 @@ function makeAbortable<Data = unknown>(promise: Promise<Data>, signal: AbortSign
     promise,
     new Promise<never>((_, reject) => {
       if (signal.aborted) {
-        reject(new PromiseAbortedError("Promise was aborted before it could complete"));
+        reject(createPromiseAbortedError("Promise was aborted before it could complete."));
       }
 
       signal.addEventListener("abort", () => {
-        reject(new PromiseAbortedError("Promise was aborted before it could complete"));
+        reject(createPromiseAbortedError("Promise was aborted before it could complete."));
       });
     }),
   ]);
@@ -128,14 +134,15 @@ function parseSyncSafe<Output = unknown>({
 
     return success
       ? createSuccessResult(data as Output)
-      : createErrorResult(new ParseError(`Failed to parse object: ${error.message}`));
+      : createParseErrorResult(
+          error,
+          `Failed to parse object: ${error?.message ?? "Error message was null or undefined."}`,
+        );
   } catch (error_: unknown) {
-    return createErrorResult(
-      new ParseError(
-        error_,
-        `Exception thrown during parse of object:
-                ${JSON.stringify(object, null, 2) ?? "unknown object"}`,
-      ),
+    return createParseErrorResult(
+      error_,
+      `Exception thrown during parse of object:
+              ${String(object)}.`,
     );
   }
 }
@@ -153,9 +160,7 @@ function postMessageFromFetchWorkerToMainThread<Parcel extends ParcelFromFetchWo
 
 async function removeCachedItemAbortableSafe(key: string, signal: AbortSignal): Promise<AppResult> {
   if (signal.aborted) {
-    return createErrorResult(
-      new PromiseAbortedError("removeCachedItemAbortableSafe aborted before start"),
-    );
+    return createPromiseAbortedErrorResult("removeCachedItemAbortableSafe aborted before start.");
   }
 
   try {
@@ -163,7 +168,7 @@ async function removeCachedItemAbortableSafe(key: string, signal: AbortSignal): 
     await makeAbortable(cacheOperation, signal);
     return new Ok(None);
   } catch (error: unknown) {
-    return createErrorResult(new CacheError(error, `Failed to remove cached item for key: ${key}`));
+    return createCacheErrorResult(error, `Failed to remove cached item for key: ${key}.`);
   }
 }
 
@@ -194,14 +199,14 @@ async function retryFetchSafe<Data = unknown>({
       if (response == null) {
         // perhaps a network-level failure occurred before any HTTP response could be received
         // trigger a retry
-        throw new NetworkError("Response is null or undefined");
+        throw createNetworkError("Response is null or undefined.");
       }
 
       try {
         const data = await response.json();
         if (data == null) {
           // trigger a retry
-          throw new JSONError("Response data is null or undefined");
+          throw createJSONError("Response data is null or undefined.");
         }
 
         console.log("Fetch successful, received data:", data);
@@ -210,19 +215,15 @@ async function retryFetchSafe<Data = unknown>({
       } catch (error_: unknown) {
         if (attempt === retries) {
           return Promise.resolve(
-            createErrorResult(
-              new JSONError(error_, "Failed to parse JSON response after maximum retries"),
-            ),
+            createJSONErrorResult(error_, "Failed to parse JSON response after maximum retries."),
           );
         }
 
-        throw new JSONError(error_);
+        throw createJSONError(error_);
       }
     } catch (error: unknown) {
       if (attempt === retries) {
-        return Promise.resolve(
-          createErrorResult(new NetworkError(error, 503, "Max retries reached")),
-        );
+        return Promise.resolve(createNetworkErrorResult(error, 503, "Max retries reached."));
       }
 
       // Exponential backoff with jitter
@@ -263,9 +264,10 @@ function sendMessageToWorker<
     if (workerMaybe.isNone()) {
       dispatch({
         action: actions.setSafeErrorMaybe,
-        payload: Some(
-          createErrorResult(
-            new NotFoundError(`Worker is not initialized for message: ${String(message)}`),
+        payload: new Some(
+          createNetworkErrorResult(
+            `Worker is not initialized for message: ${String(message)}.`,
+            404,
           ),
         ),
       });
@@ -279,9 +281,10 @@ function sendMessageToWorker<
   } catch (error) {
     dispatch({
       action: actions.setSafeErrorMaybe,
-      payload: Some(
-        createErrorResult(
-          new WorkerMessageError(error, `Failed to post message: ${String(message)} to worker`),
+      payload: new Some(
+        createWorkerMessageErrorResult(
+          error,
+          `Failed to post message: ${String(message)} to worker.`,
         ),
       ),
     });
@@ -295,9 +298,7 @@ async function setCachedItemAbortableSafe<Data = unknown>(
   signal: AbortSignal,
 ): Promise<AppResult> {
   if (signal.aborted) {
-    return createErrorResult(
-      new PromiseAbortedError("setCachedItemAbortableSafe aborted before start"),
-    );
+    return createPromiseAbortedErrorResult("setCachedItemAbortableSafe aborted before start.");
   }
 
   try {
@@ -305,7 +306,7 @@ async function setCachedItemAbortableSafe<Data = unknown>(
     await makeAbortable(cacheOperation, signal);
     return new Ok(None);
   } catch (error: unknown) {
-    return createErrorResult(new CacheError(error, `Failed to set cached item for key: ${key}`));
+    return createCacheErrorResult(error, `Failed to set cached item for key: ${key}`);
   }
 }
 
@@ -327,7 +328,7 @@ function createOkTransportResult<Data extends unknown = unknown>(
   data: Data,
 ): TransportResult<Data> {
   return {
-    ok: true,
+    isOk: true,
     value: data,
   };
 }
@@ -336,55 +337,69 @@ function createErrorTransportResult<E extends AppError = AppError>(
   error: E,
 ): TransportResult<never, E> {
   return {
-    ok: false,
+    isOk: false,
     error,
   };
 }
 
-// --- Result Converters ---
-
-/** Convert a ts-results-es Result into a plain worker-safe object */
-function toTransportResult<T, E>(res: Result<T, E>): TransportResult<T, E> {
-  if (res.isOk()) {
-    return { ok: true, value: res.value };
+function createTransportResultFromAppResult<Value extends unknown = unknown>(
+  appResult: AppResult<Value>,
+): TransportResult<Value> {
+  if (appResult === null) {
+    return { isOk: false, error: createAppError("App result is null.") };
   }
-  return { ok: false, error: res.error };
+
+  if (appResult === undefined) {
+    return { isOk: false, error: createAppError("App result is undefined.") };
+  }
+
+  if (appResult.isErr()) {
+    return { isOk: false, error: appResult.error };
+  }
+
+  const appOption = appResult.value;
+
+  // ! At the boundary between the worker reality and main thread reality,
+  // the non-existence of a value is represented as an empty string for transport purposes
+  // An empty string, in this app, represents a non-existent value (None)
+  if (appOption.isNone()) {
+    return { isOk: true, value: "" as Value };
+  }
+
+  return { isOk: true, value: appOption.unwrap() };
 }
 
-/** Convert a plain worker-safe object back into a ts-results-es Result */
-function fromTransportResult<T, E>(transport: TransportResult<T, E>): Result<T, E> {
-  if (transport.ok) {
-    return new Ok(transport.value);
+function createAppResultFromTransportResult<Value extends unknown = unknown>(
+  transportResult: TransportResult<Value>,
+): AppResult<Value> {
+  if (transportResult === null) {
+    return new Err(createAppError("Transport result is null."));
   }
-  return new Err(transport.error);
-}
 
-// --- Option Converters ---
-
-/** Convert a ts-results-es Option into a plain worker-safe object */
-function toTransportOption<T>(opt: Option<T>): TransportOption<T> {
-  if (opt.isSome()) {
-    return { hasValue: true, value: opt.value };
+  if (transportResult === undefined) {
+    return new Err(createAppError("Transport result is undefined."));
   }
-  return { hasValue: false };
-}
 
-/** Convert a plain worker-safe object back into a ts-results-es Option */
-function fromTransportOption<T>(transport: TransportOption<T>): Option<T> {
-  if (transport.hasValue) {
-    return Some(transport.value);
+  if (!transportResult.isOk) {
+    return new Err(transportResult.error);
   }
-  return None;
+
+  // If the transport result value is an empty string, treat it as None
+  if (typeof transportResult.value === "string" && transportResult.value.length === 0) {
+    return new Ok(None);
+  }
+
+  return new Ok(new Some(transportResult.value));
 }
 
 export {
   capitalizeString,
-  createErrorResult,
+  createAppResultFromTransportResult,
+  createErrorTransportResult,
   createOkTransportResult,
   createOptionSchema,
   createSuccessResult,
-  fromTransportOption,
-  fromTransportResult,
+  createTransportResultFromAppResult,
   getCachedItemAbortableSafe,
   parseDispatchAndSetState,
   parseSyncSafe,
@@ -394,7 +409,5 @@ export {
   sendMessageToWorker,
   setCachedItemAbortableSafe,
   splitCamelCase,
-  toTransportOption,
-  toTransportResult,
 };
 export type { RetryFetchOptions };

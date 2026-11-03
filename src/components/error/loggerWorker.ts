@@ -1,21 +1,22 @@
 import { fetch_timeout_ms } from "../../constants";
-import { createWorkerMessageError } from "../../errors";
-import type { AppResult } from "../../types";
+import { createWorkerMessageErrorTransportResult } from "../../errors";
+import type { TransportResult } from "../../types";
 import { createErrorResult, createSuccessResult } from "../../utils";
 
-type MessageEventLoggerWorkerToMain<Data = unknown> = MessageEvent<AppResult<Data>>;
+type MessageEventLoggerWorkerToMain<Data = unknown> = MessageEvent<TransportResult<Data>>;
 
-type MessageEventMainToLoggerWorker = MessageEvent<{
-  // url to fetch
-  url: string;
-  requestInit: RequestInit;
-}>;
+type MessageEventMainToLoggerWorker = MessageEvent<
+  TransportResult<{
+    // url to fetch
+    url: string;
+    requestInit: RequestInit;
+  }>
+>;
 
 self.onmessage = async (event: MessageEventMainToLoggerWorker) => {
   if (!event.data) {
     self.postMessage(
-      createWorkerMessageError("No data received in logger worker message"),
-      //   createErrorResult(new WorkerMessageError("No data received in cache worker message")),
+      createWorkerMessageErrorTransportResult("No data received in logger worker message"),
     );
     return;
   }
