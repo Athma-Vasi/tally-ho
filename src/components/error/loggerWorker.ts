@@ -1,9 +1,11 @@
 import { fetch_timeout_ms } from "../../constants";
 import { createWorkerMessageErrorTransportResult } from "../../errors";
 import type { TransportResult } from "../../types";
-import { createErrorResult, createSuccessResult } from "../../utils";
+import { createSuccessResult } from "../../utils";
 
-type MessageEventLoggerWorkerToMain<Data = unknown> = MessageEvent<TransportResult<Data>>;
+type MessageEventLoggerWorkerToMain<Data = unknown> = MessageEvent<
+  TransportResult<Data>
+>;
 
 type MessageEventMainToLoggerWorker = MessageEvent<
   TransportResult<{
@@ -16,7 +18,9 @@ type MessageEventMainToLoggerWorker = MessageEvent<
 self.onmessage = async (event: MessageEventMainToLoggerWorker) => {
   if (!event.data) {
     self.postMessage(
-      createWorkerMessageErrorTransportResult("No data received in logger worker message"),
+      createWorkerMessageErrorTransportResult(
+        "No data received in logger worker message",
+      ),
     );
     return;
   }
@@ -42,13 +46,23 @@ self.onmessage = async (event: MessageEventMainToLoggerWorker) => {
     clearTimeout(timeout);
     return;
   } catch (error: unknown) {
-    self.postMessage(createErrorResult(new WorkerError(error)));
+    self.postMessage(
+      createWorkerMessageErrorTransportResult(
+        error,
+        "Error processing message in logger worker",
+      ),
+    );
   }
 };
 
 self.onerror = (event: string | Event) => {
   console.error("Unhandled error in cache worker:", event);
-  self.postMessage(createErrorResult(new WorkerError(event, "Unhandled error in cache worker")));
+  self.postMessage(
+    createWorkerMessageErrorTransportResult(
+      event,
+      "Unhandled error in cache worker",
+    ),
+  );
   return true; // Prevents default logging to console
 };
 

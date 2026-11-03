@@ -1,7 +1,12 @@
 import { type Err, None, type Option } from "ts-results-es";
 import { v4 as uuidv4 } from "uuid";
-import type { AppError, AppResult } from "../../../types";
-import type { PaymentMethodType, TransactionCategory, TransactionType } from "../types";
+import type { AppError } from "../../../errors";
+import type { AppResult } from "../../../types";
+import type {
+  PaymentMethodType,
+  TransactionCategory,
+  TransactionType,
+} from "../types";
 
 type TransactionFormState = {
   amountCents: string;
