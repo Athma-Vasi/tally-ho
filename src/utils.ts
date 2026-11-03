@@ -264,7 +264,7 @@ function sendMessageToWorker<
     if (workerMaybe.isNone()) {
       dispatch({
         action: actions.setSafeErrorMaybe,
-        payload: new Some(
+        payload: Some(
           createNetworkErrorResult(
             `Worker is not initialized for message: ${String(message)}.`,
             404,
@@ -281,7 +281,7 @@ function sendMessageToWorker<
   } catch (error) {
     dispatch({
       action: actions.setSafeErrorMaybe,
-      payload: new Some(
+      payload: Some(
         createWorkerMessageErrorResult(
           error,
           `Failed to post message: ${String(message)} to worker.`,
@@ -333,15 +333,6 @@ function createOkTransportResult<Data extends unknown = unknown>(
   };
 }
 
-function createErrorTransportResult<E extends AppError = AppError>(
-  error: E,
-): TransportResult<never, E> {
-  return {
-    isOk: false,
-    error,
-  };
-}
-
 function createTransportResultFromAppResult<Value extends unknown = unknown>(
   appResult: AppResult<Value>,
 ): TransportResult<Value> {
@@ -389,13 +380,12 @@ function createAppResultFromTransportResult<Value extends unknown = unknown>(
     return new Ok(None);
   }
 
-  return new Ok(new Some(transportResult.value));
+  return new Ok(Some(transportResult.value));
 }
 
 export {
   capitalizeString,
   createAppResultFromTransportResult,
-  createErrorTransportResult,
   createOkTransportResult,
   createOptionSchema,
   createSuccessResult,

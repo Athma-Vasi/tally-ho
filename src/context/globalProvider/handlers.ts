@@ -1,6 +1,5 @@
 import { None, Some } from "ts-results-es";
-import { WorkerMessageHandlerError } from "../../errors";
-import { createErrorResult } from "../../utils";
+import { createWorkerMessageHandlerErrorResult } from "../../errors";
 import { globalActions } from "./actions";
 import type { MessageEventCacheWorkerToMain } from "./cacheWorker";
 import type { GlobalDispatch } from "./dispatches";
@@ -47,9 +46,7 @@ async function handleMessageFromCacheWorker({
     globalDispatch({
       action: globalActions.setSafeErrorMaybe,
       payload: Some(
-        createErrorResult(
-          new WorkerMessageHandlerError(error, "Error handling message from Cache Worker"),
-        ),
+        createWorkerMessageHandlerErrorResult(error, "Error handling message from Cache Worker"),
       ),
     });
     return None;
@@ -109,9 +106,7 @@ async function handleMessageFromFetchWorker({
     globalDispatch({
       action: globalActions.setSafeErrorMaybe,
       payload: Some(
-        createErrorResult(
-          new WorkerMessageHandlerError(error, "Error handling message from Fetch Worker"),
-        ),
+        createWorkerMessageHandlerErrorResult(error, "Error handling message from Fetch Worker"),
       ),
     });
     return None;
