@@ -1,6 +1,6 @@
 import { None } from "ts-results-es";
 import { fetch_timeout_ms } from "../../constants";
-import { createWorkerMessageHandlerError } from "../../errors";
+import { createWorkerMessageHandlerErrorTransportResult } from "../../errors";
 import type { TransportResult } from "../../types";
 import {
   createOkTransportResult,
@@ -44,12 +44,9 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
       postMessageFromWorkerToMainThread({
         parcel: {
           descendantId: "",
-          parcelResult: {
-            isOk: false,
-            error: createWorkerMessageHandlerError(
-              "No event data received in fetch worker",
-            ),
-          },
+          parcelResult: createWorkerMessageHandlerErrorTransportResult(
+            "No event data received in fetch worker",
+          ),
         },
         self,
       });
@@ -81,10 +78,9 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
         postMessageFromWorkerToMainThread({
           parcel: {
             descendantId,
-            parcelResult: {
-              isOk: false,
-              error: responseResult.error,
-            },
+            parcelResult: createWorkerMessageHandlerErrorTransportResult(
+              responseResult.error,
+            ),
           },
           self,
         });
@@ -97,10 +93,7 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
         postMessageFromWorkerToMainThread({
           parcel: {
             descendantId,
-            parcelResult: {
-              isOk: true,
-              value: "",
-            },
+            parcelResult: createOkTransportResult(""),
           },
           self,
         });
@@ -121,13 +114,10 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
       postMessageFromWorkerToMainThread({
         parcel: {
           descendantId: "",
-          parcelResult: {
-            isOk: false,
-            error: createWorkerMessageHandlerError(
-              error,
-              "Error processing message in fetch worker.",
-            ),
-          },
+          parcelResult: createWorkerMessageHandlerErrorTransportResult(
+            error,
+            "Error processing message in fetch worker.",
+          ),
         },
         self,
       });
@@ -164,13 +154,10 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
       postMessageFromWorkerToMainThread({
         parcel: {
           descendantId: "",
-          parcelResult: {
-            isOk: false,
-            error: createWorkerMessageHandlerError(
-              error,
-              "Error processing message in fetch worker.",
-            ),
-          },
+          parcelResult: createWorkerMessageHandlerErrorTransportResult(
+            error,
+            "Error processing message in fetch worker.",
+          ),
         },
         self,
       });
@@ -188,13 +175,10 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
     postMessageFromWorkerToMainThread({
       parcel: {
         descendantId: "",
-        parcelResult: {
-          isOk: false,
-          error: createWorkerMessageHandlerError(
-            event,
-            "Unhandled error in fetch worker.",
-          ),
-        },
+        parcelResult: createWorkerMessageHandlerErrorTransportResult(
+          event,
+          "Unhandled error in fetch worker.",
+        ),
       },
       self,
     });
@@ -209,13 +193,10 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
     postMessageFromWorkerToMainThread({
       parcel: {
         descendantId: "",
-        parcelResult: {
-          isOk: false,
-          error: createWorkerMessageHandlerError(
-            event.reason,
-            "Unhandled promise rejection in fetch worker.",
-          ),
-        },
+        parcelResult: createWorkerMessageHandlerErrorTransportResult(
+          event.reason,
+          "Unhandled promise rejection in fetch worker.",
+        ),
       },
       self,
     });
