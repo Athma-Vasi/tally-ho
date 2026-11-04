@@ -22,7 +22,10 @@ function ErrorSuspenseHOC<
   }>,
 ) {
   return function ErrorSuspenseHOC(initialChildComponentState: Props) {
-    const [errorState, errorDispatch] = useReducer(errorReducer, initialErrorState);
+    const [errorState, errorDispatch] = useReducer(
+      errorReducer,
+      initialErrorState,
+    );
     const { childComponentState, loggerWorkerMaybe } = errorState;
 
     const isComponentMountedRef = useMountedRef();
@@ -38,7 +41,9 @@ function ErrorSuspenseHOC<
         action: errorActions.setLoggerWorkerMaybe,
         payload: Some(loggerWorker) as any,
       });
-      loggerWorker.onmessage = async (event: MessageEventLoggerWorkerToMain) => {
+      loggerWorker.onmessage = async (
+        event: MessageEventLoggerWorkerToMain,
+      ) => {
         // Route worker messages through a single handler to keep side effects centralized.
         await handleMessageFromLoggerWorker({
           errorDispatch,

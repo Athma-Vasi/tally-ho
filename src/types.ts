@@ -18,7 +18,10 @@ type DescendantUpdatingForwardingAddress = {
  * A plain, serializable envelope for crossing thread boundaries.
  * No methods, no prototype chain — safe for Structured Clone.
  */
-type TransportResult<Value extends unknown = unknown, Error extends AppError = AppError> =
+type TransportResult<
+  Value extends unknown = unknown,
+  Error extends AppError = AppError,
+> =
   | { isOk: true; value: Value; error?: never }
   | { isOk: false; value?: never; error: Error };
 // { isError: boolean; error: Error; isNone?: boolean; value?: Value };

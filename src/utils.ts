@@ -29,7 +29,9 @@ function createOptionSchema<Value extends any>(value: Value) {
   });
 }
 
-function createSuccessResult<Data = unknown>(data: Data): Ok<Option<NonNullable<Data>>> {
+function createSuccessResult<Data = unknown>(
+  data: Data,
+): Ok<Option<NonNullable<Data>>> {
   return new Ok(data == null ? None : Some(data));
 }
 
@@ -38,7 +40,9 @@ async function getCachedItemAbortableSafe<Data = unknown>(
   signal: AbortSignal,
 ): Promise<AppResult<Data>> {
   if (signal.aborted) {
-    return createPromiseAbortedErrorResult("getCachedItemAbortableSafe aborted before start.");
+    return createPromiseAbortedErrorResult(
+      "getCachedItemAbortableSafe aborted before start.",
+    );
   }
 
   try {
@@ -46,21 +50,35 @@ async function getCachedItemAbortableSafe<Data = unknown>(
     const data = await makeAbortable(cacheOperation, signal);
     return createSuccessResult(data);
   } catch (error: unknown) {
-    return createCacheErrorResult(error, `Failed to get cached item for key: ${key}.`);
+    return createCacheErrorResult(
+      error,
+      `Failed to get cached item for key: ${key}.`,
+    );
   }
 }
 
 // Helper function to make any promise abortable
-function makeAbortable<Data = unknown>(promise: Promise<Data>, signal: AbortSignal): Promise<Data> {
+function makeAbortable<Data = unknown>(
+  promise: Promise<Data>,
+  signal: AbortSignal,
+): Promise<Data> {
   return Promise.race([
     promise,
     new Promise<never>((_, reject) => {
       if (signal.aborted) {
-        reject(createPromiseAbortedError("Promise was aborted before it could complete."));
+        reject(
+          createPromiseAbortedError(
+            "Promise was aborted before it could complete.",
+          ),
+        );
       }
 
       signal.addEventListener("abort", () => {
-        reject(createPromiseAbortedError("Promise was aborted before it could complete."));
+        reject(
+          createPromiseAbortedError(
+            "Promise was aborted before it could complete.",
+          ),
+        );
       });
     }),
   ]);
@@ -146,7 +164,9 @@ function parseSyncSafe<Output = unknown>({
   }
 }
 
-function postMessageFromWorkerToMainThread<Parcel extends ParcelFromFetchWorkerToMain>({
+function postMessageFromWorkerToMainThread<
+  Parcel extends ParcelFromFetchWorkerToMain,
+>({
   parcel,
   self,
 }: {
@@ -157,9 +177,14 @@ function postMessageFromWorkerToMainThread<Parcel extends ParcelFromFetchWorkerT
   return None;
 }
 
-async function removeCachedItemAbortableSafe(key: string, signal: AbortSignal): Promise<AppResult> {
+async function removeCachedItemAbortableSafe(
+  key: string,
+  signal: AbortSignal,
+): Promise<AppResult> {
   if (signal.aborted) {
-    return createPromiseAbortedErrorResult("removeCachedItemAbortableSafe aborted before start.");
+    return createPromiseAbortedErrorResult(
+      "removeCachedItemAbortableSafe aborted before start.",
+    );
   }
 
   try {
@@ -167,7 +192,10 @@ async function removeCachedItemAbortableSafe(key: string, signal: AbortSignal): 
     await makeAbortable(cacheOperation, signal);
     return new Ok(None);
   } catch (error: unknown) {
-    return createCacheErrorResult(error, `Failed to remove cached item for key: ${key}.`);
+    return createCacheErrorResult(
+      error,
+      `Failed to remove cached item for key: ${key}.`,
+    );
   }
 }
 
@@ -214,7 +242,10 @@ async function retryFetchSafe<Data = unknown>({
       } catch (error_: unknown) {
         if (attempt === retries) {
           return Promise.resolve(
-            createJSONErrorResult(error_, "Failed to parse JSON response after maximum retries."),
+            createJSONErrorResult(
+              error_,
+              "Failed to parse JSON response after maximum retries.",
+            ),
           );
         }
 
@@ -222,7 +253,9 @@ async function retryFetchSafe<Data = unknown>({
       }
     } catch (error: unknown) {
       if (attempt === retries) {
-        return Promise.resolve(createNetworkErrorResult(error, 503, "Max retries reached."));
+        return Promise.resolve(
+          createNetworkErrorResult(error, 503, "Max retries reached."),
+        );
       }
 
       // Exponential backoff with jitter
@@ -297,7 +330,9 @@ async function setCachedItemAbortableSafe<Data = unknown>(
   signal: AbortSignal,
 ): Promise<AppResult> {
   if (signal.aborted) {
-    return createPromiseAbortedErrorResult("setCachedItemAbortableSafe aborted before start.");
+    return createPromiseAbortedErrorResult(
+      "setCachedItemAbortableSafe aborted before start.",
+    );
   }
 
   try {
@@ -305,7 +340,10 @@ async function setCachedItemAbortableSafe<Data = unknown>(
     await makeAbortable(cacheOperation, signal);
     return new Ok(None);
   } catch (error: unknown) {
-    return createCacheErrorResult(error, `Failed to set cached item for key: ${key}`);
+    return createCacheErrorResult(
+      error,
+      `Failed to set cached item for key: ${key}`,
+    );
   }
 }
 
@@ -375,7 +413,10 @@ function createAppResultFromTransportResult<Value extends unknown = unknown>(
   }
 
   // If the transport result value is an empty string, treat it as None
-  if (typeof transportResult.value === "string" && transportResult.value.length === 0) {
+  if (
+    typeof transportResult.value === "string" &&
+    transportResult.value.length === 0
+  ) {
     return new Ok(None);
   }
 

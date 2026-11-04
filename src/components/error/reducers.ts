@@ -48,7 +48,10 @@ function errorReducer_setChildComponentState(
   };
 }
 
-function errorReducer_setLoggerWorkerMaybe(state: ErrorState, dispatch: ErrorDispatch): ErrorState {
+function errorReducer_setLoggerWorkerMaybe(
+  state: ErrorState,
+  dispatch: ErrorDispatch,
+): ErrorState {
   return parseDispatchAndSetState({
     state,
     dispatch,

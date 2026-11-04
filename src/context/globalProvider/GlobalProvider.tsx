@@ -8,7 +8,10 @@ import CacheWorker from "./cacheWorker?worker";
 import type { GlobalDispatch } from "./dispatches";
 import type { MessageEventFetchWorkerToMain } from "./fetchWorker";
 import FetchWorker from "./fetchWorker?worker";
-import { handleMessageFromCacheWorker, handleMessageFromFetchWorker } from "./handlers";
+import {
+  handleMessageFromCacheWorker,
+  handleMessageFromFetchWorker,
+} from "./handlers";
 import { globalReducer } from "./reducers";
 import { type GlobalState, initialGlobalState } from "./state";
 
@@ -29,15 +32,18 @@ type GlobalProviderProps = {
 function GlobalProvider({
   childComponentState: backupStateFromErrorHOC,
   children,
-  errorDispatch,
 }: GlobalProviderProps) {
   const [globalState, globalDispatch] = useReducer(
     globalReducer,
     backupStateFromErrorHOC ?? initialGlobalState,
   );
 
-  const { cacheWorkerMaybe, descendantDispatchTable, fetchWorkerMaybe, safeErrorMaybe } =
-    globalState;
+  const {
+    cacheWorkerMaybe,
+    descendantDispatchTable,
+    fetchWorkerMaybe,
+    safeErrorMaybe,
+  } = globalState;
 
   const isComponentMountedRef = useMountedRef();
 
@@ -69,7 +75,10 @@ function GlobalProvider({
     });
     fetchWorker.onmessage = async (event: MessageEventFetchWorkerToMain) => {
       console.log("Received message from fetch worker:", event);
-      console.log("Descendant dispatch table for fetch worker message:", descendantDispatchTable);
+      console.log(
+        "Descendant dispatch table for fetch worker message:",
+        descendantDispatchTable,
+      );
       await handleMessageFromFetchWorker({
         descendantDispatchTable,
         event,
@@ -84,7 +93,12 @@ function GlobalProvider({
       fetchWorker.terminate();
       isComponentMountedRef.current = false;
     };
-  }, [cacheWorkerMaybe, fetchWorkerMaybe, isComponentMountedRef, descendantDispatchTable]);
+  }, [
+    cacheWorkerMaybe,
+    fetchWorkerMaybe,
+    isComponentMountedRef,
+    descendantDispatchTable,
+  ]);
 
   const globalContextValue = useMemo(
     () => ({
@@ -94,7 +108,11 @@ function GlobalProvider({
     [globalState, globalDispatch],
   );
 
-  return <GlobalContext.Provider value={globalContextValue}>{children}</GlobalContext.Provider>;
+  return (
+    <GlobalContext.Provider value={globalContextValue}>
+      {children}
+    </GlobalContext.Provider>
+  );
 }
 
 export { GlobalContext, GlobalProvider };
