@@ -12,7 +12,11 @@ import { AccessibleTextInput } from "../../accessibleInputs/AccessibleTextInput"
 import { errorActions } from "../../error/actions";
 import type { ErrorDispatch } from "../../error/dispatches";
 import { transactionFormActions } from "./actions";
-import { payment_methods, transaction_categories, transaction_types } from "./constants";
+import {
+  payment_methods,
+  transaction_categories,
+  transaction_types,
+} from "./constants";
 import { transactionFormReducer } from "./reducers";
 import {
   amountCents_validation_regexes,
@@ -20,7 +24,10 @@ import {
   notes_validation_regexes,
   tags_validation_regexes,
 } from "./regexes";
-import { initialTransactionFormState, type TransactionFormState } from "./state";
+import {
+  initialTransactionFormState,
+  type TransactionFormState,
+} from "./state";
 
 type TransactionFormProps = {
   // this component's back-up state from ErrorBoundary
@@ -60,7 +67,10 @@ function TransactionForm({
 
   // after first mount, set up a forwarding address to globalProvider for worker parcels
   useEffect(() => {
-    console.log("Setting up descendant dispatch table for descendantId:", descendantId);
+    console.log(
+      "Setting up descendant dispatch table for descendantId:",
+      descendantId,
+    );
     globalDispatch({
       action: globalActions.setDescendantDispatchTable,
       payload: {
@@ -197,9 +207,14 @@ function TransactionForm({
     />
   );
 
-  function handleSubmit(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+  function handleSubmit(
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) {
     event.preventDefault();
-    console.log("Submitting transaction form with state:", transactionFormState);
+    console.log(
+      "Submitting transaction form with state:",
+      transactionFormState,
+    );
     console.log("Global state when submitting transaction form:", globalState);
 
     const message: OrderFromMainToFetchWorker = {

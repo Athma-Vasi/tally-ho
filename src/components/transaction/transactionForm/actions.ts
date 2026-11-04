@@ -1,25 +1,24 @@
 import type { TransactionFormState } from "./state";
 
 type TransactionFormActions = {
-    [K in keyof TransactionFormState as `set${Capitalize<string & K>}`]:
-        `set${Capitalize<
-            string & K
-        >}`;
+  [K in keyof TransactionFormState as `set${Capitalize<string & K>}`]: `set${Capitalize<
+    string & K
+  >}`;
 };
 
 const transactionFormActions: TransactionFormActions = {
-    setAmountCents: "setAmountCents",
-    setCategory: "setCategory",
-    setDateTime: "setDateTime",
-    setDescendantId: "setDescendantId",
-    setIsLoading: "setIsLoading",
-    setMerchant: "setMerchant",
-    setNotes: "setNotes",
-    setPaymentMethod: "setPaymentMethod",
-    setDataResultMaybe: "setDataResultMaybe",
-    setSafeErrorMaybe: "setSafeErrorMaybe",
-    setTags: "setTags",
-    setType: "setType",
+  setAmountCents: "setAmountCents",
+  setCategory: "setCategory",
+  setDateTime: "setDateTime",
+  setDescendantId: "setDescendantId",
+  setIsLoading: "setIsLoading",
+  setMerchant: "setMerchant",
+  setNotes: "setNotes",
+  setPaymentMethod: "setPaymentMethod",
+  setDataResultMaybe: "setDataResultMaybe",
+  setSafeErrorMaybe: "setSafeErrorMaybe",
+  setTags: "setTags",
+  setType: "setType",
 };
 
 export { transactionFormActions };
