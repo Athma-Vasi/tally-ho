@@ -37,14 +37,18 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
     isProcessing: false,
   };
 
-  async function processMessageEvent(event: MessageEventMainToFetchWorker): Promise<None> {
+  async function processMessageEvent(
+    event: MessageEventMainToFetchWorker,
+  ): Promise<None> {
     if (!event.data) {
       postMessageFromWorkerToMainThread({
         parcel: {
           descendantId: "",
           parcelResult: {
             isOk: false,
-            error: createWorkerMessageHandlerError("No event data received in fetch worker"),
+            error: createWorkerMessageHandlerError(
+              "No event data received in fetch worker",
+            ),
           },
         },
         self,
@@ -70,7 +74,10 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
       });
 
       if (responseResult.isErr()) {
-        console.error("Fetch worker encountered an error:", responseResult.error);
+        console.error(
+          "Fetch worker encountered an error:",
+          responseResult.error,
+        );
         postMessageFromWorkerToMainThread({
           parcel: {
             descendantId,
@@ -130,7 +137,9 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
     }
   }
 
-  async function handleWorkerMessageEvent(event: MessageEventMainToFetchWorker): Promise<None> {
+  async function handleWorkerMessageEvent(
+    event: MessageEventMainToFetchWorker,
+  ): Promise<None> {
     state.queue.push(event);
 
     if (state.isProcessing) {
@@ -171,7 +180,9 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
     }
   }
 
-  async function handleWorkerMessageError(event: string | Event): Promise<None> {
+  async function handleWorkerMessageError(
+    event: string | Event,
+  ): Promise<None> {
     console.error("Unhandled error in fetch worker:", event);
 
     postMessageFromWorkerToMainThread({
@@ -179,7 +190,10 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
         descendantId: "",
         parcelResult: {
           isOk: false,
-          error: createWorkerMessageHandlerError(event, "Unhandled error in fetch worker."),
+          error: createWorkerMessageHandlerError(
+            event,
+            "Unhandled error in fetch worker.",
+          ),
         },
       },
       self,
@@ -187,7 +201,9 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
     return None;
   }
 
-  async function handleWorkerPromiseRejection(event: PromiseRejectionEvent): Promise<None> {
+  async function handleWorkerPromiseRejection(
+    event: PromiseRejectionEvent,
+  ): Promise<None> {
     console.error("Unhandled promise rejection in fetch worker:", event.reason);
 
     postMessageFromWorkerToMainThread({
