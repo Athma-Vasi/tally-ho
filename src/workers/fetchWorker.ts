@@ -1,12 +1,12 @@
 import { None } from "ts-results-es";
-import { fetch_timeout_ms } from "../../constants";
-import { createWorkerMessageHandlerErrorTransportResult } from "../../errors";
-import type { TransportResult } from "../../types";
+import { fetch_timeout_ms } from "../constants";
+import { createWorkerMessageHandlerErrorTransportResult } from "../errors";
+import type { TransportResult } from "../types";
 import {
   createOkTransportResult,
   postMessageFromWorkerToMainThread,
   retryFetchSafe,
-} from "../../utils";
+} from "../utils";
 
 type ParcelFromFetchWorkerToMain<Parcel = unknown> = {
   descendantId: string;
@@ -25,13 +25,13 @@ type MessageEventFetchWorkerToMain<Parcel = unknown> = MessageEvent<
 
 type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
 
-{
-  // block scope for persistent worker state
-  type FetchWorkerState = {
-    queue: MessageEventMainToFetchWorker[];
-    isProcessing: boolean;
-  };
+// block scope for persistent worker state
+type FetchWorkerState = {
+  queue: MessageEventMainToFetchWorker[];
+  isProcessing: boolean;
+};
 
+{
   const state: FetchWorkerState = {
     queue: [],
     isProcessing: false,
@@ -41,6 +41,8 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
     event: MessageEventMainToFetchWorker,
   ): Promise<None> {
     if (!event.data) {
+      console.error("No event data received in fetch worker");
+
       postMessageFromWorkerToMainThread({
         parcel: {
           descendantId: "",
@@ -130,9 +132,14 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
   async function handleWorkerMessageEvent(
     event: MessageEventMainToFetchWorker,
   ): Promise<None> {
+    console.group("Handling worker message event");
+    console.log("Event data received:", event.data);
+    console.groupEnd();
+
     state.queue.push(event);
 
     if (state.isProcessing) {
+      console.log("Worker is already processing a message, queuing event.");
       return None;
     }
 
@@ -141,6 +148,8 @@ type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
     try {
       while (state.queue.length > 0) {
         const currentEvent = state.queue.shift();
+
+        console.log("Processing current event:", currentEvent);
 
         if (!currentEvent) {
           continue;

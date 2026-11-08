@@ -1,11 +1,16 @@
 import { useEffect, useReducer, useRef } from "react";
-import { globalActions } from "../../../context/globalProvider/actions";
+import { Some } from "ts-results-es";
+import { useGlobalState } from "../../../hooks/useGlobalState";
+import { useMountedRef } from "../../../hooks/useMountedRef";
+import { sendMessageToWorker } from "../../../utils";
+import type { MessageEventCacheWorkerToMain } from "../../../workers/cacheWorker";
+import CacheWorker from "../../../workers/cacheWorker?worker";
 import type {
+  MessageEventFetchWorkerToMain,
   MessageEventMainToFetchWorker,
   OrderFromMainToFetchWorker,
-} from "../../../context/globalProvider/fetchWorker";
-import { useGlobalState } from "../../../hooks/useGlobalState";
-import { sendMessageToWorker } from "../../../utils";
+} from "../../../workers/fetchWorker";
+import FetchWorker from "../../../workers/fetchWorker?worker";
 import { AccessibleButtonInput } from "../../accessibleInputs/AccessibleButtonInput";
 import { AccessibleSelectInput } from "../../accessibleInputs/AccessibleSelectInput";
 import { AccessibleTextInput } from "../../accessibleInputs/AccessibleTextInput";
@@ -17,6 +22,10 @@ import {
   transaction_categories,
   transaction_types,
 } from "./constants";
+import {
+  handleMessageFromCacheWorker,
+  handleMessageFromFetchWorker,
+} from "./handlers";
 import { transactionFormReducer } from "./reducers";
 import {
   amountCents_validation_regexes,
@@ -45,10 +54,13 @@ function TransactionForm({
   );
   const {
     amountCents,
+    cacheResultMaybe,
+    cacheWorkerMaybe,
     category,
-    dataResultMaybe,
     dateTime,
     descendantId,
+    fetchResultMaybe,
+    fetchWorkerMaybe,
     isLoading,
     merchant,
     notes,
@@ -65,20 +77,52 @@ function TransactionForm({
     amountCentsInputRef.current?.focus?.();
   }, []);
 
-  // after first mount, set up a forwarding address to globalProvider for worker parcels
+  const isComponentMountedRef = useMountedRef();
+
   useEffect(() => {
-    console.log(
-      "Setting up descendant dispatch table for descendantId:",
-      descendantId,
-    );
-    globalDispatch({
-      action: globalActions.setDescendantDispatchTable,
-      payload: {
-        descendantId,
-        descendantAction: transactionFormActions.setDataResultMaybe,
-        descendantDispatch: transactionFormDispatch,
-      },
+    console.group("Initializing workers");
+    console.groupEnd();
+
+    if (cacheWorkerMaybe.isSome() || fetchWorkerMaybe.isSome()) {
+      return;
+    }
+
+    // initialize, add to state, and setup listeners for workers
+
+    const cacheWorker = new CacheWorker();
+    transactionFormDispatch({
+      action: transactionFormActions.setCacheWorkerMaybe,
+      payload: Some(cacheWorker),
     });
+    cacheWorker.onmessage = async (event: MessageEventCacheWorkerToMain) => {
+      await handleMessageFromCacheWorker({
+        event,
+        isComponentMountedRef,
+        transactionFormDispatch,
+      });
+    };
+
+    const fetchWorker = new FetchWorker();
+    transactionFormDispatch({
+      action: transactionFormActions.setFetchWorkerMaybe,
+      payload: Some(fetchWorker) as any,
+    });
+    fetchWorker.onmessage = async (event: MessageEventFetchWorkerToMain) => {
+      console.log("Received message from fetch worker:", event);
+
+      await handleMessageFromFetchWorker({
+        event,
+        isComponentMountedRef,
+        transactionFormDispatch,
+      });
+    };
+
+    // cleanup function to terminate workers on unmount
+    return () => {
+      cacheWorker.terminate();
+      fetchWorker.terminate();
+      isComponentMountedRef.current = false;
+    };
   }, []);
 
   if (safeErrorMaybe.isSome()) {
@@ -225,7 +269,7 @@ function TransactionForm({
           "Content-Type": "application/json",
         },
       },
-      url: "https://jsonplaceholder.typicode.com/posts",
+      url: "https://jsonplaceholder.typicode.com/posts/1",
     };
 
     // send message to worker with unique descendantId
@@ -233,7 +277,7 @@ function TransactionForm({
       actions: transactionFormActions,
       dispatch: transactionFormDispatch,
       message,
-      workerMaybe: globalState.fetchWorkerMaybe,
+      workerMaybe: fetchWorkerMaybe,
     });
   }
 

@@ -1,8 +1,6 @@
 import z from "zod";
 
-const data_result_schema = z.object({
-  descendantId: z.string(),
-  dataResult: z.unknown(),
-});
+const cache_result_schema = z.unknown();
+const fetch_result_schema = z.unknown();
 
-export { data_result_schema };
+export { cache_result_schema, fetch_result_schema };

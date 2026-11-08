@@ -10,17 +10,10 @@ type DescendantDispatchTable = Map<
 >;
 
 type GlobalState = {
-  cacheWorkerMaybe: Option<Worker>;
-  fetchWorkerMaybe: Option<Worker>;
-  // unique id for each descendant component request
-  descendantDispatchTable: DescendantDispatchTable;
   safeErrorMaybe: Option<Err<AppError>>;
 };
 
 const initialGlobalState = {
-  cacheWorkerMaybe: None,
-  fetchWorkerMaybe: None,
-  descendantDispatchTable: new Map(),
   safeErrorMaybe: None,
 };
 

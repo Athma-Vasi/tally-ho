@@ -3,10 +3,13 @@ import { type TransactionFormActions, transactionFormActions } from "./actions";
 import type { TransactionFormDispatch } from "./dispatches";
 import {
   setAmountCentsTransactionFormDispatchSchema,
+  setCacheResultMaybeTransactionFormDispatchSchema,
+  setCacheWorkerMaybeTransactionFormDispatchSchema,
   setCategoryTransactionFormDispatchSchema,
-  setDataResultMaybeTransactionFormDispatchSchema,
   setDateTimeTransactionFormDispatchSchema,
   setDescendantIdTransactionFormDispatchSchema,
+  setFetchResultMaybeTransactionFormDispatchSchema,
+  setFetchWorkerMaybeTransactionFormDispatchSchema,
   setIsLoadingTransactionFormDispatchSchema,
   setMerchantTransactionFormDispatchSchema,
   setNotesTransactionFormDispatchSchema,
@@ -36,17 +39,29 @@ const transactionFormReducersMap: Map<
     transactionFormActions.setAmountCents,
     transactionFormReducer_setAmountCents,
   ],
+  [
+    transactionFormActions.setCacheResultMaybe,
+    transactionFormReducer_setCacheResultMaybe,
+  ],
+  [
+    transactionFormActions.setCacheWorkerMaybe,
+    transactionFormReducer_setCacheWorkerMaybe,
+  ],
   [transactionFormActions.setCategory, transactionFormReducer_setCategory],
   [transactionFormActions.setDateTime, transactionFormReducer_setDateTime],
   [
     transactionFormActions.setDescendantId,
     transactionFormReducer_setDescendantId,
   ],
-  [transactionFormActions.setIsLoading, transactionFormReducer_setIsLoading],
   [
-    transactionFormActions.setDataResultMaybe,
-    transactionFormReducer_setDataResultMaybe,
+    transactionFormActions.setFetchResultMaybe,
+    transactionFormReducer_setFetchResultMaybe,
   ],
+  [
+    transactionFormActions.setFetchWorkerMaybe,
+    transactionFormReducer_setFetchWorkerMaybe,
+  ],
+  [transactionFormActions.setIsLoading, transactionFormReducer_setIsLoading],
   [transactionFormActions.setMerchant, transactionFormReducer_setMerchant],
   [transactionFormActions.setNotes, transactionFormReducer_setNotes],
   [
@@ -70,6 +85,30 @@ function transactionFormReducer_setAmountCents(
     key: "amountCents",
     state,
     schema: setAmountCentsTransactionFormDispatchSchema, // Replace with the appropriate schema if available
+  });
+}
+
+function transactionFormReducer_setCacheResultMaybe(
+  state: TransactionFormState,
+  dispatch: TransactionFormDispatch,
+): TransactionFormState {
+  return parseDispatchAndSetState({
+    dispatch,
+    key: "cacheResultMaybe",
+    state,
+    schema: setCacheResultMaybeTransactionFormDispatchSchema,
+  });
+}
+
+function transactionFormReducer_setCacheWorkerMaybe(
+  state: TransactionFormState,
+  dispatch: TransactionFormDispatch,
+): TransactionFormState {
+  return parseDispatchAndSetState({
+    dispatch,
+    key: "cacheWorkerMaybe",
+    state,
+    schema: setCacheWorkerMaybeTransactionFormDispatchSchema,
   });
 }
 
@@ -106,6 +145,33 @@ function transactionFormReducer_setDescendantId(
     key: "descendantId",
     state,
     schema: setDescendantIdTransactionFormDispatchSchema,
+  });
+}
+
+function transactionFormReducer_setFetchResultMaybe(
+  state: TransactionFormState,
+  dispatch: TransactionFormDispatch,
+): TransactionFormState {
+  return parseDispatchAndSetState({
+    dispatch,
+    key: "fetchResultMaybe",
+    state: {
+      ...state,
+      isLoading: false,
+    },
+    schema: setFetchResultMaybeTransactionFormDispatchSchema,
+  });
+}
+
+function transactionFormReducer_setFetchWorkerMaybe(
+  state: TransactionFormState,
+  dispatch: TransactionFormDispatch,
+): TransactionFormState {
+  return parseDispatchAndSetState({
+    dispatch,
+    key: "fetchWorkerMaybe",
+    state,
+    schema: setFetchWorkerMaybeTransactionFormDispatchSchema,
   });
 }
 
@@ -157,21 +223,6 @@ function transactionFormReducer_setPaymentMethod(
   });
 }
 
-function transactionFormReducer_setDataResultMaybe(
-  state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
-): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "dataResultMaybe",
-    state: {
-      ...state,
-      isLoading: false,
-    },
-    schema: setDataResultMaybeTransactionFormDispatchSchema,
-  });
-}
-
 function transactionFormReducer_setSafeErrorMaybe(
   state: TransactionFormState,
   dispatch: TransactionFormDispatch,
@@ -211,10 +262,13 @@ function transactionFormReducer_setType(
 export {
   transactionFormReducer,
   transactionFormReducer_setAmountCents,
+  transactionFormReducer_setCacheResultMaybe,
+  transactionFormReducer_setCacheWorkerMaybe,
   transactionFormReducer_setCategory,
-  transactionFormReducer_setDataResultMaybe,
   transactionFormReducer_setDateTime,
   transactionFormReducer_setDescendantId,
+  transactionFormReducer_setFetchResultMaybe,
+  transactionFormReducer_setFetchWorkerMaybe,
   transactionFormReducer_setIsLoading,
   transactionFormReducer_setMerchant,
   transactionFormReducer_setNotes,

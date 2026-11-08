@@ -1,6 +1,6 @@
 import { Err } from "ts-results-es";
 import { z } from "zod";
-import { data_result_schema } from "../../../schemas";
+import { cache_result_schema, fetch_result_schema } from "../../../schemas";
 import { createOptionSchema } from "../../../utils";
 import { transactionFormActions } from "./actions";
 
@@ -9,14 +9,19 @@ const setAmountCentsTransactionFormDispatchSchema = z.object({
   payload: z.string(),
 });
 
+const setCacheResultMaybeTransactionFormDispatchSchema = z.object({
+  action: z.literal(transactionFormActions.setCacheResultMaybe),
+  payload: createOptionSchema(cache_result_schema),
+});
+
+const setCacheWorkerMaybeTransactionFormDispatchSchema = z.object({
+  action: z.literal(transactionFormActions.setCacheWorkerMaybe),
+  payload: createOptionSchema(z.instanceof(Worker)),
+});
+
 const setCategoryTransactionFormDispatchSchema = z.object({
   action: z.literal(transactionFormActions.setCategory),
   payload: z.string(),
-});
-
-const setDataResultMaybeTransactionFormDispatchSchema = z.object({
-  action: z.literal(transactionFormActions.setDataResultMaybe),
-  payload: createOptionSchema(data_result_schema),
 });
 
 const setDateTimeTransactionFormDispatchSchema = z.object({
@@ -27,6 +32,16 @@ const setDateTimeTransactionFormDispatchSchema = z.object({
 const setDescendantIdTransactionFormDispatchSchema = z.object({
   action: z.literal(transactionFormActions.setDescendantId),
   payload: z.string(),
+});
+
+const setFetchResultMaybeTransactionFormDispatchSchema = z.object({
+  action: z.literal(transactionFormActions.setFetchResultMaybe),
+  payload: createOptionSchema(fetch_result_schema),
+});
+
+const setFetchWorkerMaybeTransactionFormDispatchSchema = z.object({
+  action: z.literal(transactionFormActions.setFetchWorkerMaybe),
+  payload: createOptionSchema(z.instanceof(Worker)),
 });
 
 const setIsLoadingTransactionFormDispatchSchema = z.object({
@@ -66,24 +81,31 @@ const setTypeTransactionFormDispatchSchema = z.object({
 
 type TransactionFormDispatch =
   | z.infer<typeof setAmountCentsTransactionFormDispatchSchema>
+  | z.infer<typeof setCacheResultMaybeTransactionFormDispatchSchema>
+  | z.infer<typeof setCacheWorkerMaybeTransactionFormDispatchSchema>
   | z.infer<typeof setCategoryTransactionFormDispatchSchema>
   | z.infer<typeof setDateTimeTransactionFormDispatchSchema>
   | z.infer<typeof setDescendantIdTransactionFormDispatchSchema>
+  | z.infer<typeof setFetchResultMaybeTransactionFormDispatchSchema>
+  | z.infer<typeof setFetchWorkerMaybeTransactionFormDispatchSchema>
   | z.infer<typeof setIsLoadingTransactionFormDispatchSchema>
   | z.infer<typeof setMerchantTransactionFormDispatchSchema>
   | z.infer<typeof setNotesTransactionFormDispatchSchema>
   | z.infer<typeof setPaymentMethodTransactionFormDispatchSchema>
-  | z.infer<typeof setDataResultMaybeTransactionFormDispatchSchema>
+  | z.infer<typeof setFetchResultMaybeTransactionFormDispatchSchema>
   | z.infer<typeof setSafeErrorMaybeTransactionFormDispatchSchema>
   | z.infer<typeof setTagsTransactionFormDispatchSchema>
   | z.infer<typeof setTypeTransactionFormDispatchSchema>;
 
 export {
   setAmountCentsTransactionFormDispatchSchema,
+  setCacheResultMaybeTransactionFormDispatchSchema,
+  setCacheWorkerMaybeTransactionFormDispatchSchema,
   setCategoryTransactionFormDispatchSchema,
-  setDataResultMaybeTransactionFormDispatchSchema,
   setDateTimeTransactionFormDispatchSchema,
   setDescendantIdTransactionFormDispatchSchema,
+  setFetchResultMaybeTransactionFormDispatchSchema,
+  setFetchWorkerMaybeTransactionFormDispatchSchema,
   setIsLoadingTransactionFormDispatchSchema,
   setMerchantTransactionFormDispatchSchema,
   setNotesTransactionFormDispatchSchema,

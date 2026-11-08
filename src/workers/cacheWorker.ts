@@ -1,10 +1,10 @@
 import { None } from "ts-results-es";
-import { async_timeout_ms } from "../../constants";
+import { async_timeout_ms } from "../constants";
 import {
   createPromiseRejectionErrorTransportResult,
   createWorkerMessageHandlerErrorTransportResult,
-} from "../../errors";
-import type { AppResult, TransportResult } from "../../types";
+} from "../errors";
+import type { TransportResult } from "../types";
 import {
   createOkTransportResult,
   createTransportResultFromAppResult,
@@ -12,7 +12,7 @@ import {
   postMessageFromWorkerToMainThread,
   removeCachedItemAbortableSafe,
   setCachedItemAbortableSafe,
-} from "../../utils";
+} from "../utils";
 
 type MessageEventCacheWorkerToMain<Parcel = unknown> = MessageEvent<{
   descendantId: string;

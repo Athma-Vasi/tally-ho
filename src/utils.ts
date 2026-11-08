@@ -1,7 +1,6 @@
 import localforage from "localforage";
 import { Err, None, Ok, Some, type Option } from "ts-results-es";
 import z from "zod";
-import type { ParcelFromFetchWorkerToMain } from "./context/globalProvider/fetchWorker";
 import {
   createAppError,
   createCacheErrorResult,
@@ -15,6 +14,7 @@ import {
   createWorkerMessageErrorResult,
 } from "./errors";
 import type { AppResult, TransportResult } from "./types";
+import type { ParcelFromFetchWorkerToMain } from "./workers/fetchWorker";
 
 function capitalizeString(str: string): string {
   const trimmedStr = str.trim();
@@ -252,6 +252,8 @@ async function retryFetchSafe<Data = unknown>({
         throw createJSONError(error_);
       }
     } catch (error: unknown) {
+      console.error(`Attempt ${attempt} failed with error:`, error);
+
       if (attempt === retries) {
         return Promise.resolve(
           createNetworkErrorResult(error, 503, "Max retries reached."),
@@ -294,6 +296,8 @@ function sendMessageToWorker<
 }): None {
   try {
     if (workerMaybe.isNone()) {
+      console.error("Worker is not initialized for message:", message);
+
       dispatch({
         action: actions.setSafeErrorMaybe,
         payload: Some(
@@ -307,10 +311,15 @@ function sendMessageToWorker<
       return None;
     }
 
+    console.log("Sending message to worker:", message);
+    console.log("Worker maybe:", workerMaybe);
+
     const worker = workerMaybe.value;
     worker.postMessage(message);
     return None;
   } catch (error) {
+    console.error("Failed to post message to worker:", error);
+
     dispatch({
       action: actions.setSafeErrorMaybe,
       payload: Some(
