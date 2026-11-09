@@ -1,29 +1,25 @@
 import { None } from "ts-results-es";
 import { fetch_timeout_ms } from "../constants";
-import { createWorkerMessageHandlerErrorTransportResult } from "../errors";
-import type { TransportResult } from "../types";
+import { createWorkerMessageHandlerErrorMessageResult } from "../errors";
+import type { MessageResult } from "../types";
 import {
-  createOkTransportResult,
-  postMessageFromWorkerToMainThread,
+  createOkMessageResult,
+  postMessageResultFromWorkerToMainThread,
   retryFetchSafe,
 } from "../utils";
 
-type ParcelFromFetchWorkerToMain<Parcel = unknown> = {
-  descendantId: string;
-  parcelResult: TransportResult<Parcel>;
-};
+type MessageFromFetchWorkerToMain<Message = unknown> = MessageResult<Message>;
 
-type OrderFromMainToFetchWorker = {
-  descendantId: string;
+type MessageFromMainToFetchWorker = {
   requestInit: RequestInit;
   url: URL | string;
 };
 
-type MessageEventFetchWorkerToMain<Parcel = unknown> = MessageEvent<
-  ParcelFromFetchWorkerToMain<Parcel>
+type MessageEventFetchWorkerToMain<Message = unknown> = MessageEvent<
+  MessageFromFetchWorkerToMain<Message>
 >;
 
-type MessageEventMainToFetchWorker = MessageEvent<OrderFromMainToFetchWorker>;
+type MessageEventMainToFetchWorker = MessageEvent<MessageFromMainToFetchWorker>;
 
 // block scope for persistent worker state
 type FetchWorkerState = {
@@ -43,13 +39,10 @@ type FetchWorkerState = {
     if (!event.data) {
       console.error("No event data received in fetch worker");
 
-      postMessageFromWorkerToMainThread({
-        parcel: {
-          descendantId: "",
-          parcelResult: createWorkerMessageHandlerErrorTransportResult(
-            "No event data received in fetch worker",
-          ),
-        },
+      postMessageResultFromWorkerToMainThread({
+        messageResult: createWorkerMessageHandlerErrorMessageResult(
+          "No event data received in fetch worker",
+        ),
         self,
       });
       return None;
@@ -63,7 +56,7 @@ type FetchWorkerState = {
     }, fetch_timeout_ms);
 
     try {
-      const { descendantId, requestInit, url } = event.data;
+      const { requestInit, url } = event.data;
 
       console.log("Fetching URL in fetch worker:", url);
       const responseResult = await retryFetchSafe({
@@ -77,13 +70,10 @@ type FetchWorkerState = {
           "Fetch worker encountered an error:",
           responseResult.error,
         );
-        postMessageFromWorkerToMainThread({
-          parcel: {
-            descendantId,
-            parcelResult: createWorkerMessageHandlerErrorTransportResult(
-              responseResult.error,
-            ),
-          },
+        postMessageResultFromWorkerToMainThread({
+          messageResult: createWorkerMessageHandlerErrorMessageResult(
+            responseResult.error,
+          ),
           self,
         });
         return None;
@@ -92,11 +82,8 @@ type FetchWorkerState = {
       const responseMaybe = responseResult.value;
       console.log("Fetch worker received response result:", responseResult);
       if (responseMaybe.isNone()) {
-        postMessageFromWorkerToMainThread({
-          parcel: {
-            descendantId,
-            parcelResult: createOkTransportResult(""),
-          },
+        postMessageResultFromWorkerToMainThread({
+          messageResult: createOkMessageResult(""),
           self,
         });
         return None;
@@ -104,23 +91,17 @@ type FetchWorkerState = {
 
       console.log("Fetch worker received response:", responseMaybe.value);
 
-      postMessageFromWorkerToMainThread({
-        parcel: {
-          descendantId,
-          parcelResult: createOkTransportResult(responseMaybe?.value ?? ""),
-        },
+      postMessageResultFromWorkerToMainThread({
+        messageResult: createOkMessageResult(responseMaybe?.value ?? ""),
         self,
       });
       return None;
     } catch (error: unknown) {
-      postMessageFromWorkerToMainThread({
-        parcel: {
-          descendantId: "",
-          parcelResult: createWorkerMessageHandlerErrorTransportResult(
-            error,
-            "Error processing message in fetch worker.",
-          ),
-        },
+      postMessageResultFromWorkerToMainThread({
+        messageResult: createWorkerMessageHandlerErrorMessageResult(
+          error,
+          "Error processing message in fetch worker.",
+        ),
         self,
       });
       return None;
@@ -160,14 +141,11 @@ type FetchWorkerState = {
 
       return None;
     } catch (error: unknown) {
-      postMessageFromWorkerToMainThread({
-        parcel: {
-          descendantId: "",
-          parcelResult: createWorkerMessageHandlerErrorTransportResult(
-            error,
-            "Error processing message in fetch worker.",
-          ),
-        },
+      postMessageResultFromWorkerToMainThread({
+        messageResult: createWorkerMessageHandlerErrorMessageResult(
+          error,
+          "Error processing message in fetch worker.",
+        ),
         self,
       });
       return None;
@@ -181,14 +159,11 @@ type FetchWorkerState = {
   ): Promise<None> {
     console.error("Unhandled error in fetch worker:", event);
 
-    postMessageFromWorkerToMainThread({
-      parcel: {
-        descendantId: "",
-        parcelResult: createWorkerMessageHandlerErrorTransportResult(
-          event,
-          "Unhandled error in fetch worker.",
-        ),
-      },
+    postMessageResultFromWorkerToMainThread({
+      messageResult: createWorkerMessageHandlerErrorMessageResult(
+        event,
+        "Unhandled error in fetch worker.",
+      ),
       self,
     });
     return None;
@@ -199,14 +174,11 @@ type FetchWorkerState = {
   ): Promise<None> {
     console.error("Unhandled promise rejection in fetch worker:", event.reason);
 
-    postMessageFromWorkerToMainThread({
-      parcel: {
-        descendantId: "",
-        parcelResult: createWorkerMessageHandlerErrorTransportResult(
-          event.reason,
-          "Unhandled promise rejection in fetch worker.",
-        ),
-      },
+    postMessageResultFromWorkerToMainThread({
+      messageResult: createWorkerMessageHandlerErrorMessageResult(
+        event.reason,
+        "Unhandled promise rejection in fetch worker.",
+      ),
       self,
     });
     return None;
@@ -221,6 +193,6 @@ type FetchWorkerState = {
 export type {
   MessageEventFetchWorkerToMain,
   MessageEventMainToFetchWorker,
-  OrderFromMainToFetchWorker,
-  ParcelFromFetchWorkerToMain,
+  MessageFromMainToFetchWorker,
+  MessageFromFetchWorkerToMain,
 };

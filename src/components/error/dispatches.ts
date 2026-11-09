@@ -1,23 +1,22 @@
-import z from "zod";
-import { createOptionSchema } from "../../utils";
-import { errorActions } from "./actions";
+import type { Option } from "ts-results-es";
+import { type ErrorActions } from "./actions";
 
-const setChildComponentStateErrorDispatchSchema = z.object({
-  action: z.literal(errorActions.setChildComponentState),
-  payload: z.record(z.string(), z.unknown()),
-});
+type SetChildComponentStateErrorDispatch = {
+  action: ErrorActions["setChildComponentState"];
+  payload: Record<string, unknown>;
+};
 
-const setLoggerWorkerMaybeErrorDispatchSchema = z.object({
-  action: z.literal(errorActions.setLoggerWorkerMaybe),
-  payload: createOptionSchema(z.instanceof(Worker)),
-});
+type SetLoggerWorkerMaybeErrorDispatch = {
+  action: ErrorActions["setLoggerWorkerMaybe"];
+  payload: Option<Worker>;
+};
 
 type ErrorDispatch =
-  | z.infer<typeof setChildComponentStateErrorDispatchSchema>
-  | z.infer<typeof setLoggerWorkerMaybeErrorDispatchSchema>;
+  | SetChildComponentStateErrorDispatch
+  | SetLoggerWorkerMaybeErrorDispatch;
 
-export {
-  setChildComponentStateErrorDispatchSchema,
-  setLoggerWorkerMaybeErrorDispatchSchema,
+export type {
+  ErrorDispatch,
+  SetChildComponentStateErrorDispatch,
+  SetLoggerWorkerMaybeErrorDispatch,
 };
-export type { ErrorDispatch };

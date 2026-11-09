@@ -1,40 +1,36 @@
 import { None } from "ts-results-es";
 import { async_timeout_ms } from "../constants";
 import {
-  createPromiseRejectionErrorTransportResult,
-  createWorkerMessageHandlerErrorTransportResult,
+  createPromiseRejectionErrorMessageResult,
+  createWorkerMessageHandlerErrorMessageResult,
 } from "../errors";
-import type { TransportResult } from "../types";
+import type { MessageResult } from "../types";
 import {
-  createOkTransportResult,
-  createTransportResultFromAppResult,
+  createMessageResultFromAppResult,
+  createOkMessageResult,
   getCachedItemAbortableSafe,
-  postMessageFromWorkerToMainThread,
+  postMessageResultFromWorkerToMainThread,
   removeCachedItemAbortableSafe,
   setCachedItemAbortableSafe,
 } from "../utils";
 
-type MessageEventCacheWorkerToMain<Parcel = unknown> = MessageEvent<{
-  descendantId: string;
-  parcelResult: TransportResult<Parcel>;
-}>;
+type MessageEventCacheWorkerToMain<Message = unknown> = MessageEvent<
+  MessageResult<Message>
+>;
 
 type MessageEventMainToCacheWorker<
   Key = string,
   Value = unknown,
 > = MessageEvent<
   | {
-      descendantId: string;
       kind: "get";
       payload: [Key];
     }
   | {
-      descendantId: string;
       kind: "set";
       payload: [Key, Value];
     }
   | {
-      descendantId: string;
       kind: "remove";
       payload: [Key];
     }
@@ -56,13 +52,10 @@ type MessageEventMainToCacheWorker<
     event: MessageEventMainToCacheWorker,
   ): Promise<None> {
     if (!event.data) {
-      postMessageFromWorkerToMainThread({
-        parcel: {
-          descendantId: "",
-          parcelResult: createWorkerMessageHandlerErrorTransportResult(
-            "No data in message event.",
-          ),
-        },
+      postMessageResultFromWorkerToMainThread({
+        messageResult: createWorkerMessageHandlerErrorMessageResult(
+          "No data in message event.",
+        ),
         self,
       });
       return None;
@@ -74,7 +67,7 @@ type MessageEventMainToCacheWorker<
     }, async_timeout_ms);
 
     try {
-      const { descendantId, kind, payload } = event.data;
+      const { kind, payload } = event.data;
 
       switch (kind) {
         case "get": {
@@ -84,11 +77,8 @@ type MessageEventMainToCacheWorker<
             signal,
           );
 
-          postMessageFromWorkerToMainThread({
-            parcel: {
-              descendantId,
-              parcelResult: createTransportResultFromAppResult(getResult),
-            },
+          postMessageResultFromWorkerToMainThread({
+            messageResult: createMessageResultFromAppResult(getResult),
             self,
           });
           break;
@@ -98,11 +88,8 @@ type MessageEventMainToCacheWorker<
           const [key, value] = payload;
           await setCachedItemAbortableSafe(key, value, signal);
 
-          postMessageFromWorkerToMainThread({
-            parcel: {
-              descendantId,
-              parcelResult: createOkTransportResult(""),
-            },
+          postMessageResultFromWorkerToMainThread({
+            messageResult: createOkMessageResult(""),
             self,
           });
           break;
@@ -112,25 +99,18 @@ type MessageEventMainToCacheWorker<
           const [key] = payload;
           await removeCachedItemAbortableSafe(key, signal);
 
-          postMessageFromWorkerToMainThread({
-            parcel: {
-              descendantId,
-              parcelResult: createOkTransportResult(""),
-            },
+          postMessageResultFromWorkerToMainThread({
+            messageResult: createOkMessageResult(""),
             self,
           });
           break;
         }
 
         default: {
-          postMessageFromWorkerToMainThread({
-            parcel: {
-              descendantId,
-              parcelResult: createWorkerMessageHandlerErrorTransportResult(
-                `Unknown message kind: "${String(kind)}" received in cache worker`,
-              ),
-            },
-
+          postMessageResultFromWorkerToMainThread({
+            messageResult: createWorkerMessageHandlerErrorMessageResult(
+              `Unknown message kind: "${String(kind)}" received in cache worker`,
+            ),
             self,
           });
           break;
@@ -139,14 +119,11 @@ type MessageEventMainToCacheWorker<
 
       return None;
     } catch (error: unknown) {
-      postMessageFromWorkerToMainThread({
-        parcel: {
-          descendantId: "",
-          parcelResult: createWorkerMessageHandlerErrorTransportResult(
-            error,
-            "Error processing message in cache worker.",
-          ),
-        },
+      postMessageResultFromWorkerToMainThread({
+        messageResult: createWorkerMessageHandlerErrorMessageResult(
+          error,
+          "Error processing message in cache worker.",
+        ),
         self,
       });
       return None;
@@ -179,14 +156,11 @@ type MessageEventMainToCacheWorker<
 
       return None;
     } catch (error: unknown) {
-      postMessageFromWorkerToMainThread({
-        parcel: {
-          descendantId: "",
-          parcelResult: createWorkerMessageHandlerErrorTransportResult(
-            error,
-            "Error processing message in cache worker.",
-          ),
-        },
+      postMessageResultFromWorkerToMainThread({
+        messageResult: createWorkerMessageHandlerErrorMessageResult(
+          error,
+          "Error processing message in cache worker.",
+        ),
         self,
       });
       return None;
@@ -198,14 +172,11 @@ type MessageEventMainToCacheWorker<
   async function handleWorkerErrorEvent(event: string | Event): Promise<None> {
     console.error("Unhandled error in cache worker:", event);
 
-    postMessageFromWorkerToMainThread({
-      parcel: {
-        descendantId: "",
-        parcelResult: createWorkerMessageHandlerErrorTransportResult(
-          event,
-          "Unhandled error in cache worker.",
-        ),
-      },
+    postMessageResultFromWorkerToMainThread({
+      messageResult: createWorkerMessageHandlerErrorMessageResult(
+        event,
+        "Unhandled error in cache worker.",
+      ),
       self,
     });
     return None;
@@ -216,14 +187,11 @@ type MessageEventMainToCacheWorker<
   ): Promise<None> {
     console.error("Unhandled promise rejection in cache worker:", event.reason);
 
-    postMessageFromWorkerToMainThread({
-      parcel: {
-        descendantId: "",
-        parcelResult: createPromiseRejectionErrorTransportResult(
-          event?.reason ?? new Error("Unknown promise rejection"),
-          "Unhandled promise rejection in cache worker.",
-        ),
-      },
+    postMessageResultFromWorkerToMainThread({
+      messageResult: createPromiseRejectionErrorMessageResult(
+        event?.reason ?? new Error("Unknown promise rejection"),
+        "Unhandled promise rejection in cache worker.",
+      ),
       self,
     });
 

@@ -31,8 +31,6 @@ function GlobalProvider({
     backupStateFromErrorHOC ?? initialGlobalState,
   );
 
-  const { safeErrorMaybe } = globalState;
-
   const globalContextValue = useMemo(
     () => ({
       globalState,

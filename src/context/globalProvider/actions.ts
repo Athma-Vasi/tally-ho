@@ -7,10 +7,7 @@ type GlobalActions = {
 };
 
 const globalActions: GlobalActions = {
-  setCacheWorkerMaybe: "setCacheWorkerMaybe",
-  setFetchWorkerMaybe: "setFetchWorkerMaybe",
-  setDescendantDispatchTable: "setDescendantDispatchTable",
-  setSafeErrorMaybe: "setSafeErrorMaybe",
+  setAppErrorResultMaybe: "setAppErrorResultMaybe",
 };
 
 export { globalActions };

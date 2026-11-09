@@ -1,6 +1,5 @@
 import localforage from "localforage";
 import { Err, None, Ok, Some, type Option } from "ts-results-es";
-import z from "zod";
 import {
   createAppError,
   createCacheErrorResult,
@@ -8,25 +7,16 @@ import {
   createJSONErrorResult,
   createNetworkError,
   createNetworkErrorResult,
-  createParseErrorResult,
   createPromiseAbortedError,
   createPromiseAbortedErrorResult,
   createWorkerMessageErrorResult,
 } from "./errors";
-import type { AppResult, TransportResult } from "./types";
-import type { ParcelFromFetchWorkerToMain } from "./workers/fetchWorker";
+import type { AppResult, MessageResult } from "./types";
+import type { MessageFromFetchWorkerToMain } from "./workers/fetchWorker";
 
 function capitalizeString(str: string): string {
   const trimmedStr = str.trim();
   return `${trimmedStr.charAt(0).toUpperCase()}${trimmedStr.slice(1)}`;
-}
-
-function createOptionSchema<Value extends any>(value: Value) {
-  return z.object({
-    isNone: z.function(),
-    isSome: z.function(),
-    value,
-  });
 }
 
 function createSuccessResult<Data = unknown>(
@@ -84,96 +74,16 @@ function makeAbortable<Data = unknown>(
   ]);
 }
 
-function parseDispatchAndSetState<
-  Payload extends
-    | z.ZodString
-    | z.ZodBoolean
-    | z.ZodNumber
-    | z.ZodArray
-    | z.ZodEnum
-    | z.ZodMap
-    | z.ZodNullable<z.ZodCustom<Worker, Worker>>
-    | z.ZodCustom<Worker, Worker>
-    | z.ZodCustom<FormData, FormData>
-    | z.ZodNullable<z.ZodCustom<Err<unknown>, Err<unknown>>>
-    | z.ZodRecord<z.ZodString, z.ZodUnknown>
-    | z.ZodObject = any,
-  Dispatch extends { action: string; payload: unknown } = {
-    action: string;
-    payload: unknown;
-  },
-  State extends Record<PropertyKey, unknown> = Record<PropertyKey, unknown>,
+function postMessageResultFromWorkerToMainThread<
+  MessageResult extends MessageFromFetchWorkerToMain,
 >({
-  dispatch,
-  key,
-  state,
-  schema,
-}: {
-  dispatch: Dispatch;
-  schema: z.ZodObject<{
-    action: z.ZodLiteral<string>;
-    payload: Payload;
-  }>;
-  state: State;
-  key: keyof State;
-}): State {
-  const parsedDispatchResult = parseSyncSafe({
-    object: dispatch,
-    schema,
-  });
-
-  if (parsedDispatchResult.isErr()) {
-    return state;
-  }
-  const parsedDispatchMaybe = parsedDispatchResult.unwrap();
-  if (parsedDispatchMaybe.isNone()) {
-    return state;
-  }
-  const parsedDispatch = parsedDispatchMaybe.unwrap();
-
-  return {
-    ...state,
-    [key]: parsedDispatch.payload as State[typeof key],
-  };
-}
-
-function parseSyncSafe<Output = unknown>({
-  object,
-  schema,
-}: {
-  object: Output;
-  schema: z.ZodType;
-}): AppResult<Output> {
-  try {
-    const { data, error, success } = Array.isArray(object)
-      ? z.array(schema).safeParse(object)
-      : schema.safeParse(object);
-
-    return success
-      ? createSuccessResult(data as Output)
-      : createParseErrorResult(
-          error,
-          `Failed to parse object: ${error?.message ?? "Error message was null or undefined."}`,
-        );
-  } catch (error_: unknown) {
-    return createParseErrorResult(
-      error_,
-      `Exception thrown during parse of object:
-              ${String(object)}.`,
-    );
-  }
-}
-
-function postMessageFromWorkerToMainThread<
-  Parcel extends ParcelFromFetchWorkerToMain,
->({
-  parcel,
+  messageResult,
   self,
 }: {
-  parcel: Parcel;
+  messageResult: MessageResult;
   self: Window & typeof globalThis;
 }): None {
-  self.postMessage(parcel);
+  self.postMessage(messageResult);
   return None;
 }
 
@@ -281,8 +191,10 @@ async function retryFetchSafe<Data = unknown>({
 function sendMessageToWorker<
   MsgEvent extends MessageEvent = MessageEvent,
   Actions extends Record<string, string> & {
-    setSafeErrorMaybe: "setSafeErrorMaybe";
-  } = Record<string, string> & { setSafeErrorMaybe: "setSafeErrorMaybe" },
+    setAppErrorResultMaybe: "setAppErrorResultMaybe";
+  } = Record<string, string> & {
+    setAppErrorResultMaybe: "setAppErrorResultMaybe";
+  },
 >({
   actions,
   dispatch,
@@ -299,7 +211,7 @@ function sendMessageToWorker<
       console.error("Worker is not initialized for message:", message);
 
       dispatch({
-        action: actions.setSafeErrorMaybe,
+        action: actions.setAppErrorResultMaybe,
         payload: Some(
           createNetworkErrorResult(
             `Worker is not initialized for message: ${String(message)}.`,
@@ -321,7 +233,7 @@ function sendMessageToWorker<
     console.error("Failed to post message to worker:", error);
 
     dispatch({
-      action: actions.setSafeErrorMaybe,
+      action: actions.setAppErrorResultMaybe,
       payload: Some(
         createWorkerMessageErrorResult(
           error,
@@ -357,31 +269,24 @@ async function setCachedItemAbortableSafe<Data = unknown>(
 }
 
 function splitCamelCase(word: string): string {
-  const result = parseSyncSafe({
-    object: word,
-    schema: z.string(),
-  });
-  if (result.isErr() || result.value.isNone()) {
-    return "";
-  }
   // Replace lowercase-uppercase pairs with a space in between
-  const splitStr = result.value.unwrap().replace(/([a-z])([A-Z])/g, "$1 $2");
+  const splitStr = word.replace(/([a-z])([A-Z])/g, "$1 $2");
   // Capitalize the first letter of the resulting string
   return splitStr.charAt(0).toUpperCase() + splitStr.slice(1);
 }
 
-function createOkTransportResult<Data extends unknown = unknown>(
+function createOkMessageResult<Data extends unknown = unknown>(
   data: Data,
-): TransportResult<Data> {
+): MessageResult<Data> {
   return {
     isOk: true,
     value: data,
   };
 }
 
-function createTransportResultFromAppResult<Value extends unknown = unknown>(
+function createMessageResultFromAppResult<Value extends unknown = unknown>(
   appResult: AppResult<Value>,
-): TransportResult<Value> {
+): MessageResult<Value> {
   if (appResult === null) {
     return { isOk: false, error: createAppError("App result is null.") };
   }
@@ -406,43 +311,48 @@ function createTransportResultFromAppResult<Value extends unknown = unknown>(
   return { isOk: true, value: appOption.unwrap() };
 }
 
-function createAppResultFromTransportResult<Value extends unknown = unknown>(
-  transportResult: TransportResult<Value>,
+function createOkAppResult(value?: unknown): AppResult {
+  if (value == null) {
+    return new Ok(None);
+  }
+  return new Ok(Some(value));
+}
+
+function createAppResultFromMessageResult<Value extends unknown = unknown>(
+  messageResult: MessageResult<Value>,
 ): AppResult<Value> {
-  if (transportResult === null) {
+  if (messageResult === null) {
     return new Err(createAppError("Transport result is null."));
   }
 
-  if (transportResult === undefined) {
+  if (messageResult === undefined) {
     return new Err(createAppError("Transport result is undefined."));
   }
 
-  if (!transportResult.isOk) {
-    return new Err(transportResult.error);
+  if (!messageResult.isOk) {
+    return new Err(messageResult.error);
   }
 
   // If the transport result value is an empty string, treat it as None
   if (
-    typeof transportResult.value === "string" &&
-    transportResult.value.length === 0
+    typeof messageResult.value === "string" &&
+    messageResult.value.length === 0
   ) {
     return new Ok(None);
   }
 
-  return new Ok(Some(transportResult.value));
+  return new Ok(Some(messageResult.value));
 }
 
 export {
   capitalizeString,
-  createAppResultFromTransportResult,
-  createOkTransportResult,
-  createOptionSchema,
+  createAppResultFromMessageResult,
+  createMessageResultFromAppResult,
+  createOkAppResult,
+  createOkMessageResult,
   createSuccessResult,
-  createTransportResultFromAppResult,
   getCachedItemAbortableSafe,
-  parseDispatchAndSetState,
-  parseSyncSafe,
-  postMessageFromWorkerToMainThread,
+  postMessageResultFromWorkerToMainThread,
   removeCachedItemAbortableSafe,
   retryFetchSafe,
   sendMessageToWorker,

@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef } from "react";
-import { Some } from "ts-results-es";
+import { None, Some } from "ts-results-es";
 import { useGlobalState } from "../../../hooks/useGlobalState";
 import { useMountedRef } from "../../../hooks/useMountedRef";
 import { sendMessageToWorker } from "../../../utils";
@@ -8,7 +8,7 @@ import CacheWorker from "../../../workers/cacheWorker?worker";
 import type {
   MessageEventFetchWorkerToMain,
   MessageEventMainToFetchWorker,
-  OrderFromMainToFetchWorker,
+  MessageFromMainToFetchWorker,
 } from "../../../workers/fetchWorker";
 import FetchWorker from "../../../workers/fetchWorker?worker";
 import { AccessibleButtonInput } from "../../accessibleInputs/AccessibleButtonInput";
@@ -54,23 +54,25 @@ function TransactionForm({
   );
   const {
     amountCents,
-    cacheResultMaybe,
     cacheWorkerMaybe,
     category,
     dateTime,
-    descendantId,
-    fetchResultMaybe,
     fetchWorkerMaybe,
     isLoading,
     merchant,
     notes,
     paymentMethod,
-    safeErrorMaybe,
+    appErrorResultMaybe,
     tags,
     type,
   } = transactionFormState;
 
-  const { globalDispatch, globalState } = useGlobalState();
+  const { globalState } = useGlobalState();
+
+  console.group("Options");
+  console.log("none", None);
+  console.log("some", Some("some"));
+  console.groupEnd();
 
   const amountCentsInputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
@@ -125,8 +127,8 @@ function TransactionForm({
     };
   }, []);
 
-  if (safeErrorMaybe.isSome()) {
-    throw safeErrorMaybe.value;
+  if (appErrorResultMaybe.isSome()) {
+    throw appErrorResultMaybe.value;
   }
 
   const amountCentsTextElement = (
@@ -136,11 +138,6 @@ function TransactionForm({
       errorDispatch={errorDispatch}
       label="Amount (in cents): "
       name="amountCents"
-      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-        const {
-          currentTarget: { value },
-        } = event;
-      }}
       ref={amountCentsInputRef}
       setValueAction={transactionFormActions.setAmountCents}
       validationRegexes={amountCents_validation_regexes}
@@ -165,11 +162,6 @@ function TransactionForm({
       errorDispatch={errorDispatch}
       label="Date and Time: "
       name="dateTime"
-      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-        const {
-          currentTarget: { value },
-        } = event;
-      }}
       setValueAction={transactionFormActions.setDateTime}
       type="datetime-local"
       validationRegexes={[]}
@@ -184,11 +176,6 @@ function TransactionForm({
       errorDispatch={errorDispatch}
       label="Merchant: "
       name="merchant"
-      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-        const {
-          currentTarget: { value },
-        } = event;
-      }}
       setValueAction={transactionFormActions.setMerchant}
       validationRegexes={merchant_validation_regexes}
       value={merchant}
@@ -202,11 +189,6 @@ function TransactionForm({
       errorDispatch={errorDispatch}
       label="Notes: "
       name="notes"
-      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-        const {
-          currentTarget: { value },
-        } = event;
-      }}
       setValueAction={transactionFormActions.setNotes}
       validationRegexes={notes_validation_regexes}
       value={notes}
@@ -230,11 +212,6 @@ function TransactionForm({
       errorDispatch={errorDispatch}
       label="Tags: "
       name="tags"
-      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-        const {
-          currentTarget: { value },
-        } = event;
-      }}
       setValueAction={transactionFormActions.setTags}
       validationRegexes={tags_validation_regexes}
       value={tags}
@@ -261,8 +238,7 @@ function TransactionForm({
     );
     console.log("Global state when submitting transaction form:", globalState);
 
-    const message: OrderFromMainToFetchWorker = {
-      descendantId,
+    const message: MessageFromMainToFetchWorker = {
       requestInit: {
         method: "GET",
         headers: {

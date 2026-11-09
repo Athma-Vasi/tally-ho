@@ -25,7 +25,7 @@ function globalReducer_setSafeErrorMaybe(
 ): GlobalState {
   return parseDispatchAndSetState({
     dispatch,
-    key: "safeErrorMaybe",
+    key: "appErrorResult",
     state,
     schema: setSafeErrorMaybeGlobalDispatchSchema,
   });

@@ -1,5 +1,5 @@
-import { Err, None, type Option } from "ts-results-es";
-import type { AppError } from "../../errors";
+import { None, type Option } from "ts-results-es";
+import type { AppErrorResult } from "../../errors";
 
 type DescendantDispatchTable = Map<
   string,
@@ -10,11 +10,11 @@ type DescendantDispatchTable = Map<
 >;
 
 type GlobalState = {
-  safeErrorMaybe: Option<Err<AppError>>;
+  appErrorResultMaybe: Option<AppErrorResult>;
 };
 
 const initialGlobalState = {
-  safeErrorMaybe: None,
+  appErrorResultMaybe: None,
 };
 
 export { initialGlobalState };

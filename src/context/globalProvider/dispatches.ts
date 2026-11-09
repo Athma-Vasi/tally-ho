@@ -1,13 +1,10 @@
-import { z } from "zod";
-import { createOptionSchema } from "../../utils";
-import { globalActions } from "./actions";
+import { type GlobalActions } from "./actions";
 
-const setSafeErrorMaybeGlobalDispatchSchema = z.object({
-  action: z.literal(globalActions.setSafeErrorMaybe),
-  payload: createOptionSchema(z.any()),
-});
+type SetAppErrorResultMaybeDispatch = {
+  action: GlobalActions["setAppErrorResultMaybe"];
+  payload: unknown;
+};
 
-type GlobalDispatch = z.infer<typeof setSafeErrorMaybeGlobalDispatchSchema>;
+type GlobalDispatch = SetAppErrorResultMaybeDispatch;
 
-export { setSafeErrorMaybeGlobalDispatchSchema };
-export type { GlobalDispatch };
+export type { GlobalDispatch, SetAppErrorResultMaybeDispatch };

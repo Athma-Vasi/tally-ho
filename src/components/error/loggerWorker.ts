@@ -1,14 +1,14 @@
 import { fetch_timeout_ms } from "../../constants";
-import { createWorkerMessageErrorTransportResult } from "../../errors";
-import type { TransportResult } from "../../types";
+import { createWorkerMessageErrorMessageResult } from "../../errors";
+import type { MessageResult } from "../../types";
 import { createSuccessResult } from "../../utils";
 
 type MessageEventLoggerWorkerToMain<Data = unknown> = MessageEvent<
-  TransportResult<Data>
+  MessageResult<Data>
 >;
 
 type MessageEventMainToLoggerWorker = MessageEvent<
-  TransportResult<{
+  MessageResult<{
     // url to fetch
     url: string;
     requestInit: RequestInit;
@@ -18,14 +18,14 @@ type MessageEventMainToLoggerWorker = MessageEvent<
 self.onmessage = async (event: MessageEventMainToLoggerWorker) => {
   if (!event.data) {
     self.postMessage(
-      createWorkerMessageErrorTransportResult(
+      createWorkerMessageErrorMessageResult(
         "No data received in logger worker message",
       ),
     );
     return;
   }
 
-  const { abort, signal } = new AbortController();
+  const { abort } = new AbortController();
   const timeout = setTimeout(() => {
     abort();
   }, fetch_timeout_ms);
@@ -47,7 +47,7 @@ self.onmessage = async (event: MessageEventMainToLoggerWorker) => {
     return;
   } catch (error: unknown) {
     self.postMessage(
-      createWorkerMessageErrorTransportResult(
+      createWorkerMessageErrorMessageResult(
         error,
         "Error processing message in logger worker",
       ),
@@ -58,7 +58,7 @@ self.onmessage = async (event: MessageEventMainToLoggerWorker) => {
 self.onerror = (event: string | Event) => {
   console.error("Unhandled error in cache worker:", event);
   self.postMessage(
-    createWorkerMessageErrorTransportResult(
+    createWorkerMessageErrorMessageResult(
       event,
       "Unhandled error in cache worker",
     ),

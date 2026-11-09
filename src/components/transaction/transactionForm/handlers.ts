@@ -1,10 +1,10 @@
 import { None, Some } from "ts-results-es";
-import { globalActions } from "../../../context/globalProvider/actions";
-import type { GlobalDispatch } from "../../../context/globalProvider/dispatches";
 import { createWorkerMessageHandlerErrorResult } from "../../../errors";
 import type { MessageEventCacheWorkerToMain } from "../../../workers/cacheWorker";
 import type { MessageEventFetchWorkerToMain } from "../../../workers/fetchWorker";
 import { transactionFormActions } from "./actions";
+import type { TransactionFormDispatch } from "./dispatches";
+import { createAppResultFromMessageResult } from "../../../utils";
 
 async function handleMessageFromCacheWorker({
   event,
@@ -13,7 +13,7 @@ async function handleMessageFromCacheWorker({
 }: {
   event: MessageEventCacheWorkerToMain;
   isComponentMountedRef: React.RefObject<boolean>;
-  transactionFormDispatch: React.Dispatch<GlobalDispatch>;
+  transactionFormDispatch: React.Dispatch<TransactionFormDispatch>;
 }) {
   if (!isComponentMountedRef.current) {
     return None;
@@ -24,17 +24,16 @@ async function handleMessageFromCacheWorker({
       return None;
     }
 
-    const {
-      data: { parcelResult, descendantId },
-    } = event;
+    const { data } = event;
 
-    const { isOk, value } = parcelResult;
+    const { isOk, error } = data;
     if (!isOk) {
       transactionFormDispatch({
-        action: transactionFormActions.setSafeErrorMaybe,
+        action: transactionFormActions.setAppErrorResultMaybe,
         payload: Some(
           createWorkerMessageHandlerErrorResult(
-            `Error in parcelResult for descendantId: ${descendantId}`,
+            error,
+            "Error handling message from Cache Worker",
           ),
         ),
       });
@@ -44,7 +43,7 @@ async function handleMessageFromCacheWorker({
     return None;
   } catch (error) {
     transactionFormDispatch({
-      action: transactionFormActions.setSafeErrorMaybe,
+      action: transactionFormActions.setAppErrorResultMaybe,
       payload: Some(
         createWorkerMessageHandlerErrorResult(
           error,
@@ -63,7 +62,7 @@ async function handleMessageFromFetchWorker({
 }: {
   event: MessageEventFetchWorkerToMain;
   isComponentMountedRef?: React.RefObject<boolean>;
-  transactionFormDispatch: React.Dispatch<GlobalDispatch>;
+  transactionFormDispatch: React.Dispatch<TransactionFormDispatch>;
 }): Promise<None> {
   if (!isComponentMountedRef?.current) {
     console.log("Fetch worker message received but component is not mounted.");
@@ -76,19 +75,20 @@ async function handleMessageFromFetchWorker({
       return None;
     }
 
-    const {
-      data: { parcelResult, descendantId },
-    } = event;
+    const { data } = event;
 
-    console.group("Handling message from Fetch Worker");
-    console.log("Parcel result:", parcelResult);
-    console.log("Descendant ID:", descendantId);
-    console.groupEnd();
+    // convert to AppResult if necessary (assuming data is already in the correct format)
+    const fetchResult = createAppResultFromMessageResult(data);
+
+    transactionFormDispatch({
+      action: transactionFormActions.setFetchResult,
+      payload: fetchResult,
+    });
 
     return None;
   } catch (error) {
     transactionFormDispatch({
-      action: globalActions.setSafeErrorMaybe,
+      action: transactionFormActions.setAppErrorResultMaybe,
       payload: Some(
         createWorkerMessageHandlerErrorResult(
           error,

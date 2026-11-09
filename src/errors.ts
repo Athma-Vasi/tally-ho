@@ -1,5 +1,5 @@
 import { Err, type Result } from "ts-results-es";
-import type { TransportResult } from "./types";
+import type { MessageResult } from "./types";
 
 function getErrorName(error: unknown): string {
   if (error === null) {
@@ -49,6 +49,34 @@ type AppError = {
   timestamp: string;
 };
 
+type AppErrorKind =
+  | "AppError"
+  | "AbortError"
+  | "AuthError"
+  | "CacheError"
+  | "DatabaseError"
+  | "HashComparisonError"
+  | "HashGenerationError"
+  | "HTTPError"
+  | "InvariantError"
+  | "JSONError"
+  | "NotFoundError"
+  | "ParseError"
+  | "PromiseAbortedError"
+  | "PromiseRejectionError"
+  | "RetryLimitExceededError"
+  | "TimeoutError"
+  | "TokenCreationError"
+  | "TokenDecodeError"
+  | "TokenSignatureError"
+  | "TokenVerificationError"
+  | "UnknownError"
+  | "ValidationError"
+  | "WorkerError"
+  | "WorkerMessageError"
+  | "WorkerMessageHandlerError"
+  | "NetworkError";
+
 function createAppError(
   error: unknown = new Error("Unknown Error"),
   message = "No message provided.",
@@ -76,11 +104,11 @@ function createAppErrorResult(
   return new Err(appError);
 }
 
-function createErrorTransportResult(
+function createErrorMessageResult(
   error: unknown = new Error("Unknown Error"),
   message = "No message provided.",
   kind: AppErrorKind = "AppError",
-): TransportResult {
+): MessageResult {
   return {
     isOk: false,
     error: createAppError(error, message, kind),
@@ -104,10 +132,10 @@ function createAuthErrorResult(
   return new Err(authError);
 }
 
-function createAuthErrorTransportResult(
+function createAuthErrorMessageResult(
   error?: unknown,
   message = "Authentication error occurred.",
-): TransportResult {
+): MessageResult {
   const authError = createAuthError(error, message);
   return { isOk: false, error: authError };
 }
@@ -133,10 +161,10 @@ function createValidationErrorResult(
   return new Err(validationError);
 }
 
-function createValidationErrorTransportResult(
+function createValidationErrorMessageResult(
   error?: unknown,
   message = "Validation error occurred.",
-): TransportResult {
+): MessageResult {
   const validationError = createValidationError(error, message);
   return { isOk: false, error: validationError };
 }
@@ -162,10 +190,10 @@ function createDatabaseErrorResult(
   return new Err(databaseError);
 }
 
-function createDatabaseErrorTransportResult(
+function createDatabaseErrorMessageResult(
   error?: unknown,
   message = "Database error occurred.",
-): TransportResult {
+): MessageResult {
   const databaseError = createDatabaseError(error, message);
   return { isOk: false, error: databaseError };
 }
@@ -191,10 +219,10 @@ function createNotFoundErrorResult(
   return new Err(notFoundError);
 }
 
-function createNotFoundErrorTransportResult(
+function createNotFoundErrorMessageResult(
   error?: unknown,
   message = "Resource not found",
-): TransportResult {
+): MessageResult {
   const notFoundError = createNotFoundError(error, message);
   return { isOk: false, error: notFoundError };
 }
@@ -305,11 +333,11 @@ function createNetworkError(
   return networkError;
 }
 
-function createNetworkErrorTransportResult(
+function createNetworkErrorMessageResult(
   error?: unknown,
   status: number = 503,
   message = "Network error occurred.",
-): TransportResult {
+): MessageResult {
   const networkError = createNetworkError(error, status, message);
   return { isOk: false, error: networkError };
 }
@@ -365,10 +393,10 @@ function createTokenDecodeErrorResult(
   return new Err(tokenDecodeError);
 }
 
-function createTokenDecodeErrorTransportResult(
+function createTokenDecodeErrorMessageResult(
   error?: unknown,
   message = "Token decoding error occurred.",
-): TransportResult {
+): MessageResult {
   const tokenDecodeError = createTokenDecodeError(error, message);
   return { isOk: false, error: tokenDecodeError };
 }
@@ -394,10 +422,10 @@ function createTokenVerificationErrorResult(
   return new Err(tokenVerificationError);
 }
 
-function createTokenVerificationErrorTransportResult(
+function createTokenVerificationErrorMessageResult(
   error?: unknown,
   message = "Token verification error occurred.",
-): TransportResult {
+): MessageResult {
   const tokenVerificationError = createTokenVerificationError(error, message);
   return { isOk: false, error: tokenVerificationError };
 }
@@ -423,10 +451,10 @@ function createTokenSignatureErrorResult(
   return new Err(tokenSignatureError);
 }
 
-function createTokenSignatureErrorTransportResult(
+function createTokenSignatureErrorMessageResult(
   error?: unknown,
   message = "Token signature error occurred.",
-): TransportResult {
+): MessageResult {
   const tokenSignatureError = createTokenSignatureError(error, message);
   return { isOk: false, error: tokenSignatureError };
 }
@@ -448,10 +476,10 @@ function createTimeoutErrorResult(
   return new Err(timeoutError);
 }
 
-function createTimeoutErrorTransportResult(
+function createTimeoutErrorMessageResult(
   error?: unknown,
   message = "Operation timed out.",
-): TransportResult {
+): MessageResult {
   const timeoutError = createTimeoutError(error, message);
   return { isOk: false, error: timeoutError };
 }
@@ -477,10 +505,10 @@ function createPromiseRejectionErrorResult(
   return new Err(promiseRejectionError);
 }
 
-function createPromiseRejectionErrorTransportResult(
+function createPromiseRejectionErrorMessageResult(
   error?: unknown,
   message = "Unhandled promise rejection.",
-): TransportResult {
+): MessageResult {
   const promiseRejectionError = createPromiseRejectionError(error, message);
   return { isOk: false, error: promiseRejectionError };
 }
@@ -506,10 +534,10 @@ function createPromiseAbortedErrorResult(
   return new Err(promiseAbortedError);
 }
 
-function createPromiseAbortedErrorTransportResult(
+function createPromiseAbortedErrorMessageResult(
   error?: unknown,
   message = "Promise was aborted.",
-): TransportResult {
+): MessageResult {
   const promiseAbortedError = createPromiseAbortedError(error, message);
   return { isOk: false, error: promiseAbortedError };
 }
@@ -535,10 +563,10 @@ function createRetryLimitExceededErrorResult(
   return new Err(retryLimitExceededError);
 }
 
-function createRetryLimitExceededErrorTransportResult(
+function createRetryLimitExceededErrorMessageResult(
   error?: unknown,
   message = "Retry limit exceeded.",
-): TransportResult {
+): MessageResult {
   const retryLimitExceededError = createRetryLimitExceededError(error, message);
   return { isOk: false, error: retryLimitExceededError };
 }
@@ -564,10 +592,10 @@ function createHashComparisonErrorResult(
   return new Err(hashComparisonError);
 }
 
-function createHashComparisonErrorTransportResult(
+function createHashComparisonErrorMessageResult(
   error?: unknown,
   message = "Hash comparison error occurred.",
-): TransportResult {
+): MessageResult {
   const hashComparisonError = createHashComparisonError(error, message);
   return { isOk: false, error: hashComparisonError };
 }
@@ -593,10 +621,10 @@ function createHashGenerationErrorResult(
   return new Err(hashGenerationError);
 }
 
-function createHashGenerationErrorTransportResult(
+function createHashGenerationErrorMessageResult(
   error?: unknown,
   message = "Hash generation error occurred.",
-): TransportResult {
+): MessageResult {
   const hashGenerationError = createHashGenerationError(error, message);
   return { isOk: false, error: hashGenerationError };
 }
@@ -618,10 +646,10 @@ function createAbortErrorResult(
   return new Err(abortError);
 }
 
-function createAbortErrorTransportResult(
+function createAbortErrorMessageResult(
   error?: unknown,
   message = "Operation was aborted.",
-): TransportResult {
+): MessageResult {
   const abortError = createAbortError(error, message);
   return { isOk: false, error: abortError };
 }
@@ -643,10 +671,10 @@ function createCacheErrorResult(
   return new Err(cacheError);
 }
 
-function createCacheErrorTransportResult(
+function createCacheErrorMessageResult(
   error?: unknown,
   message = "Cache error occurred.",
-): TransportResult {
+): MessageResult {
   const cacheError = createCacheError(error, message);
   return { isOk: false, error: cacheError };
 }
@@ -668,10 +696,10 @@ function createJSONErrorResult(
   return new Err(jsonError);
 }
 
-function createJSONErrorTransportResult(
+function createJSONErrorMessageResult(
   error?: unknown,
   message = "JSON error occurred.",
-): TransportResult {
+): MessageResult {
   const jsonError = createJSONError(error, message);
   return { isOk: false, error: jsonError };
 }
@@ -693,10 +721,10 @@ function createParseErrorResult(
   return new Err(parseError);
 }
 
-function createParseErrorTransportResult(
+function createParseErrorMessageResult(
   error?: unknown,
   message = "Parse error occurred.",
-): TransportResult {
+): MessageResult {
   const parseError = createParseError(error, message);
   return { isOk: false, error: parseError };
 }
@@ -722,10 +750,10 @@ function createInvariantErrorResult(
   return new Err(invariantError);
 }
 
-function createInvariantErrorTransportResult(
+function createInvariantErrorMessageResult(
   error?: unknown,
   message = "Invariant error occurred.",
-): TransportResult {
+): MessageResult {
   const invariantError = createInvariantError(error, message);
   return { isOk: false, error: invariantError };
 }
@@ -747,10 +775,10 @@ function createHTTPErrorResult(
   return new Err(httpError);
 }
 
-function createHTTPErrorTransportResult(
+function createHTTPErrorMessageResult(
   error?: unknown,
   message = "HTTP error occurred.",
-): TransportResult {
+): MessageResult {
   const httpError = createHTTPError(error, message);
   return { isOk: false, error: httpError };
 }
@@ -789,10 +817,10 @@ function createWorkerErrorResult(
   return new Err(workerError);
 }
 
-function createWorkerErrorTransportResult(
+function createWorkerErrorMessageResult(
   error?: unknown,
   message = "Worker error occurred.",
-): TransportResult {
+): MessageResult {
   const workerError = createWorkerError(error, message);
   return { isOk: false, error: workerError };
 }
@@ -818,10 +846,10 @@ function createWorkerMessageErrorResult(
   return new Err(workerMessageError);
 }
 
-function createWorkerMessageErrorTransportResult(
+function createWorkerMessageErrorMessageResult(
   error?: unknown,
   message = "Worker message error occurred.",
-): TransportResult {
+): MessageResult {
   const workerMessageError = createWorkerMessageError(error, message);
   return { isOk: false, error: workerMessageError };
 }
@@ -850,10 +878,10 @@ function createWorkerMessageHandlerErrorResult(
   return new Err(workerMessageHandlerError);
 }
 
-function createWorkerMessageHandlerErrorTransportResult(
+function createWorkerMessageHandlerErrorMessageResult(
   error?: unknown,
   message = "Worker message handler error occurred.",
-): TransportResult {
+): MessageResult {
   const workerMessageHandlerError = createWorkerMessageHandlerError(
     error,
     message,
@@ -861,113 +889,85 @@ function createWorkerMessageHandlerErrorTransportResult(
   return { isOk: false, error: workerMessageHandlerError };
 }
 
-type AppErrorKind =
-  | "AppError"
-  | "AbortError"
-  | "AuthError"
-  | "CacheError"
-  | "DatabaseError"
-  | "HashComparisonError"
-  | "HashGenerationError"
-  | "HTTPError"
-  | "InvariantError"
-  | "JSONError"
-  | "NotFoundError"
-  | "ParseError"
-  | "PromiseAbortedError"
-  | "PromiseRejectionError"
-  | "RetryLimitExceededError"
-  | "TimeoutError"
-  | "TokenCreationError"
-  | "TokenDecodeError"
-  | "TokenSignatureError"
-  | "TokenVerificationError"
-  | "UnknownError"
-  | "ValidationError"
-  | "WorkerError"
-  | "WorkerMessageError"
-  | "WorkerMessageHandlerError"
-  | "NetworkError";
-
-export type { AppError, AppErrorKind };
+export type { AppError, AppErrorKind, AppErrorResult };
 
 export {
   createAbortError,
+  createAbortErrorMessageResult,
   createAbortErrorResult,
-  createAbortErrorTransportResult,
   createAppError,
   createAppErrorResult,
   createAuthError,
+  createAuthErrorMessageResult,
   createAuthErrorResult,
-  createAuthErrorTransportResult,
   createCacheError,
+  createCacheErrorMessageResult,
   createCacheErrorResult,
-  createCacheErrorTransportResult,
   createDatabaseError,
+  createDatabaseErrorMessageResult,
   createDatabaseErrorResult,
-  createDatabaseErrorTransportResult,
-  createErrorTransportResult,
+  createErrorMessageResult,
   createHashComparisonError,
+  createHashComparisonErrorMessageResult,
   createHashComparisonErrorResult,
-  createHashComparisonErrorTransportResult,
   createHashGenerationError,
+  createHashGenerationErrorMessageResult,
   createHashGenerationErrorResult,
-  createHashGenerationErrorTransportResult,
   createHTTPError,
+  createHTTPErrorMessageResult,
   createHTTPErrorResult,
-  createHTTPErrorTransportResult,
   createInvariantError,
+  createInvariantErrorMessageResult,
   createInvariantErrorResult,
-  createInvariantErrorTransportResult,
   createJSONError,
+  createJSONErrorMessageResult,
   createJSONErrorResult,
-  createJSONErrorTransportResult,
   createNetworkError,
+  createNetworkErrorMessageResult,
   createNetworkErrorResult,
-  createNetworkErrorTransportResult,
   createNotFoundError,
+  createNotFoundErrorMessageResult,
   createNotFoundErrorResult,
-  createNotFoundErrorTransportResult,
   createParseError,
+  createParseErrorMessageResult,
   createParseErrorResult,
-  createParseErrorTransportResult,
   createPromiseAbortedError,
+  createPromiseAbortedErrorMessageResult,
   createPromiseAbortedErrorResult,
-  createPromiseAbortedErrorTransportResult,
   createPromiseRejectionError,
+  createPromiseRejectionErrorMessageResult,
   createPromiseRejectionErrorResult,
-  createPromiseRejectionErrorTransportResult,
   createRetryLimitExceededError,
+  createRetryLimitExceededErrorMessageResult,
   createRetryLimitExceededErrorResult,
-  createRetryLimitExceededErrorTransportResult,
   createTimeoutError,
+  createTimeoutErrorMessageResult,
   createTimeoutErrorResult,
-  createTimeoutErrorTransportResult,
   createTokenCreationError,
   createTokenCreationErrorResult,
   createTokenDecodeError,
+  createTokenDecodeErrorMessageResult,
   createTokenDecodeErrorResult,
-  createTokenDecodeErrorTransportResult,
   createTokenSignatureError,
+  createTokenSignatureErrorMessageResult,
   createTokenSignatureErrorResult,
-  createTokenSignatureErrorTransportResult,
   createTokenVerificationError,
+  createTokenVerificationErrorMessageResult,
   createTokenVerificationErrorResult,
-  createTokenVerificationErrorTransportResult,
   createUnknownError,
   createUnknownErrorResult,
   createValidationError,
+  createValidationErrorMessageResult,
   createValidationErrorResult,
-  createValidationErrorTransportResult,
   createWorkerError,
+  createWorkerErrorMessageResult,
   createWorkerErrorResult,
-  createWorkerErrorTransportResult,
   createWorkerMessageError,
+  createWorkerMessageErrorMessageResult,
   createWorkerMessageErrorResult,
-  createWorkerMessageErrorTransportResult,
   createWorkerMessageHandlerError,
+  createWorkerMessageHandlerErrorMessageResult,
   createWorkerMessageHandlerErrorResult,
-  createWorkerMessageHandlerErrorTransportResult,
   getErrorName,
   getErrorStack,
 };

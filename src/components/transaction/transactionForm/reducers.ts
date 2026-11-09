@@ -1,22 +1,20 @@
-import { parseDispatchAndSetState } from "../../../utils";
-import { type TransactionFormActions, transactionFormActions } from "./actions";
-import type { TransactionFormDispatch } from "./dispatches";
-import {
-  setAmountCentsTransactionFormDispatchSchema,
-  setCacheResultMaybeTransactionFormDispatchSchema,
-  setCacheWorkerMaybeTransactionFormDispatchSchema,
-  setCategoryTransactionFormDispatchSchema,
-  setDateTimeTransactionFormDispatchSchema,
-  setDescendantIdTransactionFormDispatchSchema,
-  setFetchResultMaybeTransactionFormDispatchSchema,
-  setFetchWorkerMaybeTransactionFormDispatchSchema,
-  setIsLoadingTransactionFormDispatchSchema,
-  setMerchantTransactionFormDispatchSchema,
-  setNotesTransactionFormDispatchSchema,
-  setPaymentMethodTransactionFormDispatchSchema,
-  setSafeErrorMaybeTransactionFormDispatchSchema,
-  setTagsTransactionFormDispatchSchema,
-  setTypeTransactionFormDispatchSchema,
+import { transactionFormActions } from "./actions";
+import type {
+  SetAmountCentsTransactionFormDispatch,
+  SetAppErrorResultMaybeTransactionFormDispatch,
+  SetCacheResultTransactionFormDispatch,
+  SetCacheWorkerMaybeTransactionFormDispatch,
+  SetCategoryTransactionFormDispatch,
+  SetDateTimeTransactionFormDispatch,
+  SetFetchResultTransactionFormDispatch,
+  SetFetchWorkerMaybeTransactionFormDispatch,
+  SetIsLoadingTransactionFormDispatch,
+  SetMerchantTransactionFormDispatch,
+  SetNotesTransactionFormDispatch,
+  SetPaymentMethodTransactionFormDispatch,
+  SetTagsTransactionFormDispatch,
+  SetTypeTransactionFormDispatch,
+  TransactionFormDispatch,
 } from "./dispatches";
 import type { TransactionFormState } from "./state";
 
@@ -24,257 +22,196 @@ function transactionFormReducer(
   state: TransactionFormState,
   dispatch: TransactionFormDispatch,
 ): TransactionFormState {
-  const reducer = transactionFormReducersMap.get(dispatch.action);
-  return reducer == null ? state : reducer(state, dispatch);
+  // const reducer = transactionFormReducersMap.get(dispatch.action);
+  // return reducer == null ? state : reducer(state, dispatch);
+  switch (dispatch.action) {
+    case transactionFormActions.setAmountCents:
+      return transactionFormReducer_setAmountCents(state, dispatch);
+    case transactionFormActions.setAppErrorResultMaybe:
+      return transactionFormReducer_setAppErrorResultMaybe(state, dispatch);
+    case transactionFormActions.setCacheResult:
+      return transactionFormReducer_setCacheResult(state, dispatch);
+    case transactionFormActions.setCacheWorkerMaybe:
+      return transactionFormReducer_setCacheWorkerMaybe(state, dispatch);
+    case transactionFormActions.setCategory:
+      return transactionFormReducer_setCategory(state, dispatch);
+    case transactionFormActions.setDateTime:
+      return transactionFormReducer_setDateTime(state, dispatch);
+    case transactionFormActions.setFetchResult:
+      return transactionFormReducer_setFetchResult(state, dispatch);
+    case transactionFormActions.setFetchWorkerMaybe:
+      return transactionFormReducer_setFetchWorkerMaybe(state, dispatch);
+    case transactionFormActions.setIsLoading:
+      return transactionFormReducer_setIsLoading(state, dispatch);
+    case transactionFormActions.setMerchant:
+      return transactionFormReducer_setMerchant(state, dispatch);
+    case transactionFormActions.setNotes:
+      return transactionFormReducer_setNotes(state, dispatch);
+    case transactionFormActions.setPaymentMethod:
+      return transactionFormReducer_setPaymentMethod(state, dispatch);
+    case transactionFormActions.setTags:
+      return transactionFormReducer_setTags(state, dispatch);
+    case transactionFormActions.setType:
+      return transactionFormReducer_setType(state, dispatch);
+    default:
+      return state;
+  }
 }
-
-const transactionFormReducersMap: Map<
-  TransactionFormActions[keyof TransactionFormActions],
-  (
-    state: TransactionFormState,
-    dispatch: TransactionFormDispatch,
-  ) => TransactionFormState
-> = new Map([
-  [
-    transactionFormActions.setAmountCents,
-    transactionFormReducer_setAmountCents,
-  ],
-  [
-    transactionFormActions.setCacheResultMaybe,
-    transactionFormReducer_setCacheResultMaybe,
-  ],
-  [
-    transactionFormActions.setCacheWorkerMaybe,
-    transactionFormReducer_setCacheWorkerMaybe,
-  ],
-  [transactionFormActions.setCategory, transactionFormReducer_setCategory],
-  [transactionFormActions.setDateTime, transactionFormReducer_setDateTime],
-  [
-    transactionFormActions.setDescendantId,
-    transactionFormReducer_setDescendantId,
-  ],
-  [
-    transactionFormActions.setFetchResultMaybe,
-    transactionFormReducer_setFetchResultMaybe,
-  ],
-  [
-    transactionFormActions.setFetchWorkerMaybe,
-    transactionFormReducer_setFetchWorkerMaybe,
-  ],
-  [transactionFormActions.setIsLoading, transactionFormReducer_setIsLoading],
-  [transactionFormActions.setMerchant, transactionFormReducer_setMerchant],
-  [transactionFormActions.setNotes, transactionFormReducer_setNotes],
-  [
-    transactionFormActions.setPaymentMethod,
-    transactionFormReducer_setPaymentMethod,
-  ],
-  [
-    transactionFormActions.setSafeErrorMaybe,
-    transactionFormReducer_setSafeErrorMaybe,
-  ],
-  [transactionFormActions.setTags, transactionFormReducer_setTags],
-  [transactionFormActions.setType, transactionFormReducer_setType],
-]);
 
 function transactionFormReducer_setAmountCents(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetAmountCentsTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "amountCents",
-    state,
-    schema: setAmountCentsTransactionFormDispatchSchema, // Replace with the appropriate schema if available
-  });
+  return {
+    ...state,
+    amountCents: dispatch.payload,
+  };
 }
 
-function transactionFormReducer_setCacheResultMaybe(
+function transactionFormReducer_setAppErrorResultMaybe(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetAppErrorResultMaybeTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "cacheResultMaybe",
-    state,
-    schema: setCacheResultMaybeTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    appErrorResultMaybe: dispatch.payload,
+  };
+}
+
+function transactionFormReducer_setCacheResult(
+  state: TransactionFormState,
+  dispatch: SetCacheResultTransactionFormDispatch,
+): TransactionFormState {
+  return {
+    ...state,
+    cacheResult: dispatch.payload,
+  };
 }
 
 function transactionFormReducer_setCacheWorkerMaybe(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetCacheWorkerMaybeTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "cacheWorkerMaybe",
-    state,
-    schema: setCacheWorkerMaybeTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    cacheWorkerMaybe: dispatch.payload,
+  };
 }
 
 function transactionFormReducer_setCategory(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetCategoryTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "category",
-    state,
-    schema: setCategoryTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    category: dispatch.payload,
+  };
 }
 
 function transactionFormReducer_setDateTime(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetDateTimeTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "dateTime",
-    state,
-    schema: setDateTimeTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    dateTime: dispatch.payload,
+  };
 }
 
-function transactionFormReducer_setDescendantId(
+function transactionFormReducer_setFetchResult(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetFetchResultTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "descendantId",
-    state,
-    schema: setDescendantIdTransactionFormDispatchSchema,
-  });
-}
-
-function transactionFormReducer_setFetchResultMaybe(
-  state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
-): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "fetchResultMaybe",
-    state: {
-      ...state,
-      isLoading: false,
-    },
-    schema: setFetchResultMaybeTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    fetchResult: dispatch.payload,
+  };
 }
 
 function transactionFormReducer_setFetchWorkerMaybe(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetFetchWorkerMaybeTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "fetchWorkerMaybe",
-    state,
-    schema: setFetchWorkerMaybeTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    fetchWorkerMaybe: dispatch.payload,
+  };
 }
 
 function transactionFormReducer_setIsLoading(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetIsLoadingTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "isLoading",
-    state,
-    schema: setIsLoadingTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    isLoading: dispatch.payload,
+  };
 }
 
 function transactionFormReducer_setMerchant(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetMerchantTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "merchant",
-    state,
-    schema: setMerchantTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    merchant: dispatch.payload,
+  };
 }
 
 function transactionFormReducer_setNotes(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetNotesTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "notes",
-    state,
-    schema: setNotesTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    notes: dispatch.payload,
+  };
 }
 
 function transactionFormReducer_setPaymentMethod(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetPaymentMethodTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "paymentMethod",
-    state,
-    schema: setPaymentMethodTransactionFormDispatchSchema,
-  });
-}
-
-function transactionFormReducer_setSafeErrorMaybe(
-  state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
-): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "safeErrorMaybe",
-    state,
-    schema: setSafeErrorMaybeTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    paymentMethod: dispatch.payload,
+  };
 }
 
 function transactionFormReducer_setTags(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetTagsTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "tags",
-    state,
-    schema: setTagsTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    tags: dispatch.payload,
+  };
 }
 
 function transactionFormReducer_setType(
   state: TransactionFormState,
-  dispatch: TransactionFormDispatch,
+  dispatch: SetTypeTransactionFormDispatch,
 ): TransactionFormState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "type",
-    state,
-    schema: setTypeTransactionFormDispatchSchema,
-  });
+  return {
+    ...state,
+    type: dispatch.payload,
+  };
 }
 
 export {
   transactionFormReducer,
   transactionFormReducer_setAmountCents,
-  transactionFormReducer_setCacheResultMaybe,
+  transactionFormReducer_setAppErrorResultMaybe,
+  transactionFormReducer_setCacheResult,
   transactionFormReducer_setCacheWorkerMaybe,
   transactionFormReducer_setCategory,
   transactionFormReducer_setDateTime,
-  transactionFormReducer_setDescendantId,
-  transactionFormReducer_setFetchResultMaybe,
+  transactionFormReducer_setFetchResult,
   transactionFormReducer_setFetchWorkerMaybe,
   transactionFormReducer_setIsLoading,
   transactionFormReducer_setMerchant,
   transactionFormReducer_setNotes,
   transactionFormReducer_setPaymentMethod,
-  transactionFormReducer_setSafeErrorMaybe,
   transactionFormReducer_setTags,
   transactionFormReducer_setType,
-  transactionFormReducersMap,
 };

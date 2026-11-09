@@ -8,18 +8,17 @@ type TransactionFormActions = {
 
 const transactionFormActions: TransactionFormActions = {
   setAmountCents: "setAmountCents",
-  setCacheResultMaybe: "setCacheResultMaybe",
+  setAppErrorResultMaybe: "setAppErrorResultMaybe",
+  setCacheResult: "setCacheResult",
   setCacheWorkerMaybe: "setCacheWorkerMaybe",
   setCategory: "setCategory",
   setDateTime: "setDateTime",
-  setDescendantId: "setDescendantId",
-  setFetchResultMaybe: "setFetchResultMaybe",
+  setFetchResult: "setFetchResult",
   setFetchWorkerMaybe: "setFetchWorkerMaybe",
   setIsLoading: "setIsLoading",
   setMerchant: "setMerchant",
   setNotes: "setNotes",
   setPaymentMethod: "setPaymentMethod",
-  setSafeErrorMaybe: "setSafeErrorMaybe",
   setTags: "setTags",
   setType: "setType",
 };
