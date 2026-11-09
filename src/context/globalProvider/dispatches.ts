@@ -1,8 +1,10 @@
+import type { Option } from "ts-results-es";
 import { type GlobalActions } from "./actions";
+import type { AppErrorResult } from "../../errors";
 
 type SetAppErrorResultMaybeDispatch = {
   action: GlobalActions["setAppErrorResultMaybe"];
-  payload: unknown;
+  payload: Option<AppErrorResult>;
 };
 
 type GlobalDispatch = SetAppErrorResultMaybeDispatch;

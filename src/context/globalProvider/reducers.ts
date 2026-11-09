@@ -1,34 +1,27 @@
-import { parseDispatchAndSetState } from "../../utils";
-import { type GlobalActions, globalActions } from "./actions";
+import { globalActions } from "./actions";
 import type { GlobalDispatch } from "./dispatches";
-import { setSafeErrorMaybeGlobalDispatchSchema } from "./dispatches";
 import type { GlobalState } from "./state";
 
 function globalReducer(
   state: GlobalState,
   dispatch: GlobalDispatch,
 ): GlobalState {
-  const reducer = globalReducersMap.get(dispatch.action);
-  return reducer == null ? state : reducer(state, dispatch);
+  switch (dispatch.action) {
+    case globalActions.setAppErrorResultMaybe:
+      return globalReducer_setAppErrorResultMaybe(state, dispatch);
+    default:
+      return state;
+  }
 }
 
-const globalReducersMap: Map<
-  GlobalActions[keyof GlobalActions],
-  (state: GlobalState, dispatch: GlobalDispatch) => GlobalState
-> = new Map([
-  [globalActions.setSafeErrorMaybe, globalReducer_setSafeErrorMaybe],
-]);
-
-function globalReducer_setSafeErrorMaybe(
+function globalReducer_setAppErrorResultMaybe(
   state: GlobalState,
   dispatch: GlobalDispatch,
 ): GlobalState {
-  return parseDispatchAndSetState({
-    dispatch,
-    key: "appErrorResult",
-    state,
-    schema: setSafeErrorMaybeGlobalDispatchSchema,
-  });
+  return {
+    ...state,
+    appErrorResultMaybe: dispatch.payload,
+  };
 }
 
-export { globalReducer, globalReducer_setSafeErrorMaybe, globalReducersMap };
+export { globalReducer, globalReducer_setAppErrorResultMaybe };

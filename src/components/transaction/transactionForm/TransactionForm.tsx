@@ -107,7 +107,7 @@ function TransactionForm({
     const fetchWorker = new FetchWorker();
     transactionFormDispatch({
       action: transactionFormActions.setFetchWorkerMaybe,
-      payload: Some(fetchWorker) as any,
+      payload: Some(fetchWorker),
     });
     fetchWorker.onmessage = async (event: MessageEventFetchWorkerToMain) => {
       console.log("Received message from fetch worker:", event);
