@@ -10,6 +10,10 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  /* Animation */
+  --animation-color-transition: color-transition 0.11s ease-in-out;
+  --animation-outline-focus: outline-focus 0.11s ease-in-out;
+
   /* Neutrals - Light Mode */
   --color-background: #ffffff;
   --color-surface: #f8f9fa;
@@ -32,6 +36,8 @@
   --color-error-light: #fee2e2;
   --color-info: #06b6d4;
   --color-info-light: #cffafe;
+  --color-empty: #f3f4f6;
+  --color-empty-light: #e5e7eb;
 
   /* Functional */
   --color-focus: #3b82f6;
@@ -69,6 +75,10 @@
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Animation */
+    --animation-color-transition: color-transition 0.11s ease-in-out;
+    --animation-outline-focus: outline-focus 0.11s ease-in-out;
+
     /* Neutrals - Dark Mode */
     --color-background: #0f172a;
     --color-surface: #1e293b;
@@ -242,6 +252,7 @@ button {
 
 button:hover {
   background-color: var(--color-primary-hover);
+  animation: outline-focus 0.11s ease-in-out;
 }
 
 button.button-enabled-text {
@@ -273,27 +284,67 @@ textarea:focus {
   outline: 2px solid var(--color-focus);
   outline-offset: 1px;
   border: none;
+  animation: var(--animation-outline-focus);
 }
 
-input:not(:focus),
-textarea:not(:focus) {
-  border: 1px solid var(--color-border);
-  box-shadow: none;
-}
 input.text-input__validation--invalid,
 textarea.text-input__validation--invalid {
-  outline: 2px solid var(--color-error);
-  box-shadow: 0 0 0 3px var(--color-error-light);
+  outline: 1px solid var(--color-error);
+  box-shadow: 0 0 0 2px var(--color-error-light);
+  animation: var(--animation-color-transition);
 }
 input.text-input__validation--valid,
 textarea.text-input__validation--valid {
-  outline: 2px solid var(--color-success);
-  box-shadow: 0 0 0 3px var(--color-success-light);
+  outline: 1px solid var(--color-success);
+  box-shadow: 0 0 0 2px var(--color-success-light);
+  animation: var(--animation-color-transition);
 }
 input.text-input__validation--empty,
 textarea.text-input__validation--empty {
-  outline: 2px solid var(--color-warning);
-  box-shadow: 0 0 0 3px var(--color-warning-light);
+  outline: 1px solid var(--color-empty);
+  box-shadow: 0 0 0 2px var(--color-empty-light);
+  animation: var(--animation-color-transition);
+}
+
+input.text-input__validation--invalid:focus,
+textarea.text-input__validation--invalid:focus {
+  outline: 2px solid var(--color-error);
+  box-shadow: 0 0 0 3px var(--color-error-light);
+  animation: var(--animation-color-transition);
+}
+input.text-input__validation--valid:focus,
+textarea.text-input__validation--valid:focus {
+  outline: 2px solid var(--color-success);
+  box-shadow: 0 0 0 3px var(--color-success-light);
+  animation: var(--animation-color-transition);
+}
+input.text-input__validation--empty:focus,
+textarea.text-input__validation--empty:focus {
+  outline: 2px solid var(--color-empty);
+  box-shadow: 0 0 0 3px var(--color-empty-light);
+  animation: var(--animation-color-transition);
+}
+
+/* ~~~~~Animation for outline focus ~~~~~ */
+@keyframes outline-focus {
+  0% {
+    outline-width: 0px;
+  }
+  100% {
+    outline-width: 2px;
+  }
+}
+
+/* ~~~~~Animation for color transition ~~~~~ */
+@keyframes color-transition {
+  0% {
+    border-color: var(--color-border);
+    box-shadow: 0 0 0 0 var(--color-border);
+  }
+  100% {
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 2px var(--color-focus);
+  }
 }
 
 /* ~~~~~Accessible Inputs~~~~~ */

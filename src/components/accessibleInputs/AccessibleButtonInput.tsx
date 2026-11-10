@@ -146,8 +146,11 @@ function AccessibleButtonInput<
     ...restButtonProps
   } = props;
 
-  const enabledTextElementId = `${name} button-enabled-text`;
-  const disabledTextElementId = `${name} button-disabled-text`;
+  const enabledTextElementClassName = "screenreader-text--enabled";
+  const enabledTextElementId = `${name}-${enabledTextElementClassName}`;
+  const disabledTextElementClassName = "screenreader-text--disabled";
+  const disabledTextElementId = `${name}-${disabledTextElementClassName}`;
+
   const { describedById, screenreaderTextElement } =
     createAccessibleButtonInputValidation({
       disabled,
@@ -163,6 +166,9 @@ function AccessibleButtonInput<
       aria-describedby={describedById}
       data-testid={dataTestId}
       aria-label={label}
+      className={
+        disabled ? disabledTextElementClassName : enabledTextElementClassName
+      }
       disabled={disabled}
       onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         dispatch?.({

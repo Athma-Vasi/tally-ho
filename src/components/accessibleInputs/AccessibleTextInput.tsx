@@ -74,9 +74,12 @@ function AccessibleTextInput<
     value.length === 0 ||
     validationRegexes.every(([regex, _message]) => regex.test(value));
 
-  const invalidValueElementId = `${name} text-input__validation--invalid`;
-  const validValueElementId = `${name} text-input__validation--valid`;
-  const emptyValueElementId = `${name} text-input__validation--empty`;
+  const invalidValueElementClassName = "text-input__validation--invalid";
+  const invalidValueElementId = `${name}-${invalidValueElementClassName}`;
+  const validValueElementClassName = "text-input__validation--valid";
+  const validValueElementId = `${name}-${validValueElementClassName}`;
+  const emptyValueElementClassName = "text-input__validation--empty";
+  const emptyValueElementId = `${name}-${emptyValueElementClassName}`;
 
   const { screenreaderTextElement, describedById } =
     createAccessibleTextInputValidation({
@@ -104,10 +107,10 @@ function AccessibleTextInput<
       aria-label={label}
       className={
         !isValueValid
-          ? invalidValueElementId
+          ? invalidValueElementClassName
           : value.length === 0
-            ? emptyValueElementId
-            : validValueElementId
+            ? emptyValueElementClassName
+            : validValueElementClassName
       }
       data-testid={dataTestId}
       name={name}
