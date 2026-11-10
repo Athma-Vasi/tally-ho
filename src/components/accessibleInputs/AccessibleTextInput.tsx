@@ -146,12 +146,17 @@ function AccessibleTextInput<
           payload: value,
         } as Dispatch);
 
-        if (!isValueValid) {
-          dispatch?.({
-            action: setIsFormErrorAction,
-            payload: true,
-          } as Dispatch);
-        }
+        dispatch?.({
+          action: setIsFormErrorAction,
+          payload:
+            value.length === 0
+              ? false
+              : // to capture current value as using isValidValue
+                // results in stale value due to closure over previous state
+                !validationRegexes.every(([regex, _message]) =>
+                  regex.test(value),
+                ),
+        } as Dispatch);
 
         errorDispatch?.({
           action: errorAction,
