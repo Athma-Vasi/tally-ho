@@ -146,8 +146,8 @@ function AccessibleButtonInput<
     ...restButtonProps
   } = props;
 
-  const enabledTextElementId = `${name}-button-enabled-text`;
-  const disabledTextElementId = `${name}-button-disabled-text`;
+  const enabledTextElementId = `${name} button-enabled-text`;
+  const disabledTextElementId = `${name} button-disabled-text`;
   const { describedById, screenreaderTextElement } =
     createAccessibleButtonInputValidation({
       disabled,

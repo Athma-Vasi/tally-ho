@@ -244,6 +244,17 @@ button:hover {
   background-color: var(--color-primary-hover);
 }
 
+button.button-enabled-text {
+  background-color: var(--color-primary);
+  color: white;
+  cursor: pointer;
+}
+button.button-disabled-text {
+  background-color: var(--color-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
 /* Inputs */
 input,
 textarea {
