@@ -157,12 +157,12 @@ type FetchWorkerState = {
   async function handleWorkerMessageError(
     event: string | Event,
   ): Promise<None> {
-    console.error("Unhandled error in fetch worker:", event);
+    console.error("Error in fetch worker:", event);
 
     postMessageResultFromWorkerToMainThread({
       messageResult: createWorkerMessageHandlerErrorMessageResult(
         event,
-        "Unhandled error in fetch worker.",
+        "Error in fetch worker.",
       ),
       self,
     });

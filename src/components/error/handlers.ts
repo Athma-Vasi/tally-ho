@@ -2,7 +2,7 @@ import type { ErrorDispatch } from "./dispatches";
 import type { MessageEventLoggerWorkerToMain } from "./loggerWorker";
 
 async function handleMessageFromLoggerWorker({
-  errorDispatch,
+  // errorDispatch,
   event,
   isComponentMountedRef,
 }: {

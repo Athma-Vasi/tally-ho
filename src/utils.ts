@@ -280,7 +280,8 @@ function createOkMessageResult<Data extends unknown = unknown>(
 ): MessageResult<Data> {
   return {
     isOk: true,
-    value: data,
+    valueMaybe:
+      data == null ? { hasValue: false } : { hasValue: true, value: data },
   };
 }
 
@@ -301,47 +302,68 @@ function createMessageResultFromAppResult<Value extends unknown = unknown>(
 
   const appOption = appResult.value;
 
-  // ! At the boundary between the worker reality and main thread reality,
-  // the non-existence of a value is represented as an empty string for transport purposes
-  // An empty string, in this app, represents a non-existent value (None)
   if (appOption.isNone()) {
-    return { isOk: true, value: "" as Value };
+    return {
+      isOk: true,
+      valueMaybe: {
+        hasValue: false,
+      },
+    };
   }
 
-  return { isOk: true, value: appOption.unwrap() };
+  const value = appOption.unwrap();
+
+  if (value == null) {
+    return {
+      isOk: true,
+      valueMaybe: {
+        hasValue: false,
+      },
+    };
+  }
+
+  return {
+    isOk: true,
+    valueMaybe: {
+      hasValue: true,
+      value,
+    },
+  };
 }
 
 function createOkAppResult(value?: unknown): AppResult {
-  if (value == null) {
-    return new Ok(None);
-  }
-  return new Ok(Some(value));
+  return new Ok(value == null ? None : Some(value));
 }
 
 function createAppResultFromMessageResult<Value extends unknown = unknown>(
   messageResult: MessageResult<Value>,
 ): AppResult<Value> {
   if (messageResult === null) {
-    return new Err(createAppError("Transport result is null."));
+    return new Err(createAppError("Message result is null."));
   }
 
   if (messageResult === undefined) {
-    return new Err(createAppError("Transport result is undefined."));
+    return new Err(createAppError("Message result is undefined."));
   }
 
   if (!messageResult.isOk) {
     return new Err(messageResult.error);
   }
 
-  // If the transport result value is an empty string, treat it as None
-  if (
-    typeof messageResult.value === "string" &&
-    messageResult.value.length === 0
-  ) {
+  const {
+    valueMaybe: { hasValue, value },
+  } = messageResult;
+
+  if (!hasValue) {
     return new Ok(None);
   }
 
-  return new Ok(Some(messageResult.value));
+  // If the transport result value is an empty string, treat it as None
+  // if (typeof value === "string" && value.length === 0) {
+  //   return new Ok(None);
+  // }
+
+  return new Ok(Some(value));
 }
 
 export {

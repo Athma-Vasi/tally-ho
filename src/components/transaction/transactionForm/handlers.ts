@@ -1,10 +1,10 @@
 import { None, Some } from "ts-results-es";
 import { createWorkerMessageHandlerErrorResult } from "../../../errors";
+import { createAppResultFromMessageResult } from "../../../utils";
 import type { MessageEventCacheWorkerToMain } from "../../../workers/cacheWorker";
 import type { MessageEventFetchWorkerToMain } from "../../../workers/fetchWorker";
 import { transactionFormActions } from "./actions";
 import type { TransactionFormDispatch } from "./dispatches";
-import { createAppResultFromMessageResult } from "../../../utils";
 
 async function handleMessageFromCacheWorker({
   event,
@@ -83,6 +83,16 @@ async function handleMessageFromFetchWorker({
     transactionFormDispatch({
       action: transactionFormActions.setFetchResult,
       payload: fetchResult,
+    });
+
+    transactionFormDispatch({
+      action: transactionFormActions.setAppErrorResultMaybe,
+      payload: None,
+    });
+
+    transactionFormDispatch({
+      action: transactionFormActions.setIsLoading,
+      payload: false,
     });
 
     return None;

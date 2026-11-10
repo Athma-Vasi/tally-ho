@@ -170,12 +170,12 @@ type MessageEventMainToCacheWorker<
   }
 
   async function handleWorkerErrorEvent(event: string | Event): Promise<None> {
-    console.error("Unhandled error in cache worker:", event);
+    console.error("Error in cache worker:", event);
 
     postMessageResultFromWorkerToMainThread({
       messageResult: createWorkerMessageHandlerErrorMessageResult(
         event,
-        "Unhandled error in cache worker.",
+        "Error in cache worker.",
       ),
       self,
     });

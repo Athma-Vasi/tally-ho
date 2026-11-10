@@ -54,9 +54,11 @@ function TransactionForm({
   );
   const {
     amountCents,
+    cacheResult,
     cacheWorkerMaybe,
     category,
     dateTime,
+    fetchResult,
     fetchWorkerMaybe,
     isLoading,
     merchant,
