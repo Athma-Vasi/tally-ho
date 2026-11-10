@@ -2,12 +2,12 @@ import { Suspense, useEffect, useReducer } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Some } from "ts-results-es";
 import { useMountedRef } from "../../hooks/useMountedRef";
+import { type MessageEventLoggerWorkerToMain } from "../../workers/loggerWorker";
+import LoggerWorker from "../../workers/loggerWorker?worker";
 import { errorActions } from "./actions";
 import type { ErrorDispatch } from "./dispatches";
 import ErrorFallback from "./ErrorFallback";
 import { handleMessageFromLoggerWorker } from "./handlers";
-import { type MessageEventLoggerWorkerToMain } from "./loggerWorker";
-import LoggerWorker from "./loggerWorker?worker";
 import { errorReducer } from "./reducers";
 import { initialErrorState } from "./state";
 

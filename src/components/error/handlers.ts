@@ -1,5 +1,5 @@
+import type { MessageEventLoggerWorkerToMain } from "../../workers/loggerWorker";
 import type { ErrorDispatch } from "./dispatches";
-import type { MessageEventLoggerWorkerToMain } from "./loggerWorker";
 
 async function handleMessageFromLoggerWorker({
   // errorDispatch,
