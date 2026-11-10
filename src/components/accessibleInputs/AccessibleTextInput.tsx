@@ -74,9 +74,9 @@ function AccessibleTextInput<
     value.length === 0 ||
     validationRegexes.every(([regex, _message]) => regex.test(value));
 
-  const invalidValueElementId = `${name}-text-input__validation--invalid`;
-  const validValueElementId = `${name}-text-input__validation--valid`;
-  const emptyValueElementId = `${name}-text-input__validation--empty`;
+  const invalidValueElementId = `${name} text-input__validation--invalid`;
+  const validValueElementId = `${name} text-input__validation--valid`;
+  const emptyValueElementId = `${name} text-input__validation--empty`;
 
   const { screenreaderTextElement, describedById } =
     createAccessibleTextInputValidation({
@@ -176,7 +176,7 @@ function createAccessibleTextInputValidation({
   describedById: string;
   screenreaderTextElement: JSX.Element;
 } {
-  const capitalizedName = capitalizeString(name);
+  const capitalizedName = capitalizeString(splitCamelCase(name));
 
   const showInvalidValueElement = isInputFocused && !isValueValid;
   const invalidValueText = validationRegexes

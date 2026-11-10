@@ -263,15 +263,26 @@ textarea:focus {
   outline-offset: 1px;
   border: none;
 }
-input.input--error-state,
-textarea.input--error-state {
+
+input:not(:focus),
+textarea:not(:focus) {
+  border: 1px solid var(--color-border);
+  box-shadow: none;
+}
+input.text-input__validation--invalid,
+textarea.text-input__validation--invalid {
   outline: 2px solid var(--color-error);
   box-shadow: 0 0 0 3px var(--color-error-light);
 }
-input.input--valid-state,
-textarea.input--valid-state {
+input.text-input__validation--valid,
+textarea.text-input__validation--valid {
   outline: 2px solid var(--color-success);
   box-shadow: 0 0 0 3px var(--color-success-light);
+}
+input.text-input__validation--empty,
+textarea.text-input__validation--empty {
+  outline: 2px solid var(--color-warning);
+  box-shadow: 0 0 0 3px var(--color-warning-light);
 }
 
 /* ~~~~~Accessible Inputs~~~~~ */
@@ -282,10 +293,6 @@ textarea.input--valid-state {
   align-items: flex-start;
   width: calc(var(--input-width) + 2em);
   padding: var(--padding);
-
-  .text-input__validation {
-    padding-bottom: var(--padding);
-  }
 }
 
 @keyframes spin {

@@ -165,7 +165,7 @@ function TransactionForm({
       label="Date and Time: "
       name="dateTime"
       setValueAction={transactionFormActions.setDateTime}
-      type="datetime-local"
+      type="date"
       validationRegexes={[]}
       value={dateTime}
     />
@@ -247,7 +247,7 @@ function TransactionForm({
           "Content-Type": "application/json",
         },
       },
-      url: "https://jsonplaceholder.typicode.com/posts/1",
+      url: "https://jsonplaceholder.typicode.com/posts/7",
     };
 
     // send message to worker with unique descendantId

@@ -31,7 +31,7 @@ const initialTransactionFormState: TransactionFormState = {
   cacheResult: createOkAppResult(),
   cacheWorkerMaybe: None,
   category: "car_charging",
-  dateTime: new Date().toISOString(),
+  dateTime: new Date().toISOString().split("T")[0],
   fetchResult: createOkAppResult(),
   fetchWorkerMaybe: None,
   isLoading: false,
