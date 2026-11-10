@@ -167,7 +167,11 @@ function AccessibleButtonInput<
       data-testid={dataTestId}
       aria-label={label}
       className={
-        disabled ? disabledTextElementClassName : enabledTextElementClassName
+        enabledScreenreaderText
+          ? enabledTextElementClassName
+          : disabledScreenreaderText
+            ? disabledTextElementClassName
+            : ""
       }
       disabled={disabled}
       onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

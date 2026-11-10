@@ -43,6 +43,11 @@ type SetFetchWorkerMaybeTransactionFormDispatch = {
   payload: Option<Worker>;
 };
 
+type SetIsFormErrorTransactionFormDispatch = {
+  action: TransactionFormActions["setIsFormError"];
+  payload: boolean;
+};
+
 type SetIsLoadingTransactionFormDispatch = {
   action: TransactionFormActions["setIsLoading"];
   payload: boolean;
@@ -86,6 +91,7 @@ type TransactionFormDispatch =
   | SetDateTimeTransactionFormDispatch
   | SetFetchResultTransactionFormDispatch
   | SetFetchWorkerMaybeTransactionFormDispatch
+  | SetIsFormErrorTransactionFormDispatch
   | SetIsLoadingTransactionFormDispatch
   | SetMerchantTransactionFormDispatch
   | SetNotesTransactionFormDispatch
@@ -103,6 +109,7 @@ export type {
   SetDateTimeTransactionFormDispatch,
   SetFetchResultTransactionFormDispatch,
   SetFetchWorkerMaybeTransactionFormDispatch,
+  SetIsFormErrorTransactionFormDispatch,
   SetIsLoadingTransactionFormDispatch,
   SetMerchantTransactionFormDispatch,
   SetNotesTransactionFormDispatch,

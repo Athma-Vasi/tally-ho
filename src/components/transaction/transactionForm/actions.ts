@@ -15,6 +15,7 @@ const transactionFormActions: TransactionFormActions = {
   setDateTime: "setDateTime",
   setFetchResult: "setFetchResult",
   setFetchWorkerMaybe: "setFetchWorkerMaybe",
+  setIsFormError: "setIsFormError",
   setIsLoading: "setIsLoading",
   setMerchant: "setMerchant",
   setNotes: "setNotes",

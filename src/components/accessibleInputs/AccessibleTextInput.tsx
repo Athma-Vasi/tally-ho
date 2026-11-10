@@ -4,11 +4,18 @@ import { capitalizeString, splitCamelCase } from "../../utils";
 
 type AccessibleTextInputProps<
   SetValueAction extends string = string,
-  Payload extends string = string,
-  Dispatch = {
-    action: SetValueAction;
-    payload: Payload;
-  },
+  ValuePayload extends string = string,
+  SetIsFormErrorAction extends string = string,
+  FormErrorPayload extends boolean = boolean,
+  Dispatch =
+    | {
+        action: SetValueAction;
+        payload: ValuePayload;
+      }
+    | {
+        action: SetIsFormErrorAction;
+        payload: FormErrorPayload;
+      },
   ErrorAction extends string = string,
 > = React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -22,30 +29,40 @@ type AccessibleTextInputProps<
     [
       dispatch: {
         action: ErrorAction;
-        payload: Record<string, Payload>;
+        payload: Record<string, ValuePayload>;
       },
     ]
   >;
   hideLabel?: boolean;
   label?: string;
   name: string;
+  setIsFormErrorAction: SetIsFormErrorAction;
   setValueAction: SetValueAction;
   validationRegexes?: ValidationRegexes;
-  value: Payload;
+  value: ValuePayload;
 };
 
 function AccessibleTextInput<
   SetValueAction extends string = string,
-  Payload extends string = string,
-  Dispatch = {
-    action: SetValueAction;
-    payload: Payload;
-  },
+  ValuePayload extends string = string,
+  SetIsFormErrorAction extends string = string,
+  FormErrorPayload extends boolean = boolean,
+  Dispatch =
+    | {
+        action: SetValueAction;
+        payload: ValuePayload;
+      }
+    | {
+        action: SetIsFormErrorAction;
+        payload: FormErrorPayload;
+      },
   ErrorAction extends string = string,
 >(
   props: AccessibleTextInputProps<
     SetValueAction,
-    Payload,
+    ValuePayload,
+    SetIsFormErrorAction,
+    FormErrorPayload,
     Dispatch,
     ErrorAction
   >,
@@ -62,6 +79,7 @@ function AccessibleTextInput<
     onBlur = () => {},
     onChange = () => {},
     onFocus = () => {},
+    setIsFormErrorAction,
     setValueAction,
     validationRegexes = [],
     value = "",
@@ -125,14 +143,21 @@ function AccessibleTextInput<
 
         dispatch?.({
           action: setValueAction,
-          payload: value as Payload,
+          payload: value,
         } as Dispatch);
+
+        if (!isValueValid) {
+          dispatch?.({
+            action: setIsFormErrorAction,
+            payload: true,
+          } as Dispatch);
+        }
 
         errorDispatch?.({
           action: errorAction,
           payload: {
-            [name]: value as Payload,
-            lastActiveInput: name as Payload,
+            [name]: value as ValuePayload,
+            lastActiveInput: name as ValuePayload,
           },
         });
 

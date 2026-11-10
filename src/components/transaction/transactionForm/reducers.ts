@@ -8,6 +8,7 @@ import type {
   SetDateTimeTransactionFormDispatch,
   SetFetchResultTransactionFormDispatch,
   SetFetchWorkerMaybeTransactionFormDispatch,
+  SetIsFormErrorTransactionFormDispatch,
   SetIsLoadingTransactionFormDispatch,
   SetMerchantTransactionFormDispatch,
   SetNotesTransactionFormDispatch,
@@ -41,6 +42,8 @@ function transactionFormReducer(
       return transactionFormReducer_setFetchResult(state, dispatch);
     case transactionFormActions.setFetchWorkerMaybe:
       return transactionFormReducer_setFetchWorkerMaybe(state, dispatch);
+    case transactionFormActions.setIsFormError:
+      return transactionFormReducer_setIsFormError(state, dispatch);
     case transactionFormActions.setIsLoading:
       return transactionFormReducer_setIsLoading(state, dispatch);
     case transactionFormActions.setMerchant:
@@ -138,6 +141,16 @@ function transactionFormReducer_setFetchWorkerMaybe(
   };
 }
 
+function transactionFormReducer_setIsFormError(
+  state: TransactionFormState,
+  dispatch: SetIsFormErrorTransactionFormDispatch,
+): TransactionFormState {
+  return {
+    ...state,
+    isFormError: dispatch.payload,
+  };
+}
+
 function transactionFormReducer_setIsLoading(
   state: TransactionFormState,
   dispatch: SetIsLoadingTransactionFormDispatch,
@@ -208,6 +221,7 @@ export {
   transactionFormReducer_setDateTime,
   transactionFormReducer_setFetchResult,
   transactionFormReducer_setFetchWorkerMaybe,
+  transactionFormReducer_setIsFormError,
   transactionFormReducer_setIsLoading,
   transactionFormReducer_setMerchant,
   transactionFormReducer_setNotes,

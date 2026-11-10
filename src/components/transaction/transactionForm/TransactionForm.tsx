@@ -60,6 +60,7 @@ function TransactionForm({
     dateTime,
     fetchResult,
     fetchWorkerMaybe,
+    isFormError,
     isLoading,
     merchant,
     notes,
@@ -141,6 +142,7 @@ function TransactionForm({
       label="Amount (in cents): "
       name="amountCents"
       ref={amountCentsInputRef}
+      setIsFormErrorAction={transactionFormActions.setIsFormError}
       setValueAction={transactionFormActions.setAmountCents}
       validationRegexes={amountCents_validation_regexes}
       value={amountCents}
@@ -164,6 +166,7 @@ function TransactionForm({
       errorDispatch={errorDispatch}
       label="Date and Time: "
       name="dateTime"
+      setIsFormErrorAction={transactionFormActions.setIsFormError}
       setValueAction={transactionFormActions.setDateTime}
       type="date"
       validationRegexes={[]}
@@ -178,6 +181,7 @@ function TransactionForm({
       errorDispatch={errorDispatch}
       label="Merchant: "
       name="merchant"
+      setIsFormErrorAction={transactionFormActions.setIsFormError}
       setValueAction={transactionFormActions.setMerchant}
       validationRegexes={merchant_validation_regexes}
       value={merchant}
@@ -191,6 +195,7 @@ function TransactionForm({
       errorDispatch={errorDispatch}
       label="Notes: "
       name="notes"
+      setIsFormErrorAction={transactionFormActions.setIsFormError}
       setValueAction={transactionFormActions.setNotes}
       validationRegexes={notes_validation_regexes}
       value={notes}
@@ -214,6 +219,7 @@ function TransactionForm({
       errorDispatch={errorDispatch}
       label="Tags: "
       name="tags"
+      setIsFormErrorAction={transactionFormActions.setIsFormError}
       setValueAction={transactionFormActions.setTags}
       validationRegexes={tags_validation_regexes}
       value={tags}
@@ -261,7 +267,7 @@ function TransactionForm({
 
   const submitButtonElement = (
     <AccessibleButtonInput
-      disabled={isLoading}
+      disabled={isFormError || isLoading || appErrorResultMaybe.isSome()}
       dispatch={transactionFormDispatch}
       isLoading={isLoading}
       kind="submit"

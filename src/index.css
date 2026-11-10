@@ -249,18 +249,11 @@ button {
   cursor: pointer;
   font-size: var(--font-size-p);
 }
-
 button:hover {
   background-color: var(--color-primary-hover);
   animation: outline-focus 0.11s ease-in-out;
 }
-
-button.button-enabled-text {
-  background-color: var(--color-primary);
-  color: white;
-  cursor: pointer;
-}
-button.button-disabled-text {
+button:disabled {
   background-color: var(--color-disabled);
   color: var(--color-text-disabled);
   cursor: not-allowed;
@@ -305,7 +298,6 @@ textarea.text-input__validation--empty {
   box-shadow: 0 0 0 2px var(--color-empty-light);
   animation: var(--animation-color-transition);
 }
-
 input.text-input__validation--invalid:focus,
 textarea.text-input__validation--invalid:focus {
   outline: 2px solid var(--color-error);

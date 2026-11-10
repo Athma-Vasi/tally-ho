@@ -14,9 +14,11 @@ type TransactionFormState = {
   cacheResult: AppResult<unknown>;
   cacheWorkerMaybe: Option<Worker>;
   category: TransactionCategory;
+  // TODO: Split dateTime into separate date and time fields
   dateTime: string; // ISO 8601 string: YYYY-MM-DDTHH:mm:ssZ
   fetchResult: AppResult<unknown>;
   fetchWorkerMaybe: Option<Worker>;
+  isFormError: boolean;
   isLoading: boolean;
   merchant: string;
   notes: string;
@@ -34,6 +36,7 @@ const initialTransactionFormState: TransactionFormState = {
   dateTime: new Date().toISOString().split("T")[0],
   fetchResult: createOkAppResult(),
   fetchWorkerMaybe: None,
+  isFormError: false,
   isLoading: false,
   merchant: "",
   notes: "",
