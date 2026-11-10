@@ -21,7 +21,7 @@ type MessageResult<
   Error extends AppError = AppError,
 > =
   | { isOk: true; valueMaybe: MessageOption<Value>; error?: never }
-  | { isOk: false; value?: never; error: Error };
+  | { isOk: false; valueMaybe?: never; error: Error };
 
 export type {
   AppResult,
